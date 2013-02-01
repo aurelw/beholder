@@ -16,19 +16,44 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#define BEHOLDER_VERSION @BBEHOLDER_VERSION@
+#include <string>
 
-#define BH_DEBUG_LVL @BH_DEBUG_LVL@
-#if BH_DEBUG_LVL > 0
-    #define BH_INFO
-#endif
-#if BH_DEBUG_LVL > 1
-    #define BH_LOG
-#endif
-#if BH_DEBUG_LVL > 2
-    #define BH_VERBOSE
-#endif
-# if BH_DEBUG_LVL > 3
-    #define BH_FLOOD
+#include "transfer1d1d.h"
+
+#ifndef __FOCUS_MOTOR_H__
+#define __FOCUS_MOTOR_H__
+
+class FocusMotor {
+
+    public:
+
+        FocusMotor(Transfer1d1d &t, std::string motorDevicePath) :
+            transfer(t),
+            connected(false),
+            devicePath(motorDevicePath),
+            pushedMarkPoint(false)
+        {
+            physical_upper_bound = 200;
+        }
+
+        void connect();
+        void setDistance(float m);
+        void sendRawBytePos(unsigned char byte);
+        bool getButtonStateChange();
+
+        bool pushedMarkPoint;
+
+    private:
+
+        Transfer1d1d &transfer;
+
+        std::string devicePath;
+        int fd;
+        bool connected;
+
+        unsigned char physical_upper_bound;
+
+};
+
 #endif
 

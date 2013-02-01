@@ -16,19 +16,15 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#define BEHOLDER_VERSION @BBEHOLDER_VERSION@
+#ifndef __TRANSFER_1D1D_H__
+#define __TRANSFER_1D1D_H__
 
-#define BH_DEBUG_LVL @BH_DEBUG_LVL@
-#if BH_DEBUG_LVL > 0
-    #define BH_INFO
-#endif
-#if BH_DEBUG_LVL > 1
-    #define BH_LOG
-#endif
-#if BH_DEBUG_LVL > 2
-    #define BH_VERBOSE
-#endif
-# if BH_DEBUG_LVL > 3
-    #define BH_FLOOD
-#endif
+class Transfer1d1d {
 
+    public:
+
+        virtual float transfer(float x) = 0;
+
+};
+
+#endif
