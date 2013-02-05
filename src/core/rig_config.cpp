@@ -30,7 +30,7 @@ RigConfig::RigConfig() {
     hasTrackingCamera = false;
     hasStereo = false;
     hasIMU = false;
-    hasVideoCapture = false;
+    hasStreaming = false;
     hasPhotoCapture = false;
 
     /* default meta data */
@@ -53,8 +53,15 @@ RigConfig::RigConfig() {
     fMotorDevice = "/dev/ttyUSB0";
     fMotorLimitH = 0.0f;
     fMotorLimitL = 0.0f;
-}
 
+    /* default photo capture poperties */
+    photoCaptureType = "gphoto";
+    photoCapturePort = "usb";
+
+    /* default main camera streaming */
+    streamingType = "v4l";
+    streamingDevice = "/dev/video1";
+}
 
 void RigConfig::saveToFile(std::string fname) {
     fs.open(fname, FileStorage::WRITE);
@@ -63,6 +70,8 @@ void RigConfig::saveToFile(std::string fname) {
     saveRangeFinder();
     saveCamera();
     saveFocusMotor();
+    saveStreaming();
+    savePhotoCapture();
     fs.release();
 }
 
@@ -74,6 +83,8 @@ void RigConfig::loadFromFile(std::string fname) {
     loadRangeFinder();
     loadCamera();
     loadFocusMotor();
+    loadPhotoCapture();
+    loadStreaming();
     fs.release();
 }
 
@@ -87,7 +98,7 @@ void RigConfig::saveCapabilities() {
     fs << "hasTrackingCamera" << hasTrackingCamera;
     fs << "hasStereo" << hasStereo;
     fs << "hasIMU" << hasIMU;
-    fs << "hasVideoCapture" << hasVideoCapture;
+    fs << "hasStreaming" << hasStreaming;
     fs << "hasPhotoCapture" << hasPhotoCapture;
 
     fs << "}";
@@ -102,7 +113,7 @@ void RigConfig::loadCapabilities() {
     node["hasTrackingCamera"] >> hasTrackingCamera;
     node["hasStereo"] >> hasStereo;
     node["hasIMU"] >> hasIMU;
-    node["hasVideoCapture"] >> hasVideoCapture;
+    node["hasStreaming"] >> hasStreaming;
     node["hasPhotoCapture"] >> hasPhotoCapture;
 }
 
@@ -218,3 +229,38 @@ void RigConfig::loadFocusMotor() {
     node["limitH"] >> fMotorLimitH;
     node["limitL"] >> fMotorLimitL;
 }
+
+
+void RigConfig::saveStreaming() {
+    fs << "streaming" << "{";
+
+    fs << "type" << streamingType;
+    fs << "device" << streamingDevice;
+
+    fs << "}";
+}
+
+
+void RigConfig::loadStreaming() {
+    FileNode node = fs["streaming"];
+    node["type"] >> streamingType;
+    node["device"] >> streamingDevice;
+}
+
+
+void RigConfig::savePhotoCapture() {
+    fs << "photoCapture" << "{";
+
+    fs << "type" << photoCaptureType;
+    fs << "port" << photoCapturePort;
+
+    fs << "}";
+}
+
+
+void RigConfig::loadPhotoCapture() {
+    FileNode node = fs["photoCapture"];
+    node["type"] >> photoCaptureType;
+    node["port"] >> photoCapturePort;
+}
+

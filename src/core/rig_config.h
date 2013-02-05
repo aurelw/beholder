@@ -42,7 +42,7 @@ class RigConfig {
         bool hasTrackingCamera;
         bool hasStereo;
         bool hasIMU;
-        bool hasVideoCapture;
+        bool hasStreaming;
         bool hasPhotoCapture;
 
         /* rangefinder properties */
@@ -65,12 +65,14 @@ class RigConfig {
         // additional axis limits (0.0 - 1.0)
         float fMotorLimitH, fMotorLimitL;
         
-        /* video capture properties */
-        // v4l device id
+        /* streaming properties */
+        std::string streamingType;
+        std::string streamingDevice;
 
         /* photo capture properties */
-        // usb device id
-        
+        std::string photoCaptureType;
+        std::string photoCapturePort;
+
         /* meta data */
         std::string rigName;
         std::string rigConfigDate;
@@ -90,7 +92,12 @@ class RigConfig {
         void loadCamera();
         void saveFocusMotor();
         void loadFocusMotor();
+        void saveStreaming();
+        void loadStreaming();
+        void savePhotoCapture();
+        void loadPhotoCapture();
 
 };
 
 #endif
+
