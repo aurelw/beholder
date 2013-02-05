@@ -3,6 +3,7 @@ add_subdirectory (gui)
 add_subdirectory (common)
 add_subdirectory (calib)
 add_subdirectory (app)
+add_subdirectory (tests)
 
 include_directories (./core/)
 include_directories (./gui/)
