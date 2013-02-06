@@ -23,29 +23,22 @@
 
 
 FocusMotorTwoPolys::FocusMotorTwoPolys(const RigConfig &rigConfig) {
-    motor = createMotor(rigConfig, "");
+    motor.reset( createMotor(rigConfig, "") );
     motor->connect();
     lastDistance = 0.0;
     createTransferFunctions(rigConfig);
 }
 
 
-FocusMotorTwoPolys::~FocusMotorTwoPolys() {
-    delete motor;
-    delete hTransfer;
-    delete lTransfer;
-}
-
-
 void FocusMotorTwoPolys::createTransferFunctions(const RigConfig &rigConfig) {
-    hTransfer = new Transfer1d1dConstantPoly(
+    hTransfer.reset (new Transfer1d1dConstantPoly(
             rigConfig.fMotorHa, rigConfig.fMotorHb, rigConfig.fMotorHc, 
             rigConfig.fMotorHd, rigConfig.fMotorHe, rigConfig.fMotorHf, 
-            rigConfig.fMotorHg);
-    lTransfer = new Transfer1d1dConstantPoly(
+            rigConfig.fMotorHg));
+    lTransfer.reset (new Transfer1d1dConstantPoly(
             rigConfig.fMotorLa, rigConfig.fMotorLb, rigConfig.fMotorLc, 
             rigConfig.fMotorLd, rigConfig.fMotorLe, rigConfig.fMotorLf, 
-            rigConfig.fMotorLg);
+            rigConfig.fMotorLg));
 }
 
 

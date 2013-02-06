@@ -19,9 +19,13 @@
 #ifndef __TRANSFER_1D1D_H__
 #define __TRANSFER_1D1D_H__
 
+#include <boost/smart_ptr.hpp>
+
 class Transfer1d1d {
 
     public:
+
+        typedef boost::shared_ptr<Transfer1d1d> Ptr;
 
         virtual float transfer(float x) = 0;
 

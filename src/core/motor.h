@@ -22,11 +22,16 @@
 #include <iostream>
 #include <string>
 
+#include <boost/smart_ptr.hpp>
+
 #include "rig_config.h"
+
 
 class Motor {
 
     public:
+
+        typedef boost::shared_ptr<Motor> Ptr;
 
         virtual bool connect() = 0;
         virtual void disconnect() = 0;

@@ -29,7 +29,6 @@ class FocusMotorTwoPolys : public FocusMotor {
     public:
 
         FocusMotorTwoPolys(const RigConfig &rigConfig);
-        ~FocusMotorTwoPolys();
 
         virtual void setDistance(float m);
 
@@ -37,9 +36,9 @@ class FocusMotorTwoPolys : public FocusMotor {
 
         virtual void createTransferFunctions(const RigConfig &rigConfig);
 
-        Motor* motor;
-        Transfer1d1d* hTransfer;
-        Transfer1d1d* lTransfer;
+        Motor::Ptr motor;
+        Transfer1d1d::Ptr hTransfer;
+        Transfer1d1d::Ptr lTransfer;
 
         float lastDistance;
 };
