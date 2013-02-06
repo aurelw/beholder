@@ -16,9 +16,33 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "focusmotor.h"
+#ifndef __FOCUS_MOTOR_TWO_POLYS_H__
+#define __FOCUS_MOTOR_TWO_POLYS_H__
 
-float FocusMotor::getDistance() {
-    return currentDistance;
-}
+#include "focusmotor.h"
+#include "motor.h"
+#include "rig_config.h"
+#include "transfer1d1d.h"
+
+class FocusMotorTwoPolys : public FocusMotor {
+
+    public:
+
+        FocusMotorTwoPolys(const RigConfig &rigConfig);
+        ~FocusMotorTwoPolys();
+
+        virtual void setDistance(float m);
+
+    protected:
+
+        virtual void createTransferFunctions(const RigConfig &rigConfig);
+
+        Motor* motor;
+        Transfer1d1d* hTransfer;
+        Transfer1d1d* lTransfer;
+
+        float lastDistance;
+};
+
+#endif
 

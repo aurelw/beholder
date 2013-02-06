@@ -41,7 +41,7 @@ void FFocusApp::updateViewfinder() {
 
 void FFocusApp::doFocusPlane() {
     float distance = focusTracker->getDistance(); // focal plane distance in meter.
-    motor.setDistance(distance);
+    //motor.setDistance(distance);
     visualizer.setFocusPlaneDistance(distance);
     visualizer.setFocusPointVisibility(focusTracker->isVisible());
     visualizer.setFocusPoint(focusTracker->getTrackedPoint());
@@ -53,12 +53,13 @@ void FFocusApp::spinOnce() {
     kinfu.spinOnce();
 
     /* check hardware button interface */
+    /*
     if (motor.getButtonStateChange()) {
         if (motor.pushedMarkPoint) {
             pickFocusPoint();
         }
     }
-
+*/
     /* update the focus point */
     if (visualizer.pickFocusPointFlag) {
         pickFocusPoint();
@@ -128,10 +129,10 @@ int main(int argc, char** argv) {
         unsigned char rawpos = (unsigned char) motor_pos;
         std::cout << "Setting Motor Position: " << (int)rawpos << endl;
         /* send bypte to motor */
-        Transfer1d1dConstantPoly transferF;
-        FocusMotor motor(transferF, motorDevice);
-        motor.connect();
-        motor.sendRawBytePos(rawpos);
+        //Transfer1d1dConstantPoly transferF;
+        //FocusMotor motor(transferF, motorDevice);
+        //motor.connect();
+        //motor.sendRawBytePos(rawpos);
         return 0;
     }
 

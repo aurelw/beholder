@@ -27,31 +27,12 @@ class FocusMotor {
 
     public:
 
-        FocusMotor(Transfer1d1d &t, std::string motorDevicePath) :
-            transfer(t),
-            connected(false),
-            devicePath(motorDevicePath),
-            pushedMarkPoint(false)
-        {
-            physical_upper_bound = 200;
-        }
+        virtual void setDistance(float m) = 0;
+        virtual float getDistance();
 
-        void connect();
-        void setDistance(float m);
-        void sendRawBytePos(unsigned char byte);
-        bool getButtonStateChange();
+    protected:
 
-        bool pushedMarkPoint;
-
-    private:
-
-        Transfer1d1d &transfer;
-
-        std::string devicePath;
-        int fd;
-        bool connected;
-
-        unsigned char physical_upper_bound;
+        float currentDistance;
 
 };
 

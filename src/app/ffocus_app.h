@@ -30,7 +30,7 @@
 #include "focustracker_nearest.h"
 #include "focustracker_interpolate.h"
 
-#include "focus_motor.h"
+#include "focusmotor.h"
 #include "transfer1d1d_constantpoly.h"
 
 #define WITH_KINFU
@@ -49,8 +49,8 @@ class FFocusApp {
        
         FFocusApp(std::string trackerType="default", bool driveFocus="false", std::string motorDevicePath="/dev/ttyUSB0",
                 float volumeSize=3.0f, bool setPosition=false, float xpos=0.0, float ypos=0.0, float zpos=0.0) :
-            transferF(),
-            motor(transferF, motorDevicePath),
+            //transferF(),
+            //motor(transferF, motorDevicePath),
             doDriveFocus(driveFocus),
             kinfu(volumeSize, setPosition, xpos, ypos, zpos)
         {
@@ -87,7 +87,7 @@ class FFocusApp {
 
             /* init the motor interface */
             if (doDriveFocus) {
-                motor.connect();
+                //motor.connect();
             }
 
         }
@@ -118,8 +118,8 @@ class FFocusApp {
         float fPlaneDistance;
 
         /*motor*/
-        Transfer1d1dConstantPoly transferF;
-        FocusMotor motor;
+        //Transfer1d1dConstantPoly transferF;
+        //FocusMotor motor;
         bool doDriveFocus;
 
 };
