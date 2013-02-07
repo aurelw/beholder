@@ -23,36 +23,18 @@ using namespace cv;
 using namespace pcl;
 
 
-void CameraParameters::updateDistMap() {
-}
-
-
-
-void CameraParameters::loadIntrinsicFromYAML(const string& filename) {
-    FileStorage fs(filename, FileStorage::READ);
-    //FIXME load resolution
-    fs["image_width"] >> res_x;
-    fs["image_height"] >> res_y;
-    //res_x = 4272;
-    //res_y = 2848;
-    fs["camera_matrix"] >> cameraMatrix;
-    fs["distortion_coefficients"] >> distCoeffs;
-    fs.release();
-
+CameraParameters::CameraParameters(const RigConfig &rigConfig) {
+    /* load from rig config */
+    res_x = rigConfig.cameraImageWidth;
+    res_y = rigConfig.cameraImageHeight;
+    cameraMatrix = rigConfig.cameraMatrix;
+    distCoeffs = rigConfig.cameraDistortionCoefficients;
+    /* update map for distortion mapping */
     updateDistMap();
 }
-    
 
-void CameraParameters::loadExtrinsicFromXML(const string& filename) {
-    FileStorage fs(filename, FileStorage::READ);
-    fs["exRotation"] >> exRotationVec;
-    fs["exTranslation"] >> exTranslation;
 
-    // load the rotation matrix from the vector not directly
-    //fs["exRotationMat"] >> exRotationMat;
-    Rodrigues(exRotationVec, exRotationMat);
-
-    fs.release();
+void CameraParameters::updateDistMap() {
 }
 
 
@@ -82,6 +64,7 @@ float CameraParameters::getcY() {
 
 
 Eigen::Affine3f CameraParameters::getStaticExtrinsic() {
+    /*
     Eigen::Affine3f pose, camRot;
 
     //TODO check if M_PI is legit * M_PI (propably not) should be in r
@@ -96,6 +79,7 @@ Eigen::Affine3f CameraParameters::getStaticExtrinsic() {
             Eigen::Affine3f(camRot);
     
     return pose;
+    */
 }
 
 
@@ -109,9 +93,6 @@ void CameraParameters::print() {
     cout << "res-y:" << getResY() << endl;
     cout << "focal x:" << getfX() << endl;
     cout << "focal y:" << getfY() << endl;
-    cout << "extrinsic, translation:" << exTranslation.at<double>(0,0) << "," 
-        << exTranslation.at<double>(1,0) << "," 
-        << exTranslation.at<double>(2,0) << endl;
 }
 
 

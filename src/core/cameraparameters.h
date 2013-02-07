@@ -16,26 +16,23 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
+#ifndef __CAMERA_PARAMETERS_H__
+#define __CAMERA_PARAMETERS_H__
+
 #include <stdio.h>
 #include <iostream>
 
 #include <pcl/common/common_headers.h>
-
 #include <cv.h>
 
-#ifndef __CAMERA_PARAMETERS_H__
-#define __CAMERA_PARAMETERS_H__
+#include "rig_config.h"
+
 
 class CameraParameters {
 
     public:
 
-        CameraParameters() :
-            res_x(640),
-            res_y(480)
-        {
-            std::cout << "CameraParameters created" << std::endl;
-        }
+        CameraParameters(const RigConfig &rigConfig);
 
         void loadIntrinsicFromYAML(const std::string& filename);
         void loadExtrinsicFromXML(const std::string& filename);
@@ -56,11 +53,9 @@ class CameraParameters {
 
         void print();
 
-
     private:
-        cv::Mat cameraMatrix, distCoeffs;
-        cv::Mat exTranslation, exRotationVec, exRotationMat;
 
+        cv::Mat cameraMatrix, distCoeffs;
         float res_x, res_y;
 
         void updateDistMap();
