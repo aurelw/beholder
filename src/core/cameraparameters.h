@@ -32,10 +32,9 @@ class CameraParameters {
 
     public:
 
-        CameraParameters(const RigConfig &rigConfig);
+        typedef boost::shared_ptr<CameraParameters> Ptr;
 
-        void loadIntrinsicFromYAML(const std::string& filename);
-        void loadExtrinsicFromXML(const std::string& filename);
+        CameraParameters(const RigConfig &rigConfig);
 
         float getResX();
         float getResY();
@@ -45,9 +44,6 @@ class CameraParameters {
         float getcY();
         cv::Mat getCameraMatrix();
         cv::Mat getDistortionCoefficients();
-
-        /* The calibrated pose relative to the pointcloud sensor. */
-        Eigen::Affine3f getStaticExtrinsic();
 
         void mapCoord(const float x, const float y, float& mx, float& my);
 

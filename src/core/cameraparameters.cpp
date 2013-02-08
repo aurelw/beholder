@@ -29,6 +29,7 @@ CameraParameters::CameraParameters(const RigConfig &rigConfig) {
     res_y = rigConfig.cameraImageHeight;
     cameraMatrix = rigConfig.cameraMatrix;
     distCoeffs = rigConfig.cameraDistortionCoefficients;
+
     /* update map for distortion mapping */
     updateDistMap();
 }
@@ -60,26 +61,6 @@ float CameraParameters::getcX() {
 
 float CameraParameters::getcY() {
     return cameraMatrix.at<double>(1, 2);
-}
-
-
-Eigen::Affine3f CameraParameters::getStaticExtrinsic() {
-    /*
-    Eigen::Affine3f pose, camRot;
-
-    //TODO check if M_PI is legit * M_PI (propably not) should be in r
-    camRot = Eigen::AngleAxisf(exRotationVec.at<double>(0,0), Eigen::Vector3f::UnitX())
-      * Eigen::AngleAxisf(exRotationVec.at<double>(1,0),  Eigen::Vector3f::UnitY())
-      * Eigen::AngleAxisf(exRotationVec.at<double>(2,0), Eigen::Vector3f::UnitZ());
-
-    pose = Eigen::Affine3f (Eigen::Translation3f (
-                exTranslation.at<double>(0, 0),
-                exTranslation.at<double>(1, 0),
-                exTranslation.at<double>(2, 0))) *
-            Eigen::Affine3f(camRot);
-    
-    return pose;
-    */
 }
 
 
