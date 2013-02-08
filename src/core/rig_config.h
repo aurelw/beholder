@@ -45,16 +45,16 @@ class RigConfig {
         bool hasStreaming;
         bool hasPhotoCapture;
 
-        /* rangefinder properties */
-        cv::Mat rangefinderExTranslation;
-        cv::Mat rangefinderExRotationVec;
-        //device id
-
         /* camera properties */
         int cameraImageWidth;
         int cameraImageHeight;
         cv::Mat cameraMatrix;
         cv::Mat cameraDistortionCoefficients;
+
+        /* rangefinder properties */
+        cv::Mat rangefinderExTranslation;
+        cv::Mat rangefinderExRotationVec;
+        int rangefinderDeviceID; 
 
         /* focus motor properties */
         std::string fMotorType;
@@ -64,6 +64,11 @@ class RigConfig {
         float fMotorLa, fMotorLb, fMotorLc, fMotorLd, fMotorLe, fMotorLf, fMotorLg;
         // additional axis limits (0.0 - 1.0)
         float fMotorLimitH, fMotorLimitL;
+
+        /* additional tracking camera properties */
+        cv::Mat trackingCameraExTranslation;
+        cv::Mat trackingCameraExRotationVec;
+        int trackingCameraDeviceID; 
         
         /* streaming properties */
         std::string streamingType;
@@ -96,6 +101,8 @@ class RigConfig {
         void loadStreaming();
         void savePhotoCapture();
         void loadPhotoCapture();
+        void saveTrackingCamera();
+        void loadTrackingCamera();
 
 };
 

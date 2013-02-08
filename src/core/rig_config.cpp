@@ -41,6 +41,7 @@ RigConfig::RigConfig() {
     /* default rangefinder data */
     rangefinderExTranslation = Mat::zeros(3, 1, CV_32F);
     rangefinderExRotationVec = Mat::zeros(3, 1, CV_32F);
+    rangefinderDeviceID = 0;
 
     /* default camera data */
     cameraImageWidth = 1920;
@@ -53,6 +54,12 @@ RigConfig::RigConfig() {
     fMotorDevice = "/dev/ttyUSB0";
     fMotorLimitH = 0.0f;
     fMotorLimitL = 0.0f;
+
+    /* default tracking camera data */
+    trackingCameraExTranslation = Mat::zeros(3, 1, CV_32F);
+    trackingCameraExRotationVec = Mat::zeros(3, 1, CV_32F);
+    trackingCameraDeviceID = 1;
+
 
     /* default photo capture poperties */
     photoCaptureType = "gphoto";
@@ -142,6 +149,7 @@ void RigConfig::saveRangeFinder() {
 
     fs << "exTanslation" << rangefinderExTranslation;
     fs << "exRotationVec" << rangefinderExRotationVec;
+    fs << "deviceID" << rangefinderDeviceID;
 
     fs << "}";
 }
@@ -151,6 +159,7 @@ void RigConfig::loadRangeFinder() {
     FileNode node = fs["rangeFinder"];
     node["exTanslation"] >> rangefinderExTranslation;
     node["exRotationVec"] >> rangefinderExRotationVec;
+    node["deviceID"] >> rangefinderDeviceID;
 }
 
 
@@ -263,4 +272,24 @@ void RigConfig::loadPhotoCapture() {
     node["type"] >> photoCaptureType;
     node["port"] >> photoCapturePort;
 }
+
+
+void RigConfig::saveTrackingCamera() {
+    fs << "trackingCamera" << "{";
+
+    fs << "exTanslation" << trackingCameraExTranslation;
+    fs << "exRotationVec" << trackingCameraExRotationVec;
+    fs << "deviceID" << trackingCameraDeviceID;
+
+    fs << "}";
+}
+
+
+void RigConfig::loadTrackingCamera() {
+    FileNode node = fs["trackingCamera"];
+    node["exTanslation"] >> trackingCameraExTranslation;
+    node["exRotationVec"] >> trackingCameraExRotationVec;
+    node["deviceID"] >> trackingCameraDeviceID;
+}
+
 
