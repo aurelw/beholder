@@ -16,6 +16,9 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
+#ifndef __VIEW_FINDER_H__
+#define __VIEW_FINDER_H__
+
 #include <stdio.h>
 #include <iostream>
 
@@ -24,46 +27,34 @@
 #include <pcl/range_image/range_image_planar.h>
 
 #include "cameraparameters.h"
+#include "rangefinder.h"
 
-#ifndef __VIEW_FINDER_H__
-#define __VIEW_FINDER_H__
 
+template <class PointType>
 class ViewFinder {
 
     public:
         
-        ViewFinder() :
-            rangeImage_ptr(new pcl::RangeImagePlanar)
-        {
-            cloudTransform.setIdentity();
+        typedef typename pcl::PointCloud<PointType> Cloud;
+        typedef typename boost::shared_ptr<Cloud> CloudPtr;
+        typedef typename boost::shared_ptr<const Cloud> CloudConstPtr;
+        typedef typename RangeFinder<PointType>::Ptr RangeFinderPtr;
+
+        void setCameraParameters(CameraParameters::Ptr cam) {
+            camera = cam;
         }
 
-        typedef pcl::PointXYZ PointT;
-        typedef pcl::PointCloud<PointT> PointCloud;
-        typedef boost::shared_ptr<PointCloud> PointCloudPtr;
-        typedef boost::shared_ptr<const PointCloud> PointCloudConstPtr;
-        typedef boost::shared_ptr<pcl::RangeImagePlanar> RangeImagePtr;
-
-
-        void setInputCloud(PointCloudConstPtr cloud);
-        void setCamera(CameraParameters* cam);
+        void setRangeFinder(RangeFinderPtr rf) {
+            rangeFinder = rf;
+        }
         
-        /* set an additional transformation on the cloud,
-         * which will be added to the calibrated pose of 
-         * the camera. */
-        void setTransform(Eigen::Affine3f pose);
+        virtual void compute() = 0;
+        virtual pcl::PointXYZ getMiddlePoint() = 0;
 
-        void compute();
+    public:
 
-        pcl::PointXYZ getMiddlePoint();
-
-        RangeImagePtr getRangeImage();
-
-    private:
-        PointCloudConstPtr inCloud;
-        CameraParameters *camera;
-        Eigen::Affine3f cloudTransform;
-        RangeImagePtr rangeImage_ptr;
+        RangeFinderPtr rangeFinder;
+        CameraParameters::Ptr camera;
 
 };
 

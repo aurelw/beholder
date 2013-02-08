@@ -22,7 +22,7 @@
 #include <pcl/common/common_headers.h>
 
 #include "cameraparameters.h"
-#include "kinfutrackerwrap.h"
+#include "kinfuwrapper.h"
 
 class FocusTracker {
 
@@ -32,7 +32,7 @@ class FocusTracker {
         }
 
         virtual void setCameraParameters(CameraParameters *cam);
-        virtual void setKinfu(KinfuTrackerWrap *k);
+        virtual void setKinfu(KinfuWrapper *k);
         virtual float getDistance() = 0;
         virtual void init();
         virtual void reset() = 0;
@@ -40,7 +40,7 @@ class FocusTracker {
     protected:
         CameraParameters *camPara;
         Eigen::Affine3f staticExtrinsic;
-        KinfuTrackerWrap *kinfu;
+        KinfuWrapper *kinfu;
 
 };
 

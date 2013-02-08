@@ -16,18 +16,9 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "focustracker.h"
+#include "viewfinder_rangeimage.h"
+
+using namespace std;
+using namespace pcl;
 
 
-void FocusTracker::setCameraParameters(CameraParameters *cam) {
-    camPara = cam;
-}
-
-
-void FocusTracker::setKinfu(KinfuWrapper *k) {
-    kinfu = k;
-}
-
-void FocusTracker::init() {
-    staticExtrinsic = camPara->getStaticExtrinsic();
-}

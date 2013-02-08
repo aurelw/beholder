@@ -65,7 +65,7 @@ bool FocusTrackerSingle::isVisible() {
 
 
 pcl::PointXYZ FocusTrackerSingle::pick() {
-    point_cloud_ptr = kinfu->getLastFrameCloud();
+    point_cloud_ptr = kinfu->getLastCloud();
 
     viewFinder.setInputCloud(point_cloud_ptr);
     viewFinder.setTransform(kinfu->getLastPose());

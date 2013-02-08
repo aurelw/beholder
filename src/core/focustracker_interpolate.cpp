@@ -25,7 +25,7 @@ void FocusTrackerInterpolate::init() {
 
 
 float FocusTrackerInterpolate::getDistance() {
-    Eigen::Affine3f dslrPose = kinfu->getLastPose() * staticExtrinsic;
+    Eigen::Affine3f dslrPose = kinfu->getCloudPose() * staticExtrinsic;
     messure.setPose(dslrPose);
 
     trackedPointVisible = false;
