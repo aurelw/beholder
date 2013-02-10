@@ -77,7 +77,8 @@ void PoseTrackerKinfu::runTracking() {
     while (!stopThread) {
         kinfuWrapper->spinOnce();
         //FIXME mutex
-        currentPose = staticExtrinsic * kinfuWrapper->getLastPose();
+        //FIXME check if transformation is right, invert?!??
+        currentPose = kinfuWrapper->getLastPose() * staticExtrinsic;
     }
 }
 
