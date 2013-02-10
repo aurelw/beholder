@@ -13,7 +13,7 @@ pcl::PointXYZ FocusTrackerMulti::pick() {
 
 
 float FocusTrackerMulti::getDistance() {
-    Eigen::Affine3f dslrPose = kinfu->getLastPose() * staticExtrinsic;
+    Eigen::Affine3f dslrPose = poseTracker->getPose();
     messure.setPose(dslrPose);
 
     for (int i=0; i<trackedPoints.size(); i++) {

@@ -25,7 +25,7 @@ void FocusTrackerNearest::init() {
 
 
 float FocusTrackerNearest::getDistance() {
-    Eigen::Affine3f dslrPose = kinfu->getLastPose() * staticExtrinsic;
+    Eigen::Affine3f dslrPose = poseTracker->getPose();
     messure.setPose(dslrPose);
 
     float cMinDistance = 4200023;

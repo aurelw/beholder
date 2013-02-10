@@ -27,6 +27,8 @@
 class PoseTracker : public UpdateSignal {
 
     public:
+
+        typedef typename boost::shared_ptr<PoseTracker> Ptr;
         
         virtual Eigen::Affine3f getPose();
 

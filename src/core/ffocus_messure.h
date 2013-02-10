@@ -36,7 +36,7 @@ class FFocusMessure {
         }
 
         void setPose(Eigen::Affine3f& pose);
-        void setCamera(CameraParameters *par);
+        void setCameraParameters(CameraParameters::Ptr par);
 
         float getFocalPlaneDistance(Eigen::Vector3f p);
         Eigen::Vector3f getFocalPoint(Eigen::Vector3f p);
@@ -49,7 +49,7 @@ class FFocusMessure {
         void extractTranslationRotation();
 
         Eigen::Affine3f camPose;
-        CameraParameters *camPara;
+        CameraParameters::Ptr camPara;
         cv::Vec3f exTranslation, exRotation;
         cv::Mat exRotationMat;
 

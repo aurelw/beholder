@@ -22,7 +22,8 @@
 #include <pcl/common/common_headers.h>
 
 #include "cameraparameters.h"
-#include "kinfuwrapper.h"
+#include "posetracker.h"
+#include "rangefinder.h"
 
 class FocusTracker {
 
@@ -31,16 +32,17 @@ class FocusTracker {
         FocusTracker() {
         }
 
-        virtual void setCameraParameters(CameraParameters *cam);
-        virtual void setKinfu(KinfuWrapper *k);
+        virtual void setCameraParameters(CameraParameters::Ptr cam);
+        virtual void setPoseTracker(PoseTracker::Ptr pTracker);
+        virtual void setRangeFinder(RangeFinder<pcl::PointXYZ>::Ptr rFinder);
         virtual float getDistance() = 0;
         virtual void init();
         virtual void reset() = 0;
 
     protected:
-        CameraParameters *camPara;
-        Eigen::Affine3f staticExtrinsic;
-        KinfuWrapper *kinfu;
+        CameraParameters::Ptr camPara;
+        RangeFinder<pcl::PointXYZ>::Ptr rangeFinder;
+        PoseTracker::Ptr poseTracker;
 
 };
 

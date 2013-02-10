@@ -23,6 +23,7 @@
             
 #include "cameraparameters.h"
 #include "viewfinder.h"
+#include "viewfinder_rangeimage.h"
 #include "ffocus_messure.h"
 
 
@@ -46,7 +47,7 @@ class FocusTrackerSingle : public FocusTracker {
         virtual bool isVisible();
 
     protected:
-        ViewFinder viewFinder;
+        ViewFinderRangeImage<pcl::PointXYZ> viewFinder;
         FFocusMessure messure;
         float currentFPlane;
         bool trackedPointVisible;

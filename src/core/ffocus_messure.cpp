@@ -29,7 +29,7 @@ void FFocusMessure::setPose(Eigen::Affine3f& pose) {
 }
 
 
-void FFocusMessure::setCamera(CameraParameters *par) {
+void FFocusMessure::setCameraParameters(CameraParameters::Ptr par) {
     camPara = par;
 }
 

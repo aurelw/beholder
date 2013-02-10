@@ -19,15 +19,21 @@
 #include "focustracker.h"
 
 
-void FocusTracker::setCameraParameters(CameraParameters *cam) {
+void FocusTracker::setCameraParameters(CameraParameters::Ptr cam) {
     camPara = cam;
 }
 
 
-void FocusTracker::setKinfu(KinfuWrapper *k) {
-    kinfu = k;
+void FocusTracker::setPoseTracker(PoseTracker::Ptr pTracker) {
+    poseTracker = pTracker;
 }
 
-void FocusTracker::init() {
-    staticExtrinsic = camPara->getStaticExtrinsic();
+
+void FocusTracker::setRangeFinder(RangeFinder<pcl::PointXYZ>::Ptr rFinder) {
+    rangeFinder = rFinder;
 }
+
+
+void FocusTracker::init() {
+}
+

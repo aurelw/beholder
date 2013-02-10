@@ -21,8 +21,11 @@
 
 void FocusTrackerSingle::init() {
     FocusTracker::init();
-    viewFinder.setCamera(camPara);
-    messure.setCamera(camPara);
+
+    viewFinder.setCameraParameters(camPara);
+    viewFinder.setRangeFinder(rangeFinder);
+
+    messure.setCameraParameters(camPara);
 
     currentFPlane = 1.0f;
     trackedPointVisible = false;
@@ -44,7 +47,7 @@ void FocusTrackerSingle::reset() {
 
 
 float FocusTrackerSingle::getDistance() {
-    Eigen::Affine3f dslrPose = kinfu->getLastPose() * staticExtrinsic;
+    Eigen::Affine3f dslrPose = poseTracker->getPose();
     Eigen::Vector3f tp(trackedPoint.x, trackedPoint.y, trackedPoint.z);
 
     messure.setPose(dslrPose);
@@ -65,10 +68,7 @@ bool FocusTrackerSingle::isVisible() {
 
 
 pcl::PointXYZ FocusTrackerSingle::pick() {
-    point_cloud_ptr = kinfu->getLastCloud();
 
-    viewFinder.setInputCloud(point_cloud_ptr);
-    viewFinder.setTransform(kinfu->getLastPose());
     viewFinder.compute();
     trackedPoint = viewFinder.getMiddlePoint();
 
