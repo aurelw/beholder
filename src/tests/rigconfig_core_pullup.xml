@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<capabilities>
+  <hasRangeFinder>1</hasRangeFinder>
+  <hasMotor>1</hasMotor>
+  <hasButtonInterface>1</hasButtonInterface>
+  <hasTrackingCamera>0</hasTrackingCamera>
+  <hasStereo>0</hasStereo>
+  <hasIMU>0</hasIMU>
+  <hasStreaming>0</hasStreaming>
+  <hasPhotoCapture>0</hasPhotoCapture></capabilities>
+<metaData>
+  <name>DefaultRig</name>
+  <configDate>today</configDate>
+  <configVersion>1</configVersion></metaData>
+<rangeFinder>
+  <exTanslation type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      0. 0. 0.</data></exTanslation>
+  <exRotationVec type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      0. 0. 0.</data></exRotationVec></rangeFinder>
+<camera>
+  <imageWidth>1920</imageWidth>
+  <imageHeight>1080</imageHeight>
+  <cameraMatrix type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>f</dt>
+    <data>
+        1.2798798039059034e+03 0. 5.1172028929763809e+02 0. 1.2771478135924276e+03 3.4870758279457402e+02 0. 0. 1.</data></cameraMatrix>
+  <distortionCoefficients type_id="opencv-matrix">
+    <rows>5</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      0. 0. 0. 0. 0.</data></distortionCoefficients></camera>
+<focusMotor>
+  <type>TestMotor</type>
+  <device>/dev/ttyUSB0</device>
+  <ha>0.</ha>
+  <hb>0.</hb>
+  <hc>0.</hc>
+  <hd>0.</hd>
+  <he>-9.3651910059937557e-25</he>
+  <hf>0.</hf>
+  <hg>2.1280207409202981e+29</hg>
+  <la>0.</la>
+  <lb>0.</lb>
+  <lc>0.</lc>
+  <ld>0.</ld>
+  <le>0.</le>
+  <lf>-9.3648675730226151e-25</lf>
+  <lg>0.</lg>
+  <limitH>0.</limitH>
+  <limitL>0.</limitL></focusMotor>
+<streaming>
+  <type>v4l</type>
+  <device>/dev/video1</device></streaming>
+<photoCapture>
+  <type>gphoto</type>
+  <port>usb</port></photoCapture>
+</opencv_storage>
