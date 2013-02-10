@@ -28,6 +28,7 @@ class CloudProvider {
     public:
 
         typedef pcl::PointCloud<PointType> Cloud;
+        typedef typename pcl::PointCloud<PointType>::Ptr CloudPtr;
         typedef typename pcl::PointCloud<PointType>::ConstPtr CloudConstPtr;
         typedef typename boost::shared_ptr<CloudProvider<PointType> > Ptr;
 

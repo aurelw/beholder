@@ -25,7 +25,7 @@
 #include "rig_config.h"
 #include "kinfuwrapper.h"
 
-class PoseTrackerKinfu : PoseTracker {
+class PoseTrackerKinfu : public PoseTracker {
 
     public:
        

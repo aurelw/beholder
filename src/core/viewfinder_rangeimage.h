@@ -41,10 +41,10 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
 
         typedef boost::shared_ptr<pcl::RangeImagePlanar> RangeImagePtr;
 
-        ViewFinderRangeImage() :
-            rangeImage_ptr(new pcl::RangeImagePlanar)
+        ViewFinderRangeImage(float rangeImageScale=0.10) :
+            rangeImage_ptr(new pcl::RangeImagePlanar),
+            imageScale(rangeImageScale)
         {
-            this->foobar = 42;
         }
 
         /**** ViewFinder Implementation ****/
@@ -52,7 +52,7 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
 
             float noise_level = 0.0;
             float min_range = 0.0f;
-            float scale = 0.10;
+            float scale = imageScale;
 
             CloudConstPtr inCloud = this->rangeFinder->getLastCloud();
 
@@ -95,6 +95,7 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
 
     private:
         RangeImagePtr rangeImage_ptr;
+        float imageScale;
 
 };
 

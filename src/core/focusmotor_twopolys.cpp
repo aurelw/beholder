@@ -23,7 +23,7 @@
 
 
 FocusMotorTwoPolys::FocusMotorTwoPolys(const RigConfig &rigConfig) {
-    motor.reset( createMotor(rigConfig, "") );
+    motor = createMotor(rigConfig, "");
     motor->connect();
     lastDistance = 0.0;
     createTransferFunctions(rigConfig);

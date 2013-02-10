@@ -22,7 +22,7 @@
 #include "motor.h"
 #include "rig_config.h"
 
-Motor* createMotor(const RigConfig &rigConfig, std::string id);
+Motor::Ptr createMotor(const RigConfig &rigConfig, std::string id);
 
 #endif
 

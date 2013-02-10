@@ -21,14 +21,14 @@
 #include "bytemotor.h"
 #include "testmotor.h"
 
-Motor* createMotor(const RigConfig &rigConfig, std::string id) {
-    Motor *motor = NULL;
+Motor::Ptr createMotor(const RigConfig &rigConfig, std::string id) {
+    Motor::Ptr motor;
 
     if (rigConfig.fMotorType == "ByteServo") {
-       motor = new ByteMotor(rigConfig, "");
+       motor.reset(new ByteMotor(rigConfig, ""));
     }
     if (rigConfig.fMotorType == "TestMotor") {
-       motor = new TestMotor(rigConfig, "");
+       motor.reset(new TestMotor(rigConfig, ""));
     }
 
     return motor;

@@ -63,11 +63,13 @@ void PoseTrackerKinfu::start() {
 
 void PoseTrackerKinfu::stop() {
     /* terminate the working thread */
-    stopThread = true;
-    thread->join();
-    delete thread;
-    stopThread = false;
-    threadRunning = false;
+    if (threadRunning) {
+        stopThread = true;
+        thread->join();
+        delete thread;
+        stopThread = false;
+        threadRunning = false;
+    }
 }
 
 

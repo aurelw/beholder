@@ -45,13 +45,13 @@ class RangeFinder : public CloudProvider<PointType> {
 
         /* CloudProvider implementation */
         CloudConstPtr getLastCloud() {
-            return cloudSource.getLastCloud();
+            return cloudSource->getLastCloud();
         }
 
         // the full pose + extrinsic in respect to the main camera
         Eigen::Affine3f getCloudPose() {
             //FIXME check if transformations are right
-            return staticExtrinsic * cloudSource.getCloudPose();
+            return staticExtrinsic * cloudSource->getCloudPose();
         }
 
     private:

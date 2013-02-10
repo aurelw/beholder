@@ -48,19 +48,19 @@ float CameraParameters::getResY() {
 }
 
 float CameraParameters::getfX() {
-    return cameraMatrix.at<double>(0, 0);
+    return cameraMatrix.at<float>(0, 0);
 }
 
 float CameraParameters::getfY() {
-    return cameraMatrix.at<double>(1, 1);
+    return cameraMatrix.at<float>(1, 1);
 }
 
 float CameraParameters::getcX() {
-    return cameraMatrix.at<double>(0, 2);
+    return cameraMatrix.at<float>(0, 2);
 }
 
 float CameraParameters::getcY() {
-    return cameraMatrix.at<double>(1, 2);
+    return cameraMatrix.at<float>(1, 2);
 }
 
 
@@ -74,6 +74,8 @@ void CameraParameters::print() {
     cout << "res-y:" << getResY() << endl;
     cout << "focal x:" << getfX() << endl;
     cout << "focal y:" << getfY() << endl;
+    cout << "center x:" << getcX() << endl;
+    cout << "center y:" << getcY() << endl;
 }
 
 
