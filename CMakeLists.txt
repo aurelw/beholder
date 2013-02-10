@@ -18,6 +18,10 @@ include_directories(${Boost_INCLUDE_DIR} )
 # OpenCV
 find_package( OpenCV REQUIRED )
 
+# ImageMagick
+find_package(ImageMagick COMPONENTS Magick++)
+include_directories(${ImageMagick_INCLUDE_DIRS} )
+
 ### configure ###
 set (BEHOLDER_VERSION 0.1)
 set (BH_DEBUG_LVL 4)
