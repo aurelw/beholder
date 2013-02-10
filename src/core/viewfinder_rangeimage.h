@@ -38,8 +38,9 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
         typedef typename pcl::PointCloud<PointType> Cloud;
         typedef typename boost::shared_ptr<Cloud> CloudPtr;
         typedef typename boost::shared_ptr<const Cloud> CloudConstPtr;
-
         typedef boost::shared_ptr<pcl::RangeImagePlanar> RangeImagePtr;
+
+        typedef typename boost::shared_ptr<ViewFinderRangeImage> Ptr;
 
         ViewFinderRangeImage(float rangeImageScale=0.10) :
             rangeImage_ptr(new pcl::RangeImagePlanar),

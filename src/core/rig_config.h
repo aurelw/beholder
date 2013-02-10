@@ -30,6 +30,8 @@ class RigConfig {
 
     public:
 
+        typedef typename boost::shared_ptr<RigConfig> Ptr;
+
         RigConfig();
 
         void loadFromFile(std::string fname);
