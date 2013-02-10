@@ -19,16 +19,16 @@
     <cols>1</cols>
     <dt>f</dt>
     <data>
-      0. 0. 0.</data></exTanslation>
+      -0.01 -0.08 0.05 </data></exTanslation>
   <exRotationVec type_id="opencv-matrix">
     <rows>3</rows>
     <cols>1</cols>
     <dt>f</dt>
     <data>
-      0. 0. 0.</data></exRotationVec></rangeFinder>
+      -0.04 0.02 0.</data></exRotationVec></rangeFinder>
 <camera>
-  <imageWidth>1920</imageWidth>
-  <imageHeight>1080</imageHeight>
+  <imageWidth>1037</imageWidth>
+  <imageHeight>691</imageHeight>
   <cameraMatrix type_id="opencv-matrix">
     <rows>3</rows>
     <cols>3</cols>

@@ -51,7 +51,9 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
 
     /* visualizer setup */
     visualizer.register_callbacks();
-    //visualizer.setDSLRExtrinsic(cam.getStaticExtrinsic());
+    Eigen::Affine3f identity;
+    identity.setIdentity();
+    visualizer.setRangeFinderExtrinsic(rangeFinder->getStaticExtrinsic());
 
     /* setup focus tracking */
     if (trackerType=="multi") {
@@ -66,6 +68,7 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
 
     focusTracker->setCameraParameters(camParameters);
     focusTracker->setPoseTracker(poseTracker);
+    focusTracker->setRangeFinder(rangeFinder);
     focusTracker->init();
 
     /* init the motor interface */
@@ -124,7 +127,7 @@ void FFocusApp::spinOnce() {
 
     /* update camera in the visualizer */
     Eigen::Affine3f lastPose = poseTracker->getPose();
-    visualizer.setKinectPose(lastPose);
+    visualizer.setCameraPose(lastPose);
 
     /* update the environment cloud */
     if (visualizer.capStreamFlag || visualizer.capStreamAndCastFlag || visualizer.capCloudFlag) {

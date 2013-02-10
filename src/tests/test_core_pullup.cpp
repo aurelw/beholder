@@ -44,7 +44,7 @@ int main() {
     RangeFinder<pcl::PointXYZ>::Ptr rangeFinder(new RangeFinder<pcl::PointXYZ>(rc));
     rangeFinder->setCloudSource(rangeimageProvider);
 
-    ViewFinderRangeImage<pcl::PointXYZ> viewFinder(1.0);
+    ViewFinderRangeImage<pcl::PointXYZ> viewFinder(0.5);
     viewFinder.setRangeFinder(rangeFinder);
     viewFinder.setCameraParameters(cameraParameters);
 

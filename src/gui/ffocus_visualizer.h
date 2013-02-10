@@ -82,8 +82,8 @@ class FFocusVisualizer {
 
         void setEnvironmentCloud(PointCloudPtr cloud);
         void setViewFinderRangeImage(RangeImagePtr ri);
-        void setKinectPose(const Eigen::Affine3f& pose);
-        void setDSLRExtrinsic(const Eigen::Affine3f& pose);
+        void setCameraPose(const Eigen::Affine3f& pose);
+        void setRangeFinderExtrinsic(const Eigen::Affine3f& pose);
         void setFocusPoint(const PointT& point);
         void setFocusPlaneDistance(float d);
         void setFocusPointVisibility(bool visible);
@@ -114,7 +114,7 @@ class FFocusVisualizer {
         pcl::PointCloud<pcl::PointXYZ>::Ptr envCloud;
         RangeImagePtr vfRangeImg;
 
-        Eigen::Affine3f kinectPose, dslrExtrinsic;
+        Eigen::Affine3f cameraPose, rangeFinderExtrinsic;
 
         PointT focusTrackPoint;
         float fplaneDistance;

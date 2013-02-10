@@ -43,14 +43,18 @@ void FFocusVisualizer::setViewFinderRangeImage(RangeImagePtr ri) {
 }
 
 
-void FFocusVisualizer::setKinectPose(const Eigen::Affine3f& pose) {
-    kinectPose = pose;
+void FFocusVisualizer::setCameraPose(const Eigen::Affine3f& pose) {
+    cameraPose = pose;
     toggleUpdateCoordinates = true;
 }
 
 
-void FFocusVisualizer::setDSLRExtrinsic(const Eigen::Affine3f& ex) {
-    dslrExtrinsic = ex;
+void FFocusVisualizer::setRangeFinderExtrinsic(const Eigen::Affine3f& ex) {
+    // the extrinsic marks the transformation from the kinect to the
+    // nain camera coordinate frame. Invert the transformation here
+    // to be easier to use and downard compatible.
+    //FIXME keep ^^^ in mind!
+    rangeFinderExtrinsic = ex.inverse();
     toggleUpdateCoordinates = true;
 }
 
@@ -69,9 +73,10 @@ void FFocusVisualizer::updateCoordinates() {
     //visualizer.addCoordinateSystem(0.5, kinectPose*dslrExtrinsic);
     
     /* draw focal plane */
-    Eigen::Vector3f focusPoint = kinectPose * dslrExtrinsic * (Eigen::Vector3f(0,0,1) * fplaneDistance);
-    Eigen::Vector3f dslrPoint =  kinectPose * dslrExtrinsic * Eigen::Vector3f(0,0,0);
-    Eigen::Vector3f cordZ = kinectPose * dslrExtrinsic * (Eigen::Vector3f(0,0,1) * 0.3);
+    Eigen::Vector3f focusPoint = cameraPose * 
+        (Eigen::Vector3f(0,0,1) * fplaneDistance);
+    Eigen::Vector3f dslrPoint =  cameraPose * Eigen::Vector3f(0,0,0);
+    Eigen::Vector3f cordZ = cameraPose * (Eigen::Vector3f(0,0,1) * 0.3);
     PointXYZ focusXYZ, dslrXYZ, cordPZ;
     focusXYZ.getVector3fMap() = focusPoint;    
     dslrXYZ.getVector3fMap() = dslrPoint;    
@@ -90,15 +95,15 @@ void FFocusVisualizer::updateCoordinates() {
     visualizer.removeShape("focusLine");
     visualizer.addLine(cordPZ, focusXYZ, 0, 255, 255, "focusLine");
 
-    /* add dslr coordinate system */
-    removeCoordinateSystem("dslrCoord");
-    addCoordinateSystem(0.3, kinectPose * dslrExtrinsic, "dslrCoord");
-
     /* add kinect coordinate system */
     removeCoordinateSystem("kinectCoord");
     if (displayKinectCoordFrame) {
-        addCoordinateSystem(0.3, kinectPose, "kinectCoord");
+        addCoordinateSystem(0.3, cameraPose * rangeFinderExtrinsic, "kinectCoord");
     }
+
+    /* add DSLR coordinate system */
+    removeCoordinateSystem("dslrCoord");
+    addCoordinateSystem(0.3, cameraPose, "dslrCoord");
 
     /* display the distance in meters */
     stringstream sstr;
