@@ -37,6 +37,12 @@ OpenNiInterface::CloudConstPtr OpenNiInterface::getLastCloud() {
 }
 
 
+OpenNiInterface::CloudPtr OpenNiInterface::getCloudCopy() {
+    CloudPtr ncloud(new Cloud (*getLastCloud()));
+    return ncloud;
+}
+
+
 Eigen::Affine3f OpenNiInterface::getCloudPose() {
     Eigen::Affine3f mid;
     mid.setIdentity();

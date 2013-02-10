@@ -31,6 +31,7 @@ class RangeFinder : public CloudProvider<PointType> {
 
         typedef typename CloudProvider<PointType>::Ptr ProviderPtr;
         typedef typename CloudProvider<PointType>::CloudConstPtr CloudConstPtr;
+        typedef typename CloudProvider<PointType>::CloudPtr CloudPtr;
         typedef typename boost::shared_ptr<RangeFinder<PointType> > Ptr;
 
         RangeFinder(const RigConfig &rigConfig) {
@@ -46,6 +47,10 @@ class RangeFinder : public CloudProvider<PointType> {
         /* CloudProvider implementation */
         CloudConstPtr getLastCloud() {
             return cloudSource->getLastCloud();
+        }
+
+        CloudPtr getCloudCopy() {
+            return cloudSource->getCloudCopy();
         }
 
         // the full pose + extrinsic in respect to the main camera

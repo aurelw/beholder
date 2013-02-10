@@ -86,7 +86,12 @@ void KinfuWrapper::spinOnce() {
 
 
 KinfuWrapper::PointCloudConstPtr KinfuWrapper::getLastCloud() {
-    //FIXME copying because of constant ptr return
+    //FIXME cache that cloud!
+    return getCloudCopy();
+}
+
+
+KinfuWrapper::PointCloudPtr KinfuWrapper::getCloudCopy() {
     PointCloudPtr cloud_ptr = PointCloudPtr (new PointCloud);
     
     kinfu.getLastFrameCloud (lastFrameDevice);

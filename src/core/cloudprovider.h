@@ -33,6 +33,7 @@ class CloudProvider {
         typedef typename boost::shared_ptr<CloudProvider<PointType> > Ptr;
 
         virtual CloudConstPtr getLastCloud() = 0;
+        virtual CloudPtr getCloudCopy() = 0;
         virtual Eigen::Affine3f getCloudPose() = 0;
 
 };

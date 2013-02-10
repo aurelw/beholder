@@ -40,9 +40,10 @@ class OpenNiInterface :
 
     public:
 
-        typedef pcl::PointXYZRGB PointType;
-        typedef pcl::PointCloud<PointType> Cloud;
-        typedef Cloud::ConstPtr CloudConstPtr;
+        typedef typename pcl::PointXYZRGB PointType;
+        typedef typename pcl::PointCloud<PointType> Cloud;
+        typedef typename Cloud::Ptr CloudPtr;
+        typedef typename Cloud::ConstPtr CloudConstPtr;
 
         OpenNiInterface() :
             isStreaming(false),
@@ -55,6 +56,7 @@ class OpenNiInterface :
 
         /* CloudProvider implementation */
         CloudConstPtr getLastCloud();
+        CloudPtr getCloudCopy();
         Eigen::Affine3f getCloudPose();
 
     private:

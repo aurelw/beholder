@@ -28,6 +28,8 @@
 class PoseTrackerKinfu : public PoseTracker {
 
     public:
+
+        typedef typename boost::shared_ptr<PoseTrackerKinfu> Ptr;
        
         PoseTrackerKinfu(const RigConfig &rigConfig);
         ~PoseTrackerKinfu();

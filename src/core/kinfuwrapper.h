@@ -57,6 +57,7 @@ class KinfuWrapper : public UpdateSignal, public CloudProvider<pcl::PointXYZ> {
 
         /* CloudProvider implementation */
         PointCloudConstPtr getLastCloud();
+        PointCloudPtr getCloudCopy();
         Eigen::Affine3f getCloudPose();
 
     private:
