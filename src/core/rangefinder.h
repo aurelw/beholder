@@ -53,10 +53,14 @@ class RangeFinder : public CloudProvider<PointType> {
             return cloudSource->getCloudCopy();
         }
 
-        // the full pose + extrinsic in respect to the main camera
+        /* The full pose + extrinsic in respect to the main camera. */
         Eigen::Affine3f getCloudPose() {
             //FIXME check if transformations are right
             return staticExtrinsic * cloudSource->getCloudPose();
+        }
+
+        Eigen::Affine3f getStaticExtrinsic() {
+            return staticExtrinsic;
         }
 
     private:
