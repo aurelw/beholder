@@ -25,14 +25,14 @@ Eigen::Affine3f transRotVecToAffine3f(
     Eigen::Affine3f pose, rot;
 
     //TODO check if M_PI is legit * M_PI (propably not) should be in r
-    rot = Eigen::AngleAxisf(rotationVec.at<double>(0,0), Eigen::Vector3f::UnitX())
-      * Eigen::AngleAxisf(rotationVec.at<double>(1,0),  Eigen::Vector3f::UnitY())
-      * Eigen::AngleAxisf(rotationVec.at<double>(2,0), Eigen::Vector3f::UnitZ());
+    rot = Eigen::AngleAxisf(rotationVec.at<float>(0,0), Eigen::Vector3f::UnitX())
+      * Eigen::AngleAxisf(rotationVec.at<float>(1,0),  Eigen::Vector3f::UnitY())
+      * Eigen::AngleAxisf(rotationVec.at<float>(2,0), Eigen::Vector3f::UnitZ());
 
     pose = Eigen::Affine3f (Eigen::Translation3f (
-                translationVec.at<double>(0, 0),
-                translationVec.at<double>(1, 0),
-                translationVec.at<double>(2, 0))) *
+                translationVec.at<float>(0, 0),
+                translationVec.at<float>(1, 0),
+                translationVec.at<float>(2, 0))) *
             Eigen::Affine3f(rot);
     
     return pose;
