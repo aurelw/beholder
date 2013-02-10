@@ -18,6 +18,64 @@
 
 #include "ffocus_app.h"
 
+FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType, 
+        bool driveFocus, 
+        std::string motorDevicePath,
+        float volumeSize, 
+        bool setPosition, 
+        float xpos, float ypos, float zpos) :
+            //transferF(),
+            //motor(transferF, motorDevicePath),
+            doDriveFocus(driveFocus)
+{
+
+    /* set the RigConfig */
+    rigConfig = rigConf;
+
+    /* setup CameraParameters */
+    camParameters.reset( new CameraParameters(*rigConfig) );
+
+    /* start pose tracking */
+    poseTracker.reset( new PoseTrackerKinfu(*rigConfig) );
+    poseTracker->start();
+    cloudProvider = poseTracker->getKinfu();
+
+    /* setup RangeFinder */
+    rangeFinder.reset( new RangeFinder<pcl::PointXYZ>(*rigConfig) );
+    rangeFinder->setCloudSource(cloudProvider);
+
+    /* setup ViewFinder */
+    viewFinder.reset( new ViewFinderRangeImage<pcl::PointXYZ>(0.1) );
+    viewFinder->setCameraParameters(camParameters);
+    viewFinder->setRangeFinder(rangeFinder);
+
+    /* visualizer setup */
+    visualizer.register_callbacks();
+    //visualizer.setDSLRExtrinsic(cam.getStaticExtrinsic());
+
+    /* setup focus tracking */
+    if (trackerType=="multi") {
+        focusTracker = new FocusTrackerMulti();
+    } else if (trackerType=="nearest") {
+        focusTracker = new FocusTrackerNearest();
+    } else if (trackerType=="interpolate") {
+        focusTracker = new FocusTrackerInterpolate();
+    } else { // default
+        focusTracker = new FocusTrackerNearest();
+    }
+
+    focusTracker->setCameraParameters(camParameters);
+    focusTracker->setPoseTracker(poseTracker);
+    focusTracker->init();
+
+    /* init the motor interface */
+    if (doDriveFocus) {
+        //motor.connect();
+    }
+
+}
+
+
 void FFocusApp::pickFocusPoint() {
     pcl::PointXYZ fp = focusTracker->pick();
     visualizer.setFocusPoint(fp);
@@ -27,13 +85,11 @@ void FFocusApp::pickFocusPoint() {
 
 
 void FFocusApp::updateViewfinder() {
-    viewFinder.setInputCloud(point_cloud_ptr);
-    viewFinder.setTransform(kinfu.getLastPose());
-    viewFinder.compute();
-    rangeImage_ptr = viewFinder.getRangeImage();
+    viewFinder->compute();
+    rangeImage_ptr = viewFinder->getRangeImage();
     visualizer.setViewFinderRangeImage(rangeImage_ptr);
 
-    pcl::PointXYZ testp = viewFinder.getMiddlePoint();
+    pcl::PointXYZ testp = viewFinder->getMiddlePoint();
     std::cout << testp.x << "," << testp.y << "," << testp.z << std::endl;
 
 }
@@ -49,8 +105,6 @@ void FFocusApp::doFocusPlane() {
 
 
 void FFocusApp::spinOnce() {
-
-    kinfu.spinOnce();
 
     /* check hardware button interface */
     /*
@@ -69,12 +123,12 @@ void FFocusApp::spinOnce() {
     doFocusPlane();
 
     /* update camera in the visualizer */
-    Eigen::Affine3f lastPose = kinfu.getLastPose();
+    Eigen::Affine3f lastPose = poseTracker->getPose();
     visualizer.setKinectPose(lastPose);
 
     /* update the environment cloud */
     if (visualizer.capStreamFlag || visualizer.capStreamAndCastFlag || visualizer.capCloudFlag) {
-        point_cloud_ptr = kinfu.getLastFrameCloud();
+        point_cloud_ptr = cloudProvider->getCloudCopy();
         visualizer.setEnvironmentCloud(point_cloud_ptr);
     }
 
@@ -85,7 +139,7 @@ void FFocusApp::spinOnce() {
 
     /* reset kinfu tracking */
     if (visualizer.resetFlag) {
-        kinfu.reset();
+        poseTracker->reset();
     }
 
     /* reset of the the current focus tracker */
@@ -112,6 +166,10 @@ using namespace std;
 
 
 int main(int argc, char** argv) {
+
+    /* the rig config */
+    string rigConfigFile = "rig_config.xml";
+    pcl::console::parse (argc, argv, "--rigconfig", rigConfigFile);
 
     /* the tracking type used */
     string trackerType = "nearest";
@@ -158,9 +216,12 @@ int main(int argc, char** argv) {
     float volumeSize = 3.0f;
     pcl::console::parse (argc, argv, "-s", volumeSize);
 
-    
+    /* load the rig config */
+    RigConfig::Ptr rigConfig( new RigConfig());
+    rigConfig->loadFromFile(rigConfigFile);
+
     /* run the app */
-    FFocusApp app(trackerType, driveMotor, motorDevice, volumeSize, setPosition, xpos, ypos, zpos);
+    FFocusApp app(rigConfig, trackerType, driveMotor, motorDevice, volumeSize, setPosition, xpos, ypos, zpos);
 
     while (true) {
         app.spinOnce();

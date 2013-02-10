@@ -20,25 +20,24 @@
 #include <pcl/io/pcd_io.h>
 
 #include "cameraparameters.h"
+#include "rig_config.h"
+#include "rangefinder.h"
 #include "viewfinder.h"
-#include "range_image_to_file.h"
-#include "ffocus_visualizer.h"
+#include "rangeimagewriter.h"
 #include "ffocus_messure.h"
+#include "transfer1d1d_constantpoly.h"
+#include "focusmotor.h"
+#include "focusmotor_twopolys.h"
+#include "posetrackerkinfu.h"
 
 #include "focustracker_single.h"
 #include "focustracker_multi.h"
 #include "focustracker_nearest.h"
 #include "focustracker_interpolate.h"
 
-#include "focusmotor.h"
-#include "transfer1d1d_constantpoly.h"
+#include "ffocus_visualizer.h"
 
-#define WITH_KINFU
 
-#ifdef WITH_KINFU
-    #include "openni_capture.h"
-    #include "kinfutrackerwrap.h"
-#endif
 
 typedef pcl::PointXYZ PointType;
 
@@ -47,50 +46,8 @@ class FFocusApp {
 
     public:
        
-        FFocusApp(std::string trackerType="default", bool driveFocus="false", std::string motorDevicePath="/dev/ttyUSB0",
-                float volumeSize=3.0f, bool setPosition=false, float xpos=0.0, float ypos=0.0, float zpos=0.0) :
-            //transferF(),
-            //motor(transferF, motorDevicePath),
-            doDriveFocus(driveFocus),
-            kinfu(volumeSize, setPosition, xpos, ypos, zpos)
-        {
-            /* open kinect device 0 for capturing */
-            capture.open(0);
-            kinfu.setCaptureSource(capture);
-            kinfu.init();
-
-            /* set camera parameters */
-            cam.loadIntrinsicFromYAML("intrinsic.yaml");
-            cam.loadExtrinsicFromXML("extrinsic.xml");
-
-            /* setup viewfinder */
-            viewFinder.setCamera(&cam);
-
-            /* visualizer setup */
-            visualizer.register_callbacks();
-            visualizer.setDSLRExtrinsic(cam.getStaticExtrinsic());
-
-            /* setup focus tracking */
-            if (trackerType=="multi") {
-                focusTracker = new FocusTrackerMulti();
-            } else if (trackerType=="nearest") {
-                focusTracker = new FocusTrackerNearest();
-            } else if (trackerType=="interpolate") {
-                focusTracker = new FocusTrackerInterpolate();
-            } else { // default
-                focusTracker = new FocusTrackerNearest();
-            }
-
-            focusTracker->setCameraParameters(&cam);
-            focusTracker->setKinfu(&kinfu);
-            focusTracker->init();
-
-            /* init the motor interface */
-            if (doDriveFocus) {
-                //motor.connect();
-            }
-
-        }
+        FFocusApp(RigConfig::Ptr rigConf, std::string trackerType="default", bool driveFocus="false", std::string motorDevicePath="/dev/ttyUSB0",
+                float volumeSize=3.0f, bool setPosition=false, float xpos=0.0, float ypos=0.0, float zpos=0.0);
 
         void spinOnce();
         void pickFocusPoint();
@@ -100,10 +57,13 @@ class FFocusApp {
         void updateViewfinder();
         void doFocusPlane();
 
-        pcl::gpu::CaptureOpenNI capture;
-        KinfuTrackerWrap kinfu;
-        ViewFinder viewFinder;
-        CameraParameters cam;
+        RigConfig::Ptr rigConfig;
+        PoseTrackerKinfu::Ptr poseTracker;
+        RangeFinder<pcl::PointXYZ>::Ptr rangeFinder;
+        ViewFinderRangeImage<pcl::PointXYZ>::Ptr viewFinder;
+        CameraParameters::Ptr camParameters;
+        CloudProvider<pcl::PointXYZ>::Ptr cloudProvider;
+
         FFocusVisualizer visualizer;
 
         FocusTrackerMulti *focusTracker;
