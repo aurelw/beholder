@@ -94,6 +94,7 @@ KinfuWrapper::PointCloudConstPtr KinfuWrapper::getLastCloud() {
 KinfuWrapper::PointCloudPtr KinfuWrapper::getCloudCopy() {
     PointCloudPtr cloud_ptr = PointCloudPtr (new PointCloud);
     
+    //also cache extraction
     kinfu.getLastFrameCloud (lastFrameDevice);
 
     int c;

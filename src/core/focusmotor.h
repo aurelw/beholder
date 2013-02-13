@@ -27,6 +27,8 @@ class FocusMotor {
 
     public:
 
+        typedef typename boost::shared_ptr<FocusMotor> Ptr;
+
         virtual void setDistance(float m) = 0;
         virtual float getDistance();
 
