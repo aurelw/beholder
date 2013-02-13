@@ -69,3 +69,4 @@ void FocusController::setFocusData(bool active, float distance,
     focusDistance = distance;
     focusedPoint = point;
 }
+

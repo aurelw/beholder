@@ -67,8 +67,7 @@ class FocusController {
         std::string identifier;
         int priority;
 
-    private:
-
+        /* us setFocusData to set those safely */
         bool activeState = false;
         float focusDistance = 1.0;
         pcl::PointXYZ focusedPoint;

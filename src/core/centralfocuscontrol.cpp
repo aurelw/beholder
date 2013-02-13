@@ -195,6 +195,9 @@ void CentralFocusControl::stop() {
     if (threadRunning) {
         stopThread = true;
         thread->join();
+        delete thread;
+        stopThread = false;
+        threadRunning = false;
         //FIXME stop focus controllers
     }
 }
