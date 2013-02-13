@@ -23,6 +23,11 @@ CentralFocusControl::CentralFocusControl() {
 }
 
 
+CentralFocusControl::~CentralFocusControl() {
+    stop();
+}
+
+
 void CentralFocusControl::setFocusMotor(FocusMotor::Ptr fMotor) {
     focusMotor = fMotor;
 }

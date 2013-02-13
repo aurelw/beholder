@@ -29,6 +29,11 @@ FocusControllerSinglePoint::FocusControllerSinglePoint(
 }
 
 
+FocusControllerSinglePoint::~FocusControllerSinglePoint() {
+    stop();
+}
+
+
 void FocusControllerSinglePoint::start() {
     if (!threadRunning) {
         threadRunning = true;

@@ -32,6 +32,8 @@ class FocusControllerSinglePoint : public FocusController {
         FocusControllerSinglePoint(CameraParameters::Ptr camPar,
                 PoseTracker::Ptr pTracker);
 
+        ~FocusControllerSinglePoint();
+
         /* FocusController implementation */
         virtual void start();
         virtual void stop();

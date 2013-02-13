@@ -37,6 +37,7 @@ class CentralFocusControl {
         typedef typename boost::shared_ptr<CentralFocusControl> Ptr;
 
         CentralFocusControl();
+        ~CentralFocusControl();
         
         /* init and setup */
         void setFocusMotor(FocusMotor::Ptr fMotor);

@@ -25,32 +25,55 @@
 #include "posetrackerkinfu.h"
 #include "viewfinder_rangeimage.h"
 #include "rangeimagewriter.h"
+#include "centralfocuscontrol.h"
+#include "focuscontroller_singlepoint.h"
 
 int main() {
 
+    /* the basic rig config */
     RigConfig rc;
     rc.loadFromFile("rigconfig_core_pullup.xml");
 
+    /* camera parameter data */
     CameraParameters::Ptr cameraParameters(new CameraParameters(rc));
     cameraParameters->print();
 
-    FocusMotorTwoPolys focusMotor(rc);
+    /* pose tracking for the camera*/
+    PoseTrackerKinfu::Ptr poseTracker(new PoseTrackerKinfu(rc));
+    poseTracker->start();
 
-    PoseTrackerKinfu poseTracker(rc);
-    poseTracker.start();
-
-    CloudProvider<pcl::PointXYZ>::Ptr rangeimageProvider = poseTracker.getKinfu();
-
+    /* range finder with kinfu cloud provider */
+    CloudProvider<pcl::PointXYZ>::Ptr rangeimageProvider = poseTracker->getKinfu();
     RangeFinder<pcl::PointXYZ>::Ptr rangeFinder(new RangeFinder<pcl::PointXYZ>(rc));
     rangeFinder->setCloudSource(rangeimageProvider);
 
+    /* viewfinder to extract pois from the scene */
     ViewFinderRangeImage<pcl::PointXYZ> viewFinder(0.5);
     viewFinder.setRangeFinder(rangeFinder);
     viewFinder.setCameraParameters(cameraParameters);
 
+    /* the focus motor */
+    FocusMotor::Ptr focusMotor(new FocusMotorTwoPolys(rc));
+
+    /* create a focus controller */
+    FocusControllerSinglePoint::Ptr fCtrlSingle(new FocusControllerSinglePoint(
+                cameraParameters, poseTracker));
+    fCtrlSingle->setIdentifier("SingeTracker0");
+    fCtrlSingle->setPriority(5);
+    fCtrlSingle->start();
+
+    /* focus control */
+    CentralFocusControl fControl;
+    fControl.setFocusMotor(focusMotor);
+    fControl.addFocusController(fCtrlSingle);
+    fControl.start();
+
     /* simulate a main loop */
     for (int i=0; i<50; i++) {
-        poseTracker.getPose();
+        poseTracker->getPose();
+        fControl.focusDistance();
+        fControl.getFocusedPoint();
+        fControl.activlyControlled();
         sleep(0.55);
     }
 
@@ -65,7 +88,7 @@ int main() {
     pcl::RangeImagePlanar::Ptr rangeImage = viewFinder.getRangeImage();
     RangeImageWriter riWriter(rangeImage);
     riWriter.save("rangeimage_pullup.png");
-    //viewFinder.getMiddlePoint();
+    viewFinder.getMiddlePoint();
     
 }
 

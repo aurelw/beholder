@@ -64,8 +64,8 @@ class FocusController {
         void setFocusData(bool active, float distance, const pcl::PointXYZ& point);
         boost::shared_mutex focusMutex;
 
-        std::string identifier;
-        int priority;
+        std::string identifier = "";
+        int priority = 20;
 
         /* us setFocusData to set those safely */
         bool activeState = false;
