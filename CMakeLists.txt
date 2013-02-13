@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(beholder)
 
+# compiler options
+add_definitions("-std=gnu++11")
+
 # options
 option (BUILD_APP "Build with application frontend." ON)
 option (BUILD_TESTS "Build with tests." ON)
