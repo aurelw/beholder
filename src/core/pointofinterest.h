@@ -26,22 +26,35 @@
 #include "update_signal.h"
 
 
-class PointOfInterest : public UpdateSignal {
+class PointOfInterest {
     
     public:
 
         typedef typename boost::shared_ptr<PointOfInterest> Ptr;
         typedef typename boost::weak_ptr<PointOfInterest> WeakPtr;
 
-        PointOfInterest();
+        typedef boost::signals2::signal<void (PointOfInterest::Ptr)> changeSigT;
+        typedef boost::signals2::connection  connection_t;
+
+    public:
+
+        PointOfInterest(const std::string &id);
 
         void setPoint(const pcl::PointXYZ &p);
         pcl::PointXYZ getPoint();
+        std::string getIdentifier();
+
+        /* change signal */
+        connection_t connectToChange(changeSigT::slot_function_type slot);
 
     private:
 
         boost::shared_mutex mutex;
         pcl::PointXYZ point;
+        std::string identifier;
+
+        /* change signal with source */
+        changeSigT changeSignal;
 
 };
 

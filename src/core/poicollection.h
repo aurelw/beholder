@@ -16,39 +16,40 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
+#ifndef __POI_COLLECTION_H__
+#define __POI_COLLECTION_H__
+
 #include "pointofinterest.h"
 
 
-PointOfInterest::PointOfInterest(const std::string &id) :
-    identifier(id)
-{
-}
+class POICollection {
+    
+    public:
+
+        typedef enum EventT {
+            NEW,
+            DELETED,
+            CHANGE
+        } EventT;
+
+        void addPOI(PointOfInterest::Ptr poi);
+        void removePOI(PointOfInterest::Ptr poi);
+
+    public: // slots
+
+        void updateEventSlot(PointOfInterest::Ptr poi);
+
+    private:
+
+        boost::shared_mutex mutex;
+        std::vector<PointOfInterest::Ptr> pois;
+
+        /* outgoing events */
+        boost::signals2::signal<void (PointOfInterest::Ptr, EventT)> signal;
 
 
-void PointOfInterest::setPoint(const pcl::PointXYZ &p) {
-    {
-        boost::unique_lock<boost::shared_mutex> lock(mutex);
-        point = p;
-    }
-    PointOfInterest::Ptr selfPointer(this);
-    changeSignal(selfPointer);
-}
 
+};
 
-pcl::PointXYZ PointOfInterest::getPoint() {
-    boost::shared_lock<boost::shared_mutex> lock(mutex);
-    return point;
-}
-
-
-std::string PointOfInterest::getIdentifier() {
-    return identifier;
-}
-
-
-PointOfInterest::connection_t PointOfInterest::connectToChange(
-        changeSigT::slot_function_type slot) 
-{
-    return changeSignal.connect(slot);
-}
+#endif
 
