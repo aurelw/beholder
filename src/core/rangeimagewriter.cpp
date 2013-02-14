@@ -18,6 +18,9 @@
 
 #include "rangeimagewriter.h"
 
+#include "console_utils.h"
+
+
 RangeImageWriter::RangeImageWriter(::RangeImage::Ptr ri) :
     rangeImage(ri)
 {
@@ -29,7 +32,8 @@ void RangeImageWriter::save(const std::string& fileName) {
             Magick::Color("orange"));
 
     float maxRange = getMaxRange();
-    std::cout << "maximum range in the image: " << maxRange << std::endl;
+    printSimpleInfo("[RangeImageWriter]", " Maximum range in image: ");
+    std::cout << maxRange << std::endl;
 
     for(int y=0; y<rangeImage->height; y++) {
         for(int x=0; x<rangeImage->width; x++) {

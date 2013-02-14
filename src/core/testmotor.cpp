@@ -18,6 +18,8 @@
 
 #include "testmotor.h"
 
+#include "console_utils.h"
+
 TestMotor::TestMotor(const RigConfig &rigConfig, std::string id) {
     lLimit = rigConfig.fMotorLimitL;
     hLimit = rigConfig.fMotorLimitH;
@@ -30,23 +32,32 @@ TestMotor::~TestMotor() {
 
 
 bool TestMotor::connect() {
-    std::cout << "[TestMotor] connected." << std::endl;
+    printBrightInfo("[TestMotor]", " connected\n");
+    connected = true;
     return true;
 }
 
 
 void TestMotor::disconnect() {
-    std::cout << "[TestMotor] disconnected." << std::endl;
+    printBrightInfo("[TestMotor]", " disconnected\n");
+    connected = false;
 }
 
 
 void TestMotor::setPosition(float p) {
-    if (p < lLimit || p > hLimit) {
-        std::cout << "[TestMotor] position out of limits!";
+
+    /* nothing to change */
+    if (position == p) {
         return;
     }
 
-    std::cout << "[TestMotor] set position " << p << std::endl;
+    if (p < lLimit || p > hLimit) {
+        printWarning("[TestMotor]", " out of limits.\n");
+        return;
+    }
+
+    printSimpleInfo("[TestMotor]", " set position to ");
+    std::cout << p << std::endl;
     position = p;
 }
 

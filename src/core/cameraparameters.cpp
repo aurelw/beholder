@@ -18,6 +18,10 @@
 
 #include "cameraparameters.h"
 
+#include <pcl/console/print.h>
+
+#include "console_utils.h"
+
 using namespace std;
 using namespace cv;
 using namespace pcl;
@@ -70,12 +74,14 @@ void CameraParameters::mapCoord(const float x, const float y, float& mx, float& 
 
 
 void CameraParameters::print() {
+    printSimpleInfo("[CameraParameters] -----------\n");
     cout << "res-x:" << getResX() << endl;
     cout << "res-y:" << getResY() << endl;
     cout << "focal x:" << getfX() << endl;
     cout << "focal y:" << getfY() << endl;
     cout << "center x:" << getcX() << endl;
     cout << "center y:" << getcY() << endl;
+    printSimpleInfo("------------------------------\n");
 }
 
 

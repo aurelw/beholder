@@ -48,17 +48,17 @@
   <hb>0.</hb>
   <hc>0.</hc>
   <hd>0.</hd>
-  <he>-9.3651910059937557e-25</he>
-  <hf>0.</hf>
-  <hg>2.1280207409202981e+29</hg>
+  <he>0.</he>
+  <hf>0.2</hf>
+  <hg>0.</hg>
   <la>0.</la>
   <lb>0.</lb>
   <lc>0.</lc>
   <ld>0.</ld>
   <le>0.</le>
-  <lf>-9.3648675730226151e-25</lf>
+  <lf>0.2</lf>
   <lg>0.</lg>
-  <limitH>0.</limitH>
+  <limitH>1.0</limitH>
   <limitL>0.</limitL></focusMotor>
 <streaming>
   <type>v4l</type>

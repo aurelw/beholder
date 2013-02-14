@@ -18,27 +18,34 @@
 
 #include "kinfuwrapper.h"
 
+#include "console_utils.h"
+
 using namespace std;
 using namespace pcl;
+
 
 KinfuWrapper::KinfuWrapper(float volumeSize, 
         bool setPosition, float xpos, 
         float ypos, float zpos) :
             lastFrameDevice(480, 640)
 {
+    //FIXME
     /* set the size of the volume */
     //Eigen::Vector3f volume_size = Eigen::Vector3f(3.0f, volumeSize, volumeSize); //meters
     Eigen::Vector3f volume_size = Eigen::Vector3f::Constant(3.0f);
     kinfu.volume().setSize (volume_size);
 
-    std::cout << "KinfuWrapper Position: " << setPosition << std::endl;
+    if (setPosition) {
+        printSimpleInfo("[KinfuWrapper]", "Initial pose provided.\n");
+    } else {
+        printSimpleInfo("[KinfuWrapper]", "Using default initial pose.\n");
+    }
 
     //FIXME a good starting pose
     /* set the initial pose, in the middle of the volume */
     Eigen::Matrix3f R = Eigen::Matrix3f::Identity ();   // * AngleAxisf(-30.f/180*3.1415926, Vector3f::UnitX());
     Eigen::Vector3f t;
     if (setPosition) {
-        std::cout << "set Position" << std::endl;
         t << xpos, ypos, zpos;
     } else {
         t = volume_size * 0.5f - Eigen::Vector3f (0, 0, volume_size (2) / 2 * 1.2f);
@@ -69,19 +76,16 @@ void KinfuWrapper::init() {
 
 void KinfuWrapper::spinOnce() {
     if (!capture->grab (depthGrab, rgbGrab)) {
-        std::cout << "Can't catpure frame." << std::endl;
+        pcl::console::print_warn("[KinfuWrapper] Can't capture pointcloud!\n"); 
         return;
     }
 
-    //std::cout << "Upload raw cloud to device: " << depthGrab.rows << "," << depthGrab.cols << std::endl;
-
     /* upload to device memory */
-    depthDevice.upload (depthGrab.data, depthGrab.step, depthGrab.rows, depthGrab.cols);
+    depthDevice.upload (depthGrab.data, depthGrab.step, 
+            depthGrab.rows, depthGrab.cols);
 
     /* process frame */
     bool hasImage = kinfu(depthDevice);
-
-    //std::cout << "has image: " << hasImage << std::endl;
 }
 
 
