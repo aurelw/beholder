@@ -27,7 +27,7 @@
 
 
 class PointOfInterest {
-    
+
     public:
 
         typedef typename boost::shared_ptr<PointOfInterest> Ptr;
@@ -41,11 +41,22 @@ class PointOfInterest {
         PointOfInterest(const std::string &id);
 
         void setPoint(const pcl::PointXYZ &p);
+        /* essentially sending a shared_ptr<PointOfInterest>(this) event,
+         * but provides the ptr externally so there are no refcount problems */
+        void setPoint(const pcl::PointXYZ &p, PointOfInterest::Ptr eventOrigin);
         pcl::PointXYZ getPoint();
         std::string getIdentifier();
 
         /* change signal */
         connection_t connectToChange(changeSigT::slot_function_type slot);
+
+    public:
+
+        static std::string generateId() {
+            static int counter = 0;
+            std::string id = "poi_" + counter++;
+            return id;
+        }
 
     private:
 

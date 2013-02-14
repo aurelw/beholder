@@ -30,8 +30,17 @@ void PointOfInterest::setPoint(const pcl::PointXYZ &p) {
         boost::unique_lock<boost::shared_mutex> lock(mutex);
         point = p;
     }
-    PointOfInterest::Ptr selfPointer(this);
-    changeSignal(selfPointer);
+}
+
+
+void PointOfInterest::setPoint(const pcl::PointXYZ &p, 
+        PointOfInterest::Ptr eventOrigin) 
+{
+    {
+        boost::unique_lock<boost::shared_mutex> lock(mutex);
+        point = p;
+    }
+    changeSignal(eventOrigin);
 }
 
 

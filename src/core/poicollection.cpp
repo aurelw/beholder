@@ -20,7 +20,6 @@
 
 
 void POICollection::addPOI(PointOfInterest::Ptr poi) {
-    //FIXME mutex
     {
         boost::unique_lock<boost::shared_mutex> lock(mutex);
         pois.push_back(poi);
