@@ -72,15 +72,35 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
     focusTracker->init();
 
     /* init the motor interface */
-    if (doDriveFocus) {
-        //motor.connect();
-    }
+    fmotor.reset(new FocusMotorTwoPolys(*rigConfig));
 
+    /* setup a focus controller */
+    FocusControllerSinglePoint::Ptr fctrl(
+            new FocusControllerSinglePoint(camParameters, poseTracker));
+    fctrl->setPriority(5);
+    fctrl->setIdentifier("SinglePoint");
+    fctrl->start();
+
+    /* setup central focus control */
+    fControl.setFocusMotor(fmotor);
+    fControl.addFocusController(fctrl);
+    fControl.start();
 }
 
 
 void FFocusApp::pickFocusPoint() {
-    pcl::PointXYZ fp = focusTracker->pick();
+    /* get selected point */
+    viewFinder->compute();
+    pcl::PointXYZ fp = viewFinder->getMiddlePoint();
+
+    /* create a POI */
+    poi.reset(new PointOfInterest("poi1"));
+    poi->setPoint(fp);
+    poiCollection.addPOI(poi);
+    fControl.addPOI(poi); // also do this with event handling later
+
+    /* handle to visualizer directly.
+     * do this with signals and slots later */
     visualizer.setFocusPoint(fp);
     /* in the case of multitracking */
     visualizer.addSecondaryFocusPoint(fp);
@@ -99,11 +119,10 @@ void FFocusApp::updateViewfinder() {
 
 
 void FFocusApp::doFocusPlane() {
-    float distance = focusTracker->getDistance(); // focal plane distance in meter.
-    //motor.setDistance(distance);
+    float distance = fControl.focusDistance(); // focal plane distance in meter.
     visualizer.setFocusPlaneDistance(distance);
-    visualizer.setFocusPointVisibility(focusTracker->isVisible());
-    visualizer.setFocusPoint(focusTracker->getTrackedPoint());
+    visualizer.setFocusPointVisibility(fControl.activlyControlled());
+    visualizer.setFocusPoint(fControl.getFocusedPoint());
 }
 
 

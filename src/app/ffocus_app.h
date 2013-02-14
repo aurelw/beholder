@@ -29,6 +29,9 @@
 #include "focusmotor.h"
 #include "focusmotor_twopolys.h"
 #include "posetrackerkinfu.h"
+#include "centralfocuscontrol.h"
+#include "focuscontroller_singlepoint.h"
+#include "poicollection.h"
 
 #include "focustracker_single.h"
 #include "focustracker_multi.h"
@@ -66,6 +69,10 @@ class FFocusApp {
 
         FFocusVisualizer visualizer;
 
+        /* new focus control */
+        CentralFocusControl fControl;
+
+        /* old focus trackers */
         FocusTrackerMulti *focusTracker;
         //FocusTrackerMulti focusTracker;
         //FocusTrackerNearest focusTracker;
@@ -77,10 +84,13 @@ class FFocusApp {
         PointType focusPoint;
         float fPlaneDistance;
 
-        /*motor*/
-        //Transfer1d1dConstantPoly transferF;
-        //FocusMotor motor;
+        /* motor */
+        FocusMotor::Ptr fmotor;
         bool doDriveFocus;
+
+        /* POIs */
+        POICollection poiCollection;
+        PointOfInterest::Ptr poi;
 
 };
 
