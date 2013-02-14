@@ -56,6 +56,7 @@ class FocusControllerSinglePoint : public FocusController {
         boost::shared_mutex poiMutex;
         PointOfInterest::WeakPtr poi;
 
+
         /* helpers */
         CameraParameters::Ptr camParameters;
         PoseTracker::Ptr poseTracker;

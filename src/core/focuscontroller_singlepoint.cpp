@@ -65,6 +65,7 @@ void FocusControllerSinglePoint::reset() {
 
 
 void FocusControllerSinglePoint::addPOI(PointOfInterest::Ptr p) {
+    boost::unique_lock<boost::shared_mutex> lock(poiMutex);
     poi = p;
 }
 

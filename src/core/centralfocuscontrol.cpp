@@ -53,7 +53,7 @@ pcl::PointXYZ CentralFocusControl::getFocusedPoint() {
 
 void CentralFocusControl::addFocusController(FocusController::Ptr fController) {
     auto mit = focusControllers.find(fController->getIdentifier());
-    if (mit != focusControllers.end()) { // checks if the key is already present
+    if (mit == focusControllers.end()) { // checks if the key is already present
         // lock focus controllers and priorities
         boost::unique_lock<boost::shared_mutex> lock(focusControllersMutex);
 
@@ -75,7 +75,7 @@ void CentralFocusControl::removeFocusController(const std::string &fCtrId) {
 
 
 void CentralFocusControl::rebuildPriorities() {
-    prioritities.clear();
+    priorities.clear();
 
     for (auto &controllersEntry : focusControllers) {
         /* create a new priority entry from the focusController */
@@ -84,10 +84,10 @@ void CentralFocusControl::rebuildPriorities() {
         priority.first = controllersEntry.second->getPriority();
         // the identifier
         priority.second = controllersEntry.first;
-        prioritities.push_back(priority);
+        priorities.push_back(priority);
     }
 
-    std::sort(prioritities.begin(), prioritities.end());
+    std::sort(priorities.begin(), priorities.end());
 }
 
 
@@ -99,8 +99,8 @@ void CentralFocusControl::addPOI(PointOfInterest::Ptr poi) {
     if (mit != focusControllers.end()) { // checks if the key is already present
         focusControllers[selectedControllerId]->addPOI(poi);
     } else {
-        if (prioritities.size() > 0) {
-            std::string fCtrID = prioritities[0].second;
+        if (priorities.size() > 0) {
+            std::string fCtrID = priorities[0].second;
             focusControllers[fCtrID]->addPOI(poi);
         }
     }
@@ -148,7 +148,7 @@ void CentralFocusControl::doFocusControllers() {
 
     } else { // select from priorities 
 
-        for (PriorityPair &pr : prioritities) {
+        for (PriorityPair &pr : priorities) {
             // get the focus controller with the highest priority
             FocusController::Ptr fCtr = focusControllers[pr.second];
 

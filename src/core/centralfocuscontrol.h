@@ -80,7 +80,7 @@ class CentralFocusControl {
         boost::shared_mutex focusControllersMutex;
         std::map<std::string, FocusController::Ptr> focusControllers;
         typedef std::pair<int, std::string> PriorityPair;
-        std::vector<PriorityPair> prioritities;
+        std::vector<PriorityPair> priorities;
         void rebuildPriorities();
 
         /* selected controller id */
