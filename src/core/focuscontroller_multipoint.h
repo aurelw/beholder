@@ -16,22 +16,27 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef __FOCUS_CONTROLLER_MULTI_NEAREST_H__
-#define __FOCUS_CONTROLLER_MULTI_NEAREST_H__
+#ifndef __FOCUS_CONTROLLER_MULI_POINT_H__
+#define __FOCUS_CONTROLLER_MULI_POINT_H__
 
-#include "focuscontroller_multipoint.h"
+#include "focuscontroller_singlepoint.h"
 
 
-class FocusControllerMultiNearest : public FocusControllerMultiPoint {
+class FocusControllerMultiPoint : public FocusControllerSinglePoint {
 
     public:
 
-        FocusControllerMultiNearest(CameraParameters::Ptr camPar,
-                PoseTracker::Ptr pTracker);
+        virtual void addPOI(PointOfInterest::Ptr poi) override;
+        virtual void reset() override;
 
     protected:
 
-        virtual void doTracking() override;
+        /* don't make this instaciable */
+        FocusControllerMultiPoint(CameraParameters::Ptr camPar,
+                PoseTracker::Ptr pTracker);
+
+        /* all active point of interests */
+        std::vector<PointOfInterest::Ptr> pois;
 
 };
 

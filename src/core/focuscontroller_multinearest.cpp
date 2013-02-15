@@ -21,20 +21,8 @@
 FocusControllerMultiNearest::FocusControllerMultiNearest(
     CameraParameters::Ptr camPar,
     PoseTracker::Ptr pTracker) :
-        FocusControllerSinglePoint(camPar, pTracker)
+        FocusControllerMultiPoint(camPar, pTracker)
 {
-}
-
-
-void FocusControllerMultiNearest::addPOI(PointOfInterest::Ptr p) {
-    boost::unique_lock<boost::shared_mutex> lock(poiMutex);
-    pois.push_back(p);
-}
-
-
-void FocusControllerMultiNearest::reset() {
-    boost::unique_lock<boost::shared_mutex> lock(poiMutex);
-    pois.clear();
 }
 
 
