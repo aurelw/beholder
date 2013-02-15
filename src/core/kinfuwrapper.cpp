@@ -36,9 +36,9 @@ KinfuWrapper::KinfuWrapper(float volumeSize,
     kinfu.volume().setSize (volume_size);
 
     if (setPosition) {
-        printSimpleInfo("[KinfuWrapper]", "Initial pose provided.\n");
+        printSimpleInfo("[KinfuWrapper]", " Initial pose provided.\n");
     } else {
-        printSimpleInfo("[KinfuWrapper]", "Using default initial pose.\n");
+        printSimpleInfo("[KinfuWrapper]", " Using default initial pose.\n");
     }
 
     //FIXME a good starting pose
