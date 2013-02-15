@@ -99,7 +99,7 @@ void CentralFocusControl::addPOI(PointOfInterest::Ptr poi) {
     if (mit != focusControllers.end()) { // checks if the key is already present
         focusControllers[selectedControllerId]->addPOI(poi);
     } else {
-        if (priorities.size() > 0) {
+        if (!priorities.empty()) {
             std::string fCtrID = priorities[0].second;
             focusControllers[fCtrID]->addPOI(poi);
         }

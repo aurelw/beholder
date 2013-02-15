@@ -76,7 +76,7 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
 
     /* setup a focus controller */
     FocusControllerSinglePoint::Ptr fctrl(
-            new FocusControllerSinglePoint(camParameters, poseTracker));
+            new FocusControllerMultiNearest(camParameters, poseTracker));
     fctrl->setPriority(5);
     fctrl->setIdentifier("SinglePoint");
     fctrl->start();

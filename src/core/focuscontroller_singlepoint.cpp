@@ -107,6 +107,8 @@ void FocusControllerSinglePoint::doTracking() {
     }
 
     // write the result
-    setFocusData(canTrack, distance, trackedPoint);
+    if (canTrack || activeState) {
+        setFocusData(canTrack, distance, trackedPoint);
+    }
 }
 

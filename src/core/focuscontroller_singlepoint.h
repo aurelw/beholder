@@ -35,15 +35,15 @@ class FocusControllerSinglePoint : public FocusController {
         ~FocusControllerSinglePoint();
 
         /* FocusController implementation */
-        virtual void start();
-        virtual void stop();
-        virtual void reset();
-        virtual void addPOI(PointOfInterest::Ptr p);
+        virtual void start() override;
+        virtual void stop() override;
+        virtual void reset() override;
+        virtual void addPOI(PointOfInterest::Ptr p) override;
 
     protected:
 
         /* implementation of actual focus tracking */
-        void doTracking();
+        virtual void doTracking();
 
         /* threading */
         boost::thread *thread;
@@ -55,7 +55,6 @@ class FocusControllerSinglePoint : public FocusController {
         /* POI storage */
         boost::shared_mutex poiMutex;
         PointOfInterest::WeakPtr poi;
-
 
         /* helpers */
         CameraParameters::Ptr camParameters;
