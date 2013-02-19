@@ -76,7 +76,7 @@ void KinfuWrapper::init() {
 
 void KinfuWrapper::spinOnce() {
     if (!capture->grab (depthGrab, rgbGrab)) {
-        pcl::console::print_warn("[KinfuWrapper] Can't capture pointcloud!\n"); 
+        pcl::console::print_error("[KinfuWrapper] Can't capture pointcloud!\n"); 
         return;
     }
 
