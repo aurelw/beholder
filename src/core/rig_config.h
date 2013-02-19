@@ -75,6 +75,11 @@ class RigConfig {
         /* streaming properties */
         std::string streamingType;
         std::string streamingDevice;
+        bool streamingDoCrop;
+        float streamingCropX;
+        float streamingCropY;
+        float streamingCropXX;
+        float streamingCropYY;
 
         /* photo capture properties */
         std::string photoCaptureType;

@@ -67,7 +67,12 @@ RigConfig::RigConfig() {
 
     /* default main camera streaming */
     streamingType = "v4l";
-    streamingDevice = "/dev/video1";
+    streamingDevice = "0";
+    streamingDoCrop = false;
+    streamingCropX = 0.0;
+    streamingCropY = 0.0;
+    streamingCropXX = 1.0;
+    streamingCropYY = 1.0;
 }
 
 void RigConfig::saveToFile(std::string fname) {
@@ -245,6 +250,11 @@ void RigConfig::saveStreaming() {
 
     fs << "type" << streamingType;
     fs << "device" << streamingDevice;
+    fs << "doCrop" << streamingDoCrop;
+    fs << "cropX" << streamingCropX;
+    fs << "cropY" << streamingCropY;
+    fs << "cropXX" << streamingCropXX;
+    fs << "cropYY" << streamingCropYY;
 
     fs << "}";
 }
@@ -254,6 +264,11 @@ void RigConfig::loadStreaming() {
     FileNode node = fs["streaming"];
     node["type"] >> streamingType;
     node["device"] >> streamingDevice;
+    node["doCrop"] >> streamingDoCrop;
+    node["cropX"] >> streamingCropX;
+    node["cropY"] >> streamingCropY;
+    node["cropXX"] >> streamingCropXX;
+    node["cropYY"] >> streamingCropYY;
 }
 
 
