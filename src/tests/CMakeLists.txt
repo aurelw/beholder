@@ -16,3 +16,8 @@ target_link_libraries (test_core_pullup core)
 set (test_focuscontroller_source_files test_focuscontroller.cpp)
 add_executable (test_focuscontroller ${test_focuscontroller_source_files})
 target_link_libraries (test_focuscontroller core)
+
+# VideoStream Test
+set (test_videostream_source_files test_videostream.cpp)
+add_executable (test_videostream ${test_videostream_source_files})
+target_link_libraries (test_videostream core)
