@@ -32,26 +32,53 @@ class FFocusMessure {
 
         FFocusMessure()
         {
-            exRotationMat = cv::Mat_<double>(3,3);
+            exRotationMat = cv::Mat_<float>(3,3);
         }
 
-        void setPose(Eigen::Affine3f& pose);
+        /* objects needed for proper calculation */
         void setCameraParameters(CameraParameters::Ptr par);
+        void setPose(const Eigen::Affine3f& pose);
 
-        float getFocalPlaneDistance(Eigen::Vector3f p);
-        Eigen::Vector3f getFocalPoint(Eigen::Vector3f p);
-        bool isVisible(Eigen::Vector3f p);
+        /* the distance of any point to the camera */
+        float getFocalPlaneDistance(const Eigen::Vector3f &p);
 
-        float distancePP(Eigen::Vector3f p0, Eigen::Vector3f p1);
+        /* projects a point onto the viewing axis 
+         * which sort of represents a virtual focal
+         * point for the actual point. */
+        Eigen::Vector3f getFocalPoint(const Eigen::Vector3f &p);
+
+        /* checks if any point projects into the camera frame */
+        bool isVisible(const Eigen::Vector3f &p);
+
+        /* project a point with the camera */
+        Eigen::Vector2f projectPoint(const Eigen::Vector3f &p);
+
+        /* project to image point 3d point in world space */
+        Eigen::Vector3f projectPoint(const Eigen::Vector2f &p);
+
+        /* euclidean distance between two points */
+        //FIXME move to mathutils
+        float distancePP(const Eigen::Vector3f &p0, const Eigen::Vector3f &p1);
+
+        /* Get the closest point on the segment
+         *  by the viewing vector transformed to world space */ 
+        Eigen::Vector3f getClosestOnSegment(
+            const Eigen::Vector3f &p0, const Eigen::Vector3f &p1,
+            const Eigen::Vector3f &tViewingVector);
 
     private:
 
-        void extractTranslationRotation();
+        void updateMatrices();
 
+        /* input models */
         Eigen::Affine3f camPose;
         CameraParameters::Ptr camPara;
+
         cv::Vec3f exTranslation, exRotation;
         cv::Mat exRotationMat;
+        cv::Mat projCameraMatrix;
+        cv::Mat inverseProjCameraMatrix;
+        cv::Mat inverseCalibMatrix;
 
 };
 

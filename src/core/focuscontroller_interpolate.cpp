@@ -18,6 +18,8 @@
 
 #include "focuscontroller_interpolate.h"
 
+#include "mathutils.h"
+
 
 FocusControllerInterpolate::FocusControllerInterpolate(
     CameraParameters::Ptr camPar,
@@ -74,23 +76,32 @@ void FocusControllerInterpolate::doTracking() {
             }
         } // for
 
-        /*** interpolation between the two pois is equal 
-         *   to interpolate between the two focal points. ***/
+        /*** Interpolate between the two pois by interpolating 
+         * between the projectes point in image space. Also
+         * check bounds and only project on a valid line segment.
+         ***/
         Eigen::Vector3f pOneVec(pOne.x, pOne.y, pOne.z);
         Eigen::Vector3f pTwoVec(pTwo.x, pTwo.y, pTwo.z);
 
-        /* the ratio, essentially a linear function
-         * between poiOne and poiTwo depending on viewing
-         * angle */
-        float ratio = dTwo/(dOne+dTwo);
-        /* get the two focal points on the viewing vector */
-        Eigen::Vector3f focalPointOne = 
-            focusMessure.getFocalPoint(pOneVec);
-        Eigen::Vector3f focalPointTwo = 
-            focusMessure.getFocalPoint(pTwoVec);
+        /* project the two points into the image frame */
+        Eigen::Vector2f projOne = focusMessure.projectPoint(pOneVec);
+        Eigen::Vector2f projTwo = focusMessure.projectPoint(pTwoVec);
 
-        /* check the projected point */
-        //TODO project, check region,..
+        /* the interpolation line between two projtected pois in image space */
+        Eigen::ParametrizedLine<float, 2> projInterLine =
+            Eigen::ParametrizedLine<float,2>::Through(projOne, projTwo);
+
+        //FIXME check why point is wrongly projected at high angles of view!
+        /* project the middle point of the camera frame onto the interline */
+        Eigen::Vector2f frameMiddle(0.5, 0.5);
+        Eigen::Vector2f projFPoint = projInterLine.projection(frameMiddle);
+
+        /* projected from 2d image point to 3d vector in world space 
+         * and intersect with the original line between the pois */
+        Eigen::Vector3f projViewVec = focusMessure.projectPoint(projFPoint);
+        Eigen::Vector3f interPoint = 
+            focusMessure.getClosestOnSegment(pOneVec, pTwoVec, projViewVec);
+
         //TODO non linear interpolation by modulating function on ration (sin)
         //
         // example f(x) = x + (sin(2*pi*x) * 0.1)
@@ -98,14 +109,14 @@ void FocusControllerInterpolate::doTracking() {
         //  this goes out parameter with a too high shape parameter
         //  look at sqrt() function modulation
 
-        Eigen::Vector3f focalPointInterpolated =
-            focalPointTwo + (focalPointOne - focalPointTwo)*ratio;
+        /* get final focal point from tracked point */
+        Eigen::Vector3f focalPointInterpolated = 
+            focusMessure.getFocalPoint(interPoint);
 
         /* final focus data */
         canTrack = true;
         distance = focusMessure.getFocalPlaneDistance(focalPointInterpolated);
-        //FIXME maybe the real interpolated point and not closest?
-        trackedPoint = pOne; 
+        trackedPoint = vecToPoint(interPoint); 
     }
 
     } // lock pois

@@ -38,3 +38,34 @@ Eigen::Affine3f transRotVecToAffine3f(
     return pose;
 }
 
+
+/* http://geomalgorithms.com/a07-_distance.html */
+void intersectLines(const Eigen::Vector3f &p0, const Eigen::Vector3f &p1,
+                    const Eigen::Vector3f &q0, const Eigen::Vector3f &q1,
+                    Eigen::Vector3f &pointOnP, Eigen::Vector3f &pointOnQ)
+{
+    Eigen::Vector3f w0 = p0 - q0;
+
+    /* the two vectors on the lines */
+    Eigen::Vector3f u = p1 - p0;
+    u.normalize();
+    Eigen::Vector3f v = q0 - q1;
+    v.normalize();
+
+    float a = u.dot(u);
+    float b = u.dot(v);
+    float c = v.dot(v);
+    float d = u.dot(w0);
+    float e = v.dot(w0);
+
+    float normFactor = a*c - b*b;
+    float sc = (b*e - c*d) / normFactor;
+    float tc = (a*e - b*d) / normFactor;
+
+    /* the two nearest points on the lines */
+    Eigen::ParametrizedLine<float, 3> lineP(p0, u);
+    pointOnP = lineP.pointAt(sc);
+    Eigen::ParametrizedLine<float, 3> lineQ(q0, v);
+    pointOnQ = lineQ.pointAt(tc);
+}
+

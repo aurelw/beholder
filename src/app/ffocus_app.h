@@ -32,6 +32,7 @@
 #include "centralfocuscontrol.h"
 #include "focuscontroller_singlepoint.h"
 #include "focuscontroller_multinearest.h"
+#include "focuscontroller_interpolate.h"
 #include "poicollection.h"
 
 #include "focustracker_single.h"
