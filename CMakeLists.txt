@@ -7,6 +7,7 @@ add_definitions("-std=gnu++11")
 # options
 option (BUILD_APP "Build with application frontend." ON)
 option (BUILD_TESTS "Build with tests." ON)
+set(GPHOTO_BIN "" CACHE FILEPATH "Path to gPhoto binary.")
 
 # deal with pcl
 find_package(PCL 1.7 REQUIRED)

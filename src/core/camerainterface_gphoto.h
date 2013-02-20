@@ -16,21 +16,31 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#define BEHOLDER_VERSION @BBEHOLDER_VERSION@
+#ifndef __CAMERA_INTERFACE_GPHOTO_H__
+#define __CAMERA_INTERFACE_GPHOTO_H__
 
-#define BH_DEBUG_LVL @BH_DEBUG_LVL@
-#if BH_DEBUG_LVL > 0
-    #define BH_INFO
-#endif
-#if BH_DEBUG_LVL > 1
-    #define BH_LOG
-#endif
-#if BH_DEBUG_LVL > 2
-    #define BH_VERBOSE
-#endif
-# if BH_DEBUG_LVL > 3
-    #define BH_FLOOD
-#endif
+#include "opencv2/opencv.hpp"
 
-#define GPHOTO_BIN "@GPHOTO_BIN@"
+#include "camerainterface.h"
+#include "beholder_config.h"
+
+
+class CameraInterfaceGPhoto : public CameraInterface {
+
+    public:
+
+        CameraInterfaceGPhoto(
+                const std::string &tmpFile="/tmp/beholder_cam_capture.jpg");
+
+        virtual void captureImageToFile(const std::string &fname) override;
+        virtual cv::Mat captureImage() override;
+
+    protected:
+
+        virtual std::string buildCmd(const std::string &capfile);
+        std::string tempFile;
+
+};
+
+#endif
 

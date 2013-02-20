@@ -16,21 +16,25 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#define BEHOLDER_VERSION @BBEHOLDER_VERSION@
+#include <pcl/io/pcd_io.h>
 
-#define BH_DEBUG_LVL @BH_DEBUG_LVL@
-#if BH_DEBUG_LVL > 0
-    #define BH_INFO
-#endif
-#if BH_DEBUG_LVL > 1
-    #define BH_LOG
-#endif
-#if BH_DEBUG_LVL > 2
-    #define BH_VERBOSE
-#endif
-# if BH_DEBUG_LVL > 3
-    #define BH_FLOOD
-#endif
+#include "rig_config.h"
+#include "cameraparameters.h"
+#include "camerainterface_factory.h"
 
-#define GPHOTO_BIN "@GPHOTO_BIN@"
+int main() {
 
+    /* the basic rig config */
+    RigConfig rc;
+    rc.loadFromFile("rigconfig_core_pullup.xml");
+
+    CameraInterface::Ptr cif = createCameraInterface(rc);
+    cv::Mat img = cif->captureImage();
+
+    cv::imshow("capture", img);
+    cv::imwrite("test_capture.jpg", img);
+
+    while (cv::waitKey(10) != 27); //esc
+        
+
+}

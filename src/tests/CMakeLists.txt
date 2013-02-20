@@ -21,3 +21,8 @@ target_link_libraries (test_focuscontroller core)
 set (test_videostream_source_files test_videostream.cpp)
 add_executable (test_videostream ${test_videostream_source_files})
 target_link_libraries (test_videostream core)
+
+# CameraInterface Test
+set (test_camerainterface_source_files test_camerainterface.cpp)
+add_executable (test_camerainterface ${test_camerainterface_source_files})
+target_link_libraries (test_camerainterface core)

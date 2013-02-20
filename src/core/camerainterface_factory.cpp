@@ -16,21 +16,15 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#define BEHOLDER_VERSION @BBEHOLDER_VERSION@
+#include "camerainterface_factory.h"
 
-#define BH_DEBUG_LVL @BH_DEBUG_LVL@
-#if BH_DEBUG_LVL > 0
-    #define BH_INFO
-#endif
-#if BH_DEBUG_LVL > 1
-    #define BH_LOG
-#endif
-#if BH_DEBUG_LVL > 2
-    #define BH_VERBOSE
-#endif
-# if BH_DEBUG_LVL > 3
-    #define BH_FLOOD
-#endif
+#include "camerainterface_gphoto.h"
 
-#define GPHOTO_BIN "@GPHOTO_BIN@"
+CameraInterface::Ptr createCameraInterface(const RigConfig &rc) {
+    CameraInterface::Ptr cif;
+    if (rc.photoCaptureType == "gphoto") {
+        cif.reset( new CameraInterfaceGPhoto("bh_cap.jpg"));
+    }
+    return cif;
+}
 
