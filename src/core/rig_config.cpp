@@ -73,6 +73,8 @@ RigConfig::RigConfig() {
     streamingCropY = 0.0;
     streamingCropXX = 1.0;
     streamingCropYY = 1.0;
+    streamingWidth = 640;
+    streamingHeight = 480;
 }
 
 void RigConfig::saveToFile(std::string fname) {
@@ -255,6 +257,8 @@ void RigConfig::saveStreaming() {
     fs << "cropY" << streamingCropY;
     fs << "cropXX" << streamingCropXX;
     fs << "cropYY" << streamingCropYY;
+    fs << "width" << streamingWidth;
+    fs << "height" << streamingHeight;
 
     fs << "}";
 }
@@ -269,6 +273,8 @@ void RigConfig::loadStreaming() {
     node["cropY"] >> streamingCropY;
     node["cropXX"] >> streamingCropXX;
     node["cropYY"] >> streamingCropYY;
+    node["width"] >> streamingWidth;
+    node["height"] >> streamingHeight;
 }
 
 

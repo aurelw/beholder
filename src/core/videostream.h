@@ -37,7 +37,10 @@ class VideoStream : public UpdateSignal {
         VideoStream(int captureDevice);
         ~VideoStream();
 
+        /* set some addition capture properties */
         virtual void setCropRegion(float x, float y, float xx, float yy);
+        virtual void setResolution(int width, int height);
+
         virtual cv::Mat getFrame();
 
         void start();
@@ -46,6 +49,10 @@ class VideoStream : public UpdateSignal {
         virtual bool waitForFirstFrame();
 
     protected:
+
+        /* targeted resolution */
+        int frameWidth = 640;
+        int frameHeight = 480;
 
         /* roi */
         bool useROI = false;

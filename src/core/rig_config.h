@@ -80,6 +80,8 @@ class RigConfig {
         float streamingCropY;
         float streamingCropXX;
         float streamingCropYY;
+        int streamingHeight;
+        int streamingWidth;
 
         /* photo capture properties */
         std::string photoCaptureType;

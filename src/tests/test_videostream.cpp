@@ -19,7 +19,12 @@
 #include "rig_config.h"
 #include "videostream_factory.h"
 
+#include "highgui.h"
+
 int main() {
+
+    /* create highui window */
+    cv::namedWindow("capture", CV_WINDOW_AUTOSIZE);
 
     /* load rig config */
     RigConfig rc;
@@ -31,6 +36,11 @@ int main() {
     bool gotFrame = vStream->waitForFirstFrame();
 
     for (;gotFrame;) {
+        cv::Mat frame = vStream->getFrame();
+        cv::Size size = frame.size();
+        std::cout << "width: " << size.width << 
+            " height: " << size.height << std::endl;
+
         cv::imshow("capture", vStream->getFrame());
         if (cv::waitKey(10) >= 0) {
             break;

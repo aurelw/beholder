@@ -40,6 +40,12 @@ void VideoStream::setCropRegion(float x, float y, float xx, float yy) {
 }
 
 
+void VideoStream::setResolution(int width, int height) {
+    frameWidth = width;
+    frameHeight = height;
+}
+
+
 cv::Mat VideoStream::getFrame() {
     boost::shared_lock<boost::shared_mutex> lock(mutex);
     return currentFrame.clone();
@@ -48,7 +54,6 @@ cv::Mat VideoStream::getFrame() {
 
 void VideoStream::start() {
     if (!threadRunning) {
-
 
         std::stringstream msg;
         msg << " Streaming from camera device " << capDevice << std::endl;
@@ -61,6 +66,11 @@ void VideoStream::start() {
             return;
         }
 
+        /* set additional camera parameters */
+        vCap.set(CV_CAP_PROP_FRAME_WIDTH, frameWidth);
+        vCap.set(CV_CAP_PROP_FRAME_HEIGHT, frameHeight);
+
+        /* start capturing thread */
         threadRunning = true;
         thread = new boost::thread(
                 boost::bind( &VideoStream::runCapture, this ));

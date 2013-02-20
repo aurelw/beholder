@@ -36,6 +36,9 @@ VideoStream::Ptr createMainCameraVideoStream(const RigConfig &rc) {
                         rc.streamingCropX, rc.streamingCropY,
                         rc.streamingCropXX, rc.streamingCropYY);
             }
+            
+            /* additional parameters */
+            vStream->setResolution(rc.streamingWidth, rc.streamingHeight);
         } // v4l
     }
 

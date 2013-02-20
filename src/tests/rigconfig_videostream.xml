@@ -29,7 +29,7 @@
   <deviceID>0</deviceID></rangeFinder>
 <camera>
   <imageWidth>1080</imageWidth>
-  <imageHeight>32630</imageHeight>
+  <imageHeight>32756</imageHeight>
   <cameraMatrix type_id="opencv-matrix">
     <rows>3</rows>
     <cols>3</cols>
@@ -45,19 +45,19 @@
 <focusMotor>
   <type>ByteServo</type>
   <device>/dev/ttyUSB0</device>
-  <ha>1.2751638452814436e-36</ha>
+  <ha>-5.5434985907700311e+32</ha>
   <hb>0.</hb>
-  <hc>-9.7672776800690115e+27</hc>
+  <hc>0.</hc>
   <hd>0.</hd>
-  <he>0.</he>
+  <he>1.2751638452814436e-36</he>
   <hf>0.</hf>
-  <hg>-9.7675728279741909e+27</hg>
+  <hg>-1.6774003811595781e-23</hg>
   <la>0.</la>
-  <lb>-1.6319391054615924e+38</lb>
+  <lb>0.</lb>
   <lc>0.</lc>
-  <ld>-9.7965728805454933e+27</ld>
+  <ld>-1.6774792672501002e-23</ld>
   <le>0.</le>
-  <lf>-1.8674696011044776e+38</lf>
+  <lf>-2.7586272025384440e-13</lf>
   <lg>0.</lg>
   <limitH>0.</limitH>
   <limitL>0.</limitL></focusMotor>
@@ -68,7 +68,9 @@
   <cropX>0.2</cropX>
   <cropY>0.2</cropY>
   <cropXX>0.8</cropXX>
-  <cropYY>0.8</cropYY></streaming>
+  <cropYY>0.8</cropYY>
+  <width>640</width>
+  <height>480</height></streaming>
 <photoCapture>
   <type>gphoto</type>
   <port>usb</port></photoCapture>
