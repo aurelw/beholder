@@ -26,7 +26,7 @@ int main() {
 
     /* the basic rig config */
     RigConfig rc;
-    rc.loadFromFile("rigconfig_core_pullup.xml");
+    rc.loadFromFile("rigconfig_camerainterface.xml");
 
     CameraInterface::Ptr cif = createCameraInterface(rc);
     cv::Mat img = cif->captureImage();
@@ -34,7 +34,15 @@ int main() {
     cv::imshow("capture", img);
     cv::imwrite("test_capture.jpg", img);
 
-    while (cv::waitKey(10) != 27); //esc
-        
+    while (true) {
+        int key = cv::waitKey(10);
+        if (key == 27) { // ESC
+            break;
+        } else if (key > 0) {
+            img = cif->captureImage();
+            cv::imshow("capture", img);
+        }
+    }
 
 }
+

@@ -64,6 +64,7 @@ RigConfig::RigConfig() {
     /* default photo capture poperties */
     photoCaptureType = "gphoto";
     photoCapturePort = "usb";
+    photoCaptureMockupDir = "/tmp/camerainterface_mockup_files/";
 
     /* default main camera streaming */
     streamingType = "v4l";
@@ -283,6 +284,7 @@ void RigConfig::savePhotoCapture() {
 
     fs << "type" << photoCaptureType;
     fs << "port" << photoCapturePort;
+    fs << "mockupDir" << photoCaptureMockupDir;
 
     fs << "}";
 }
@@ -292,6 +294,7 @@ void RigConfig::loadPhotoCapture() {
     FileNode node = fs["photoCapture"];
     node["type"] >> photoCaptureType;
     node["port"] >> photoCapturePort;
+    node["mockupDir"] >> photoCaptureMockupDir;
 }
 
 

@@ -16,24 +16,32 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "camerainterface_factory.h"
+#ifndef __CAMERA_INTERFACE_MOCKUP_H__
+#define __CAMERA_INTERFACE_MOCKUP_H__
 
-#include "camerainterface_gphoto.h"
-#include "camerainterface_mockup.h"
+#include <boost/filesystem.hpp>
 
-CameraInterface::Ptr createCameraInterface(const RigConfig &rc) {
-    CameraInterface::Ptr cif;
+#include "opencv2/opencv.hpp"
 
-    if (rc.hasPhotoCapture) {
-        if (rc.photoCaptureType == "gphoto") {
-            cif.reset( new CameraInterfaceGPhoto("bh_cap.jpg") );
-        } else if (rc.photoCaptureType == "mockup") {
-            CameraInterfaceMockup *mockup = new CameraInterfaceMockup();
-            mockup->loadFilesFromDirectory(rc.photoCaptureMockupDir);
-            cif.reset(mockup);
-        }
-    }
+#include "camerainterface.h"
 
-    return cif;
-}
+
+class CameraInterfaceMockup : public CameraInterface {
+
+    public:
+
+        void loadFilesFromDirectory(const std::string &dir);
+
+        /* CameraInterface implementation */
+        virtual void captureImageToFile(const std::string &fname) override;
+        virtual cv::Mat captureImage() override;
+
+    protected:
+
+        std::vector<boost::filesystem::path> imageFiles;
+        std::vector<boost::filesystem::path>::const_iterator itImageFiles;
+
+};
+
+#endif
 

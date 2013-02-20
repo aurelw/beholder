@@ -86,6 +86,7 @@ class RigConfig {
         /* photo capture properties */
         std::string photoCaptureType;
         std::string photoCapturePort;
+        std::string photoCaptureMockupDir;
 
         /* meta data */
         std::string rigName;
