@@ -180,8 +180,8 @@ template <typename PointT> bool PlaneMarker<PointT>::computeMarkerCenter(
          * this is slooooOw */
         std::vector<pcl::PointIndices> cluster_indices;
 
-        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree 
-            (new pcl::search::KdTree<pcl::PointXYZRGB>);
+        pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree 
+            (new pcl::search::KdTree<pcl::PointXYZRGBA>);
         tree->setInputCloud (filtered_cloud_ptr);
 
         pcl::EuclideanClusterExtraction<PointT> ec;

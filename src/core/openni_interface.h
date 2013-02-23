@@ -35,21 +35,26 @@
 
 class OpenNiInterface : 
     public UpdateSignal, 
-    public CloudProvider<pcl::PointXYZRGB> 
+    public CloudProvider<pcl::PointXYZRGBA> 
 {
 
     public:
 
-        typedef typename pcl::PointXYZRGB PointType;
+        typedef typename pcl::PointXYZRGBA PointType;
         typedef typename pcl::PointCloud<PointType> Cloud;
         typedef typename Cloud::Ptr CloudPtr;
         typedef typename Cloud::ConstPtr CloudConstPtr;
 
-        OpenNiInterface() :
+        typedef typename  boost::shared_ptr<OpenNiInterface> Ptr;
+
+        OpenNiInterface(std::string device) :
             isStreaming(false),
-            isConnected(false)
+            isConnected(false),
+            deviceId(device)
         {
         }
+
+        ~OpenNiInterface();
 
         bool init();
         void waitForFirstFrame();
@@ -69,6 +74,7 @@ class OpenNiInterface :
 
         bool isStreaming;
         bool isConnected;
+        std::string deviceId;
 };
 
 #endif

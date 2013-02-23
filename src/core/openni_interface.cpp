@@ -21,8 +21,13 @@
 #include <boost/foreach.hpp>
 
 
+OpenNiInterface::~OpenNiInterface() {
+    grabber->stop();
+}
+
+
 void OpenNiInterface::cloud_callback(const CloudConstPtr &cld) {
-    //FIXME mutex on cloud
+    // assignment to shared pointers is threadsafe
     cloud = cld;
     if (cloud != NULL) {
         isStreaming = true;
@@ -32,7 +37,6 @@ void OpenNiInterface::cloud_callback(const CloudConstPtr &cld) {
 
 
 OpenNiInterface::CloudConstPtr OpenNiInterface::getLastCloud() {
-    //FIXME mutex on cloud
     return cloud;
 }
 
@@ -57,6 +61,7 @@ void OpenNiInterface::setupGrabber() {
     pcl::OpenNIGrabber::Mode image_mode = pcl::OpenNIGrabber::OpenNI_Default_Mode;
 
     try {
+        //FIXME deviceId
         grabber = new pcl::OpenNIGrabber();
     } catch (pcl::IOException &exc) {
         return;

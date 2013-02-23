@@ -41,7 +41,7 @@ RigConfig::RigConfig() {
     /* default rangefinder data */
     rangefinderExTranslation = Mat::zeros(3, 1, CV_32F);
     rangefinderExRotationVec = Mat::zeros(3, 1, CV_32F);
-    rangefinderDeviceID = 0;
+    rangefinderDeviceID = "0";
 
     /* default camera data */
     cameraImageWidth = 1920;
@@ -58,7 +58,7 @@ RigConfig::RigConfig() {
     /* default tracking camera data */
     trackingCameraExTranslation = Mat::zeros(3, 1, CV_32F);
     trackingCameraExRotationVec = Mat::zeros(3, 1, CV_32F);
-    trackingCameraDeviceID = 1;
+    trackingCameraDeviceID = "1";
 
 
     /* default photo capture poperties */

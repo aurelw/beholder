@@ -56,7 +56,7 @@ class RigConfig {
         /* rangefinder properties */
         cv::Mat rangefinderExTranslation;
         cv::Mat rangefinderExRotationVec;
-        int rangefinderDeviceID; 
+        std::string rangefinderDeviceID; 
 
         /* focus motor properties */
         std::string fMotorType;
@@ -70,7 +70,7 @@ class RigConfig {
         /* additional tracking camera properties */
         cv::Mat trackingCameraExTranslation;
         cv::Mat trackingCameraExRotationVec;
-        int trackingCameraDeviceID; 
+        std::string trackingCameraDeviceID; 
         
         /* streaming properties */
         std::string streamingType;

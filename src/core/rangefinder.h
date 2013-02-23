@@ -72,7 +72,7 @@ class RangeFinder : public CloudProvider<PointType> {
 
 };
 
-class RangeFinderRGB : RangeFinder<pcl::PointXYZRGB> {};
+class RangeFinderRGB : RangeFinder<pcl::PointXYZRGBA> {};
 class RangeFinderDepth : RangeFinder<pcl::PointXYZ> {};
 
 
