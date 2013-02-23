@@ -135,7 +135,8 @@ int CalibStorageContract::findNextFile(
     if (files.size() > 0) {
         /* highest file number first */
         for (auto file : boost::adaptors::reverse(files)) {
-            std::string fname = file.string();
+            // get only the filename from the path
+            std::string fname = file.filename().string();
 
             /* check if file is valid */
             size_t extPos = fname.find(extension);
