@@ -23,13 +23,15 @@
 
 #include "opencv2/opencv.hpp"
 
+#include "console_utils.h"
+
 
 class CalibStorageContract {
 
     public:
 
         typedef pcl::PointCloud<pcl::PointXYZ> PlainCloud;
-        typedef pcl::PointCloud<pcl::PointXYZRGB> RGBCloud;
+        typedef pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
 
         typedef std::pair<std::string, std::string> FilePair;
 

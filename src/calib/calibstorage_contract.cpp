@@ -27,6 +27,8 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include "console_utils.h"
+
 using namespace boost::filesystem;
 
 
@@ -60,6 +62,7 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
 void CalibStorageContract::addMainIntrinsic(cv::Mat img) {
     std::string fname = numToFileName(mainIntrinsicCounter++, ".jpg");
     cv::imwrite(rootDir + mainIntrinsicDir + fname, img);
+    printSimpleInfo("[CalibStorage] ", "stored intrinsic sample: " + fname + "\n");
 }
 
 
@@ -73,6 +76,7 @@ void CalibStorageContract::addExtrinsicPairXYZ(cv::Mat img, PlainCloud::Ptr clou
     cv::imwrite(rootDir + rangeFinderExtrinsicCamDir + imgfname, img);
     pcl::io::savePCDFileASCII(
             rootDir + rangeFinderExtrinsicCloudDir + cloudfname, *cloud);
+    printSimpleInfo("[CalibStorage] ", "stored extrinsic pair: " + cloudfname + "\n");
 }
 
 
@@ -86,6 +90,8 @@ void CalibStorageContract::addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud)
     cv::imwrite(rootDir + rangeFinderExtrinsicCamDir + imgfname, img);
     pcl::io::savePCDFileASCII(
             rootDir + rangeFinderExtrinsicCloudDir + cloudfname, *cloud);
+    printSimpleInfo("[CalibStorage] ", "stored extrinsic pair: " + 
+            cloudfname + "," + imgfname + "\n");
 }
 
 

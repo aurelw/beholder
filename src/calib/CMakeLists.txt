@@ -1,12 +1,20 @@
 include_directories (../common/)
 include_directories (../core/)
+include_directories (../gui/)
 
 set (calib_source_files calibstorage_contract.cpp)
 add_library (calib ${calib_source_files})
+target_link_libraries(calib core)
 
 
 #### tools and exexutables ####
 
+# add_intrinsic_samples
 set (add_intrinsic_samples_file add_intrinsic_samples.cpp)
 add_executable (add_intrinsic_samples ${add_intrinsic_samples_file})
 target_link_libraries (add_intrinsic_samples core calib)
+
+# capture_extrinsic_pair
+set (capture_extrinsic_pair_files capture_extrinsic_pair.cpp)
+add_executable (capture_extrinsic_pair ${capture_extrinsic_pair_files})
+target_link_libraries (capture_extrinsic_pair core calib gui)
