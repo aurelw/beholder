@@ -26,3 +26,8 @@ target_link_libraries (test_videostream core)
 set (test_camerainterface_source_files test_camerainterface.cpp)
 add_executable (test_camerainterface ${test_camerainterface_source_files})
 target_link_libraries (test_camerainterface core)
+
+# CalibVisualizer Test
+set (test_calibvisualizer_source_files test_calibvisualizer.cpp)
+add_executable (test_calibvisualizer ${test_calibvisualizer_source_files})
+target_link_libraries (test_calibvisualizer core gui)
