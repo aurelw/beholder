@@ -18,3 +18,8 @@ target_link_libraries (add_intrinsic_samples core calib)
 set (capture_extrinsic_pair_files capture_extrinsic_pair.cpp)
 add_executable (capture_extrinsic_pair ${capture_extrinsic_pair_files})
 target_link_libraries (capture_extrinsic_pair core calib gui)
+
+# find_marker_pair
+set (find_marker_pair_files find_marker_pair.cpp)
+add_executable (find_marker_pair ${find_marker_pair_files})
+target_link_libraries (find_marker_pair core calib gui)

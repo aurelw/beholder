@@ -33,18 +33,24 @@ class CalibStorageContract {
         typedef pcl::PointCloud<pcl::PointXYZ> PlainCloud;
         typedef pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
 
+        /* pair: <img, cloud> */
         typedef std::pair<std::string, std::string> FilePair;
+        typedef std::pair<cv::Point3f, cv::Point2f> PointPair3d2d;
 
     public:
 
         CalibStorageContract(const std::string &dir);
+        ~CalibStorageContract();
 
         void addMainIntrinsic(cv::Mat img);
         void addExtrinsicPairXYZ(cv::Mat img, PlainCloud::Ptr cloud); 
         void addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud); 
+        void addExtrinsicPointPair(cv::Point3f p3d, cv::Point2f p2d);
+        void saveExtrinsicPointPairs();
 
         std::vector<std::string> getMainIntrinsicFiles();
         std::vector<FilePair> getExtrinsicFiles();
+        std::vector<PointPair3d2d> getExtrinsicPoints();
 
     protected:
 
@@ -56,6 +62,8 @@ class CalibStorageContract {
         std::string rangeFinderExtrinsicDir =  "/rangefinder_extrinsic/";
         std::string rangeFinderExtrinsicCamDir =  "/rangefinder_extrinsic/cam/";
         std::string rangeFinderExtrinsicCloudDir =  "/rangefinder_extrinsic/cloud/";
+        std::string rangeFinderExtrinsicPointFile =  
+           rangeFinderExtrinsicDir + "pointpairs.xml";
 
         /* new file names */
         int findNextFile(
@@ -73,6 +81,12 @@ class CalibStorageContract {
         /* search */
         std::vector<std::string> getFilesFromDir(
                 const std::string &dir, const std::string &extension);
+
+        /* point pairs for rangefinder extrinsic */
+        std::vector<PointPair3d2d> exPointPairs;
+        bool exPointsUpdated = false;
+        void loadExPointPairs();
+        void saveExPointPairs();
 
 };
 

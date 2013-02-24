@@ -53,9 +53,17 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
             create_directory(path(rootDir + rangeFinderExtrinsicCloudDir));
         }
 
+        /* point pair file */
+        loadExPointPairs();
+
         /* check which files are already there */
         initCounters();
     }
+}
+
+
+CalibStorageContract::~CalibStorageContract() {
+    saveExtrinsicPointPairs();
 }
 
 
@@ -80,7 +88,9 @@ void CalibStorageContract::addExtrinsicPairXYZ(cv::Mat img, PlainCloud::Ptr clou
 }
 
 
-void CalibStorageContract::addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud) {
+void CalibStorageContract::addExtrinsicPairRGB(
+        cv::Mat img, RGBCloud::Ptr cloud) 
+{
     /* get file names */
     std::string imgfname = numToFileName(rangeFinderExtrinsicCounter, ".jpg");
     std::string cloudfname = numToFileName(rangeFinderExtrinsicCounter, ".pcd");
@@ -92,6 +102,23 @@ void CalibStorageContract::addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud)
             rootDir + rangeFinderExtrinsicCloudDir + cloudfname, *cloud);
     printSimpleInfo("[CalibStorage] ", "stored extrinsic pair: " + 
             cloudfname + "," + imgfname + "\n");
+}
+
+
+void CalibStorageContract::addExtrinsicPointPair(
+        cv::Point3f p3d, cv::Point2f p2d) 
+{
+    PointPair3d2d ppair(p3d, p2d);
+    exPointPairs.push_back(ppair);
+    exPointsUpdated = true;
+}
+
+
+void CalibStorageContract::saveExtrinsicPointPairs() {
+    if (exPointsUpdated) {
+        saveExPointPairs();
+        exPointsUpdated = false;
+    }
 }
 
 
@@ -107,7 +134,7 @@ CalibStorageContract::getExtrinsicFiles() {
     std::vector<FilePair> result;
 
     std::vector<std::string> imgFiles = 
-        getFilesFromDir(rootDir + rangeFinderExtrinsicCamDir, ".jgg");
+        getFilesFromDir(rootDir + rangeFinderExtrinsicCamDir, ".jpg");
     std::vector<std::string> cloudFiles = 
         getFilesFromDir(rootDir + rangeFinderExtrinsicCloudDir, ".pcd");
 
@@ -118,6 +145,12 @@ CalibStorageContract::getExtrinsicFiles() {
     }
 
     return result;
+}
+
+
+std::vector<CalibStorageContract::PointPair3d2d> 
+CalibStorageContract::getExtrinsicPoints() {
+    return exPointPairs;
 }
 
 
@@ -198,5 +231,64 @@ std::vector<std::string> CalibStorageContract::getFilesFromDir(
     }
 
     return resultFiles;
+}
+
+
+void CalibStorageContract::loadExPointPairs() {
+    cv::FileStorage fs(rootDir + rangeFinderExtrinsicPointFile, 
+            cv::FileStorage::READ);
+    if (fs.isOpened()) {
+
+        cv::Mat points3d;
+        cv::Mat points2d;
+
+        fs["points3d"] >> points3d;
+        fs["points2d"] >> points2d;
+
+        /* extract points from matrices and store as pair */
+        for (int row=0; row < points3d.rows; row++) {
+            cv::Point3f p3d;
+            p3d.x = points3d.at<float>(row, 0);
+            p3d.y = points3d.at<float>(row, 1);
+            p3d.y = points3d.at<float>(row, 2);
+
+            cv::Point2f p2d;
+            p2d.x = points2d.at<float>(row, 0);
+            p2d.y = points2d.at<float>(row, 1);
+
+            PointPair3d2d ppair(p3d, p2d);
+            exPointPairs.push_back(ppair);
+        }
+    }
+}
+
+
+void CalibStorageContract::saveExPointPairs() {
+
+    cv::FileStorage fs(rootDir + rangeFinderExtrinsicPointFile, 
+            cv::FileStorage::WRITE);
+    if (fs.isOpened()) {
+
+        cv::Mat points3d((int)exPointPairs.size(), 3, cv::DataType<float>::type);
+        cv::Mat points2d((int)exPointPairs.size(), 2, cv::DataType<float>::type);
+
+        /* copy points to matrices */
+        int row = 0;
+        for (PointPair3d2d ppair : exPointPairs) {
+            cv::Point3f p3d = ppair.first;
+            cv::Point2f p2d = ppair.second;
+
+            points3d.at<float>(row, 0) = p3d.x;
+            points3d.at<float>(row, 1) = p3d.y;
+            points3d.at<float>(row, 2) = p3d.z;
+
+            points2d.at<float>(row, 0) = p2d.x;
+            points2d.at<float>(row, 1) = p2d.y;
+        }
+
+        /* store matrices in file */
+        fs << "points3d" << points3d;
+        fs << "points2d" << points2d;
+    }
 }
 

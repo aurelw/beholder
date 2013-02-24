@@ -60,7 +60,7 @@ class PlaneMarker {
 
         PlaneMarker (float length, float width, float sigma);
 
-        bool computeMarkerCenter(const PointCloudConstPtr& c, PointT& center);
+        bool computeMarkerCenter(PointCloudConstPtr c, PointT& center);
 
         /* some points describing the marker */
         PointT pointA, pointB, centerPoint;
@@ -126,7 +126,7 @@ template <typename PointT> PlaneMarker<PointT>::PlaneMarker
 
 
 template <typename PointT> bool PlaneMarker<PointT>::computeMarkerCenter(
-        const PointCloudConstPtr& c, 
+        PointCloudConstPtr c, 
         PointT& center) 
 {
     //FIXME clusters before planes!
