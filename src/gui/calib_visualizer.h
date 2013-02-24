@@ -52,6 +52,11 @@ class CalibVisualizer {
 
     protected:
 
+        /* initial setup for a visualizer */
+        void initVisualizer();
+
+        void updateAllProperties();
+
         /* threading */
         boost::thread *thread;
         bool threadRunning = false;
@@ -60,11 +65,12 @@ class CalibVisualizer {
         boost::shared_mutex mutex;
 
         /* pcl visualizer */
-        pcl::visualization::PCLVisualizer visualizer;
+        pcl::visualization::PCLVisualizer::Ptr visualizer;
         void registerCallbacks();
 
         /* main cloud */
         RGBCloud::Ptr mainCloud;
+        bool flagUpdateMainCloud = false;
         void updateMainCloud();
         bool drawMainCloud = true;
         bool mainCloudAdded = false;
