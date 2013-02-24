@@ -31,6 +31,8 @@
 #define KEY_ESC 27
 #define KEY_ENTER 13
 #define KEY_c 99
+#define KEY_y 121
+#define KEY_n 110
 
 typedef typename pcl::PointXYZRGBA PointT;
 typedef typename pcl::PointCloud<PointT> Cloud;
@@ -74,14 +76,13 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* tollerance for the 3d marker */
+    /* tolerance for the 3d marker */
     float boardSigma = 0.05;
     pcl::console::parse(argc, argv, "-bs", boardSigma);
 
     /* confirm */
-    bool doAddPointPair = false;
-    doAddPointPair = pcl::console::find_switch(argc, argv, "-nc");
-
+    bool doConfirm = true;
+    doConfirm = !pcl::console::find_switch(argc, argv, "-nc");
     /*****************************/
 
 
@@ -90,33 +91,29 @@ int main(int argc, char **argv) {
 
     /* setup visualizer */
     CalibVisualizer visualizer;
+    visualizer.start();
 
     /* image windows */
-    cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
+    //cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
 
     /* the captured file pairs */
     std::vector<CalibStorageContract::FilePair> pairPaths;
     pairPaths = calibStorage.getExtrinsicFiles();
 
-    DEBUG_PRINT(pairPaths.size());
-
     for (auto fpair : pairPaths) {
         /* load image from file and display */
         cv::Mat img = cv::imread(fpair.first, CV_LOAD_IMAGE_COLOR);
         cv::imshow("camera", img);
+        // spin once
+        cv::waitKey(1);
 
         /* load cloud from file and display */
         Cloud::Ptr cloud( new Cloud);
         pcl::io::loadPCDFile<PointT>(fpair.second, *cloud);
         visualizer.setMainCloud(cloud);
-        visualizer.spinOnce();
 
-        /* extract 3d marker */
-        PointT boardPoint;
-        PlaneMarker<PointT> planeMarker(boardWidth, boardHeight, boardSigma);
-        bool found3d = planeMarker.computeMarkerCenter(cloud, boardPoint);
 
-        /* extract points from pattern */
+        /*** extract points from pattern ***/
         cv::Size patternSize(patternWidth, patternHeight);
         std::vector<cv::Point2f> patternCorners;
         bool found2d = cv::findChessboardCorners
@@ -124,15 +121,34 @@ int main(int argc, char **argv) {
              CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | 
              CV_CALIB_CB_NORMALIZE_IMAGE); 
 
-        if (found3d && found2d) {
-            printBrightInfo("[Marker Pair] ", "found.\n");
-
-            /* get the middle point from 2d pattern */
-            cv::Point2f point2d = patternCorners[patternCorners.size()/2];
+        /* display results on image */
+        if (found2d) {
+            printSimpleInfo("[Chessboard] ", "found.\n");
 
             /* draw the 2d pattern */
             cv::drawChessboardCorners(img, patternSize, patternCorners, true);
             cv::imshow("camera", img);
+            cv::waitKey(1);
+        }
+
+
+        /*** extract 3d marker ***/
+        PointT boardPoint;
+        PlaneMarker<PointT> planeMarker(boardWidth, boardHeight, boardSigma);
+        bool found3d = planeMarker.computeMarkerCenter(cloud, boardPoint);
+
+        /* display results in cloud viewer */
+        if (found3d) {
+            printSimpleInfo("[BoardMarker] ", "found.\n");
+
+            /* draw the 3d marker */
+            //TODO
+        }
+
+
+        /* a marker pair was found */
+        if (found2d && found3d) {
+            printBrightInfo("[Marker Pair] ", "found.\n");
 
             /* set the center point of the 3d marker */
             cv::Point3f point3d;
@@ -140,26 +156,48 @@ int main(int argc, char **argv) {
             point3d.y = planeMarker.centerPoint.y;
             point3d.z = planeMarker.centerPoint.z;
 
-            /* draw the 3d marker */
-            //TODO
+            /* get the middle point from 2d pattern */
+            cv::Point2f point2d = patternCorners[patternCorners.size()/2];
 
-            while (doAddPointPair) {
-                int key = cv::waitKey(1);
-                if (key == KEY_c) {
-                    doAddPointPair = true;
-                    visualizer.spinOnce();
-                } else if (key > 0) {
-                    break;
+
+            /* query the user if the sample should be stored */
+            bool doAddPointPair = true;
+            if (doConfirm) {
+                printBrightInfo("[Add Marker Pair] ", "store? [y]/[n].");
+                while (!doAddPointPair) {
+                    int key = cv::waitKey(1);
+                    if (key == KEY_y) {
+                        doAddPointPair = true;
+                        break;
+                    } else if (key == KEY_n) {
+                        doAddPointPair = false;
+                        break;
+                    } else if (key > 0) {
+                        printBrightInfo("[Add Marker Pair] ", 
+                                "store? [y]/[n].");
+                    }
                 }
             }
 
+            /* store point pair */
             if (doAddPointPair) {
                 calibStorage.addExtrinsicPointPair(point3d, point2d);
             }
 
-        } else {
+        } else { // no marker pair
             printWarning("[Marker Pair] ", "not found.\n");
+            cv::waitKey(1);
+            if (doConfirm) {
+                while (true) {
+                    printWarning("[Continue] ", "Hit any key.\n");
+                    int key = cv::waitKey(1);
+                    if (key > 0) {
+                        break;
+                    }
+                }
+            }
         }
+
     } // for all pairs
 
     /* finaly save to calibration storage */
