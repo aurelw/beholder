@@ -51,6 +51,7 @@ class CalibStorageContract {
         std::vector<std::string> getMainIntrinsicFiles();
         std::vector<FilePair> getExtrinsicFiles();
         std::vector<PointPair3d2d> getExtrinsicPoints();
+        std::pair<cv::Mat, cv::Mat> getExtrinsicPointsMatrices();
 
     protected:
 
@@ -84,6 +85,8 @@ class CalibStorageContract {
 
         /* point pairs for rangefinder extrinsic */
         std::vector<PointPair3d2d> exPointPairs;
+        cv::Mat exPointPairsObject;
+        cv::Mat exPointPairsImage;
         bool exPointsUpdated = false;
         void loadExPointPairs();
         void writeExPointPairFile();

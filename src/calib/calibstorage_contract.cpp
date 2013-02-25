@@ -160,6 +160,15 @@ CalibStorageContract::getExtrinsicPoints() {
 }
 
 
+std::pair<cv::Mat, cv::Mat> 
+CalibStorageContract::getExtrinsicPointsMatrices() {
+    std::pair<cv::Mat, cv::Mat> mp;
+    mp.first = exPointPairsObject.clone();
+    mp.second = exPointPairsImage.clone();
+    return mp;
+}
+
+
 void CalibStorageContract::initCounters() {
     mainIntrinsicCounter = findNextFile(rootDir + mainIntrinsicDir, ".jpg");
     rangeFinderExtrinsicCounter = findNextFilePair(
@@ -265,6 +274,10 @@ void CalibStorageContract::loadExPointPairs() {
             PointPair3d2d ppair(p3d, p2d);
             exPointPairs.push_back(ppair);
         }
+
+        /* alose save matrices */
+        exPointPairsObject = points3d;
+        exPointPairsImage = points2d;
     }
 }
 

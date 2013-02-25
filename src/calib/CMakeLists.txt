@@ -23,3 +23,9 @@ target_link_libraries (capture_extrinsic_pair core calib gui)
 set (find_marker_pair_files find_marker_pair.cpp)
 add_executable (find_marker_pair ${find_marker_pair_files})
 target_link_libraries (find_marker_pair core calib gui)
+
+# calibrate_extrinsic_pnp
+set (calibrate_extrinsic_pnp_files calibrate_extrinsic_pnp.cpp)
+add_executable (calibrate_extrinsic_pnp ${calibrate_extrinsic_pnp_files})
+target_link_libraries (calibrate_extrinsic_pnp core calib)
+
