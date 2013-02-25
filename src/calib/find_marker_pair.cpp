@@ -16,7 +16,7 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
 
 #include <pcl/common/common_headers.h>
 #include <pcl/console/parse.h>
@@ -26,6 +26,7 @@
 #include "basicappoptions.h"
 #include "calib_visualizer.h"
 #include "console_utils.h"
+#include "mathutils.h"
 #include "plane_marker.h"
 
 #define KEY_ESC 27
@@ -94,13 +95,21 @@ int main(int argc, char **argv) {
     visualizer.start();
 
     /* image windows */
-    //cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
 
     /* the captured file pairs */
     std::vector<CalibStorageContract::FilePair> pairPaths;
     pairPaths = calibStorage.getExtrinsicFiles();
 
+    int pairCounter = 0;
     for (auto fpair : pairPaths) {
+        /* print loop information */
+        std::stringstream ss;
+        ss << "[Find Pairs] ==== PROCESSING PAIR " 
+            << ++pairCounter << "/" << pairPaths.size()
+            << " ====" << std::endl;
+        printSimpleInfo(ss.str());
+
         /* load image from file and display */
         cv::Mat img = cv::imread(fpair.first, CV_LOAD_IMAGE_COLOR);
         cv::imshow("camera", img);
@@ -124,25 +133,29 @@ int main(int argc, char **argv) {
         /* display results on image */
         if (found2d) {
             printSimpleInfo("[Chessboard] ", "found.\n");
-
-            /* draw the 2d pattern */
-            cv::drawChessboardCorners(img, patternSize, patternCorners, true);
-            cv::imshow("camera", img);
-            cv::waitKey(1);
+        } else {
+            printWarning("[Chessboard] ", "not found.\n");
         }
+        /* draw the 2d pattern */
+        cv::drawChessboardCorners(img, patternSize, patternCorners, found2d);
+        cv::imshow("camera", img);
+        cv::waitKey(1);
 
 
         /*** extract 3d marker ***/
-        PointT boardPoint;
+        PointT bPoint;
         PlaneMarker<PointT> planeMarker(boardWidth, boardHeight, boardSigma);
-        bool found3d = planeMarker.computeMarkerCenter(cloud, boardPoint);
+        bool found3d = planeMarker.computeMarkerCenter(cloud, bPoint);
+        pcl::PointXYZ boardPoint = pointRGBAtoXYZ(bPoint);
 
         /* display results in cloud viewer */
         if (found3d) {
             printSimpleInfo("[BoardMarker] ", "found.\n");
-
             /* draw the 3d marker */
-            //TODO
+            visualizer.setMarkerCenter(boardPoint, true);
+        } else {
+            printWarning("[BoardMarker] ", "not found.\n");
+            visualizer.setMarkerCenter(boardPoint, false);
         }
 
 
@@ -152,9 +165,9 @@ int main(int argc, char **argv) {
 
             /* set the center point of the 3d marker */
             cv::Point3f point3d;
-            point3d.x = planeMarker.centerPoint.x;
-            point3d.y = planeMarker.centerPoint.y;
-            point3d.z = planeMarker.centerPoint.z;
+            point3d.x = boardPoint.x;
+            point3d.y = boardPoint.y;
+            point3d.z = boardPoint.z;
 
             /* get the middle point from 2d pattern */
             cv::Point2f point2d = patternCorners[patternCorners.size()/2];
@@ -163,8 +176,8 @@ int main(int argc, char **argv) {
             /* query the user if the sample should be stored */
             bool doAddPointPair = true;
             if (doConfirm) {
-                printBrightInfo("[Add Marker Pair] ", "store? [y]/[n].");
-                while (!doAddPointPair) {
+                printBrightInfo("[Add Marker Pair] ", "store? [y]/[n]\n");
+                for (;;) {
                     int key = cv::waitKey(1);
                     if (key == KEY_y) {
                         doAddPointPair = true;
@@ -174,7 +187,7 @@ int main(int argc, char **argv) {
                         break;
                     } else if (key > 0) {
                         printBrightInfo("[Add Marker Pair] ", 
-                                "store? [y]/[n].");
+                                "store? [y]/[n]\n");
                     }
                 }
             }
@@ -182,14 +195,18 @@ int main(int argc, char **argv) {
             /* store point pair */
             if (doAddPointPair) {
                 calibStorage.addExtrinsicPointPair(point3d, point2d);
+                //FIXME don't store every time, only on exit
+                calibStorage.saveExtrinsicPointPairs();
             }
 
         } else { // no marker pair
             printWarning("[Marker Pair] ", "not found.\n");
             cv::waitKey(1);
+
+            /* confirm before next iteration */
             if (doConfirm) {
+                printWarning("[Continue] ", "Hit any key.\n");
                 while (true) {
-                    printWarning("[Continue] ", "Hit any key.\n");
                     int key = cv::waitKey(1);
                     if (key > 0) {
                         break;

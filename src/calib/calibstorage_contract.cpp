@@ -111,12 +111,18 @@ void CalibStorageContract::addExtrinsicPointPair(
     PointPair3d2d ppair(p3d, p2d);
     exPointPairs.push_back(ppair);
     exPointsUpdated = true;
+    
+    /* print some output */
+    std::stringstream ss;
+    ss << "p3d: " << p3d << " p2d: " << p2d;
+    printSimpleInfo("[CalibStorage] ", 
+            "added extrinsic point pair. " + ss.str() + "\n"); 
 }
 
 
 void CalibStorageContract::saveExtrinsicPointPairs() {
     if (exPointsUpdated) {
-        saveExPointPairs();
+        writeExPointPairFile();
         exPointsUpdated = false;
     }
 }
@@ -263,7 +269,7 @@ void CalibStorageContract::loadExPointPairs() {
 }
 
 
-void CalibStorageContract::saveExPointPairs() {
+void CalibStorageContract::writeExPointPairFile() {
 
     cv::FileStorage fs(rootDir + rangeFinderExtrinsicPointFile, 
             cv::FileStorage::WRITE);
@@ -284,11 +290,15 @@ void CalibStorageContract::saveExPointPairs() {
 
             points2d.at<float>(row, 0) = p2d.x;
             points2d.at<float>(row, 1) = p2d.y;
+
+            row++;
         }
 
         /* store matrices in file */
         fs << "points3d" << points3d;
         fs << "points2d" << points2d;
+
+        printSimpleInfo("[CalibStorage] ", "stored extrinsic point pairs.\n"); 
     }
 }
 

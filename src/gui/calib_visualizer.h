@@ -49,6 +49,7 @@ class CalibVisualizer {
 
         /* set properties */
         void setMainCloud(RGBCloud::Ptr cloud);
+        void setMarkerCenter(pcl::PointXYZ center, bool found=true);
 
     protected:
 
@@ -74,6 +75,14 @@ class CalibVisualizer {
         void updateMainCloud();
         bool drawMainCloud = true;
         bool mainCloudAdded = false;
+
+        /* plane marker */
+        pcl::PointXYZ markerCenter;
+        bool flagUpdateMarker = false;
+        void updateMarker();
+        bool drawMarker = true;
+        bool foundMarker = false;
+        bool markerAdded = false;
 
 };
 

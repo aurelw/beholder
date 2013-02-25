@@ -86,7 +86,7 @@ class CalibStorageContract {
         std::vector<PointPair3d2d> exPointPairs;
         bool exPointsUpdated = false;
         void loadExPointPairs();
-        void saveExPointPairs();
+        void writeExPointPairFile();
 
 };
 

@@ -39,6 +39,9 @@ void CalibVisualizer::initVisualizer() {
     visualizer->addCoordinateSystem(0.5);
     visualizer->setBackgroundColor(0.1, 0.1, 0.1);
 
+    /* other properties */
+    //visualizer->addText("", 10, 10, "markerText");
+
     registerCallbacks();
 }
 
@@ -109,8 +112,40 @@ void CalibVisualizer::updateMainCloud() {
 }
 
 
+void CalibVisualizer::setMarkerCenter(pcl::PointXYZ center, bool found) {
+    boost::unique_lock<boost::shared_mutex> lock(mutex);
+    markerCenter = center;
+    foundMarker = found;
+    flagUpdateMarker = true;
+}
+
+
+void CalibVisualizer::updateMarker() {
+    if (!flagUpdateMarker) return;
+
+    if (markerAdded) {
+        visualizer->removeShape("markerCenter");
+    }
+
+    if (drawMarker) {
+        if (foundMarker) {
+            visualizer->addSphere(markerCenter, 0.01, 
+                    1.0, 0.64, 0.0, //orange
+                    "markerCenter");
+            markerAdded = true;
+            //visualizer->updateText("", 10, 10, "markerText");
+        } else {
+            //visualizer->updateText("Marker not found.", 10, 10, "markerText");
+        }
+    } else {
+        //visualizer->updateText("", 10, 10, "markerText");
+    }
+}
+
+
 void CalibVisualizer::updateAllProperties() {
     updateMainCloud();
+    updateMarker();
 }
 
 

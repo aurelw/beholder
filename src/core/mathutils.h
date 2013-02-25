@@ -20,7 +20,8 @@
 #define __MATH_UTILS_H__
 
 #include <pcl/common/common_headers.h>
-#include <cv.h>
+#include <opencv2/opencv.hpp>
+
 
 
 Eigen::Affine3f transRotVecToAffine3f(
@@ -36,9 +37,29 @@ inline pcl::PointXYZ vecToPoint(const Eigen::Vector3f &vec) {
     return point;
 }
 
+
+inline pcl::PointXYZ pointRGBAtoXYZ(const pcl::PointXYZRGBA &p) {
+    pcl::PointXYZ np;
+    np.x = p.x;
+    np.y = p.y;
+    np.z = p.z;
+    return np;
+}
+
+
+inline pcl::PointXYZRGBA pointXYZtoRGBA(const pcl::PointXYZ &p) {
+    pcl::PointXYZRGBA np;
+    np.x = p.x;
+    np.y = p.y;
+    np.z = p.z;
+    return np;
+}
+
+
 inline Eigen::Vector3f pointToVec(pcl::PointXYZ point) {
     return Eigen::Vector3f(point.x, point.y, point.z);
 }
+
 
 /* computes the two closest points on two lines in 3d space
  * p0 - p1 for the first line
