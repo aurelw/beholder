@@ -1,0 +1,4 @@
+=== CALIBRATION ===
+* hyrid calibration, pnp correspondence with ransac, 
+  remove outliers, do plane <-> plane correspondence
+
