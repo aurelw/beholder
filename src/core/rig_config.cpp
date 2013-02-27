@@ -18,6 +18,8 @@
 
 #include "rig_config.h"
 
+#include "console_utils.h"
+
 using namespace cv;
 
 
@@ -88,6 +90,7 @@ void RigConfig::saveToFile(std::string fname) {
     saveStreaming();
     savePhotoCapture();
     fs.release();
+    printSimpleInfo("[RigConfig] ", "saved to file " + fname + "\n");
 }
 
 
@@ -101,6 +104,7 @@ void RigConfig::loadFromFile(std::string fname) {
     loadPhotoCapture();
     loadStreaming();
     fs.release();
+    printSimpleInfo("[RigConfig] ", "loaded from file " + fname + "\n");
 }
 
 

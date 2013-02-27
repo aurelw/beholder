@@ -34,6 +34,10 @@
 #define KEY_y 121
 #define KEY_n 110
 
+void print_usage() {
+    std::cout << "--calibstorage <path> --rigconfig <file> [--method <\"det\"/\"ransac\">]" << std::endl;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -52,8 +56,18 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    /* calibration method */
     std::string calibMethod = "det"; // det, ransac
     pcl::console::parse(argc, argv, "--method", calibMethod);
+
+    /* help */
+    if (pcl::console::find_switch(argc, argv, "-h") ||
+        pcl::console::find_switch(argc, argv, "--help")) 
+    {
+        print_usage();
+        exit(0);
+    }
+
     /*****************************/
 
 

@@ -84,6 +84,14 @@ int main(int argc, char **argv) {
     /* confirm */
     bool doConfirm = true;
     doConfirm = !pcl::console::find_switch(argc, argv, "-nc");
+
+    /* help */
+    if (pcl::console::find_switch(argc, argv, "-h") ||
+        pcl::console::find_switch(argc, argv, "--help")) 
+    {
+        print_usage();
+        exit(0);
+    }
     /*****************************/
 
 
@@ -95,7 +103,7 @@ int main(int argc, char **argv) {
     visualizer.start();
 
     /* image windows */
-    cv::namedWindow("camera", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("camera", CV_WINDOW_NORMAL|CV_GUI_EXPANDED);
 
     /* the captured file pairs */
     std::vector<CalibStorageContract::FilePair> pairPaths;

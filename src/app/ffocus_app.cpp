@@ -18,6 +18,9 @@
 
 #include "ffocus_app.h"
 
+#include "console_utils.h"
+
+
 FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType, 
         bool driveFocus, 
         std::string motorDevicePath,

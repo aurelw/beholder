@@ -42,13 +42,13 @@ int main(int argc, char **argv) {
     if (!appopt.gotCalibStorageDir) {
         pcl::console::print_error(
             "No calibration storage directory provided. --calibstorage <path>\n");
-        return 1;
+        exit(1);
     }
 
     if (!appopt.gotRigConfigFile) {
         pcl::console::print_error(
             "No rig config provided. --rigconfig <file>\n");
-        return 1;
+        exit(1);
     }
 
     /* print usage info */
@@ -64,13 +64,18 @@ int main(int argc, char **argv) {
 
     /* camera capturing interfaces */
     CameraInterface::Ptr camIf = createCameraInterface(rigConfig);
+    if (!camIf->checkConnection()) {
+        pcl::console::print_error("Camera not connected!\n");
+        exit(1);
+    }
 
     /* cloud interface */
-    OpenNiInterface::Ptr oniIf(new OpenNiInterface(rigConfig.rangefinderDeviceID));
+    OpenNiInterface::Ptr oniIf(
+            new OpenNiInterface(rigConfig.rangefinderDeviceID));
     bool cloudConnected = oniIf->init();
     if (!cloudConnected) {
         pcl::console::print_error("Can't connect to cloud interface!\n");
-        return 1;
+        exit(1);
     }
     oniIf->waitForFirstFrame();
     CloudProvider<pcl::PointXYZRGBA>::Ptr cloudIf;
@@ -80,7 +85,7 @@ int main(int argc, char **argv) {
     CalibVisualizer visualizer;
 
     /* captcher windows */
-    cv::namedWindow("capture", CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("capture", CV_WINDOW_NORMAL|CV_GUI_EXPANDED);
 
     /* the captured pair */
     cv::Mat img;
@@ -101,7 +106,9 @@ int main(int argc, char **argv) {
         } else if (key == KEY_c) {
             /* capture photo and display */
             img = camIf->captureImage();
-            cv::imshow("capture", img);
+            cv::Mat displayImg;
+            displayImg = img.clone();
+            cv::imshow("capture", displayImg);
 
             /* query again for storage */
             printSimpleInfo("[Capture]", 

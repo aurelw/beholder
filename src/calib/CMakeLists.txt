@@ -29,3 +29,8 @@ set (calibrate_extrinsic_pnp_files calibrate_extrinsic_pnp.cpp)
 add_executable (calibrate_extrinsic_pnp ${calibrate_extrinsic_pnp_files})
 target_link_libraries (calibrate_extrinsic_pnp core calib)
 
+# calibrate_intrinsic
+set (calibrate_intrinsic_files calibrate_intrinsic.cpp)
+add_executable (calibrate_intrinsic ${calibrate_intrinsic_files})
+target_link_libraries (calibrate_intrinsic core calib)
+
