@@ -60,3 +60,8 @@ void CameraInterfaceMockup::captureImageToFile(const std::string &dir) {
     cv::imwrite(dir, img);
 }
 
+
+bool CameraInterfaceMockup::checkConnection() {
+    return (imageFiles.size() > 0);
+}
+

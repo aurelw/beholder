@@ -40,6 +40,12 @@ cv::Mat CameraInterfaceGPhoto::captureImage() {
 }
 
 
+bool CameraInterfaceGPhoto::checkConnection() {
+    int ret = system(buildCheckCamCmd().c_str());
+    return (ret == 0);
+}
+
+
 std::string CameraInterfaceGPhoto::buildCmd(const std::string &capfile) {
     std::stringstream cmd;
     cmd << GPHOTO_BIN << " ";
@@ -47,6 +53,15 @@ std::string CameraInterfaceGPhoto::buildCmd(const std::string &capfile) {
     cmd << "--set-config /main/settings/capture=1 ";
     cmd << "--capture-image-and-download ";
     cmd << "--filename " << capfile << " ";
+    return cmd.str();
+}
+
+
+std::string CameraInterfaceGPhoto::buildCheckCamCmd() {
+    std::stringstream cmd;
+    cmd << GPHOTO_BIN << " ";
+    cmd << "--port usb ";
+    cmd << "--set-config /main/settings/capture=1 ";
     return cmd.str();
 }
 

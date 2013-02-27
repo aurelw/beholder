@@ -34,10 +34,12 @@ class CameraInterfaceGPhoto : public CameraInterface {
 
         virtual void captureImageToFile(const std::string &fname) override;
         virtual cv::Mat captureImage() override;
+        virtual bool checkConnection() override;
 
     protected:
 
         virtual std::string buildCmd(const std::string &capfile);
+        virtual std::string buildCheckCamCmd();
         std::string tempFile;
 
 };

@@ -30,6 +30,7 @@ class CameraInterface {
         /* photo capturing */
         virtual void captureImageToFile(const std::string &fname) = 0;
         virtual cv::Mat captureImage() = 0;
+        virtual bool checkConnection() = 0;
 };
 
 #endif

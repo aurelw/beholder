@@ -35,6 +35,7 @@ class CameraInterfaceMockup : public CameraInterface {
         /* CameraInterface implementation */
         virtual void captureImageToFile(const std::string &fname) override;
         virtual cv::Mat captureImage() override;
+        virtual bool checkConnection() override;
 
     protected:
 
