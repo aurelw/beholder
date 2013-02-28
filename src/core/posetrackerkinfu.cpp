@@ -77,8 +77,14 @@ void PoseTrackerKinfu::runTracking() {
     while (!stopThread) {
         kinfuWrapper->spinOnce();
         //FIXME mutex
-        //FIXME check if transformation is right, invert?!??
-        currentPose = kinfuWrapper->getLastPose() * staticExtrinsic;
+        /* The pose is in the tracker coordinate frame.
+         * The extrinsic marks the transformation from
+         * the camera frame to the tracking frame.
+         * Transform with the inverse to get the pose
+         * of the camera. 
+         * */
+        currentPose = kinfuWrapper->getLastPose() *
+                staticExtrinsic.inverse();
     }
 }
 

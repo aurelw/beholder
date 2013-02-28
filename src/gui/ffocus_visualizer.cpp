@@ -50,11 +50,9 @@ void FFocusVisualizer::setCameraPose(const Eigen::Affine3f& pose) {
 
 
 void FFocusVisualizer::setRangeFinderExtrinsic(const Eigen::Affine3f& ex) {
-    // the extrinsic marks the transformation from the kinect to the
-    // nain camera coordinate frame. Invert the transformation here
-    // to be easier to use and downard compatible.
-    //FIXME keep ^^^ in mind!
-    rangeFinderExtrinsic = ex.inverse();
+    /* the extrinsic from the maincamera to the range finder */
+    //TODO check this again
+    rangeFinderExtrinsic = ex;
     toggleUpdateCoordinates = true;
 }
 

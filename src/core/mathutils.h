@@ -70,5 +70,7 @@ void intersectLines(const Eigen::Vector3f &p0, const Eigen::Vector3f &p1,
                     const Eigen::Vector3f &q0, const Eigen::Vector3f &q1,
                     Eigen::Vector3f &pointOnP, Eigen::Vector3f &pointOnQ);
 
+void printAffine3f(const Eigen::Affine3f m);
+
 #endif
 

@@ -47,7 +47,7 @@ RigConfig::RigConfig() {
 
     /* default camera data */
     cameraImageWidth = 1920;
-    cameraImageWidth = 1080;
+    cameraImageHeight = 1080;
     cameraMatrix = Mat::zeros(3, 3, CV_32F);
     cameraDistortionCoefficients = Mat::zeros(5, 1, CV_32F);
 
@@ -172,6 +172,10 @@ void RigConfig::loadRangeFinder() {
     node["exTanslation"] >> rangefinderExTranslation;
     node["exRotationVec"] >> rangefinderExRotationVec;
     node["deviceID"] >> rangefinderDeviceID;
+
+    /* convert matrix to float */
+    rangefinderExTranslation.convertTo(rangefinderExTranslation, CV_32F);
+    rangefinderExRotationVec.convertTo(rangefinderExRotationVec, CV_32F);
 }
 
 
@@ -193,6 +197,11 @@ void RigConfig::loadCamera() {
     node["imageHeight"] >> cameraImageHeight;
     node["cameraMatrix"] >> cameraMatrix;
     node["distortionCoefficients"] >> cameraDistortionCoefficients;
+
+    /* convert to float */
+    cameraMatrix.convertTo(cameraMatrix, CV_32F);
+    cameraDistortionCoefficients.convertTo(
+            cameraDistortionCoefficients, CV_32F);
 }
 
 
@@ -318,6 +327,12 @@ void RigConfig::loadTrackingCamera() {
     node["exTanslation"] >> trackingCameraExTranslation;
     node["exRotationVec"] >> trackingCameraExRotationVec;
     node["deviceID"] >> trackingCameraDeviceID;
+
+    /* conver to float matrices */
+    trackingCameraExTranslation.convertTo(
+            trackingCameraExTranslation, CV_32F);
+    trackingCameraExRotationVec.convertTo(
+            trackingCameraExRotationVec, CV_32F);
 }
 
 

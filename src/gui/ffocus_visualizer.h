@@ -106,6 +106,9 @@ class FFocusVisualizer {
         bool resetFlag;
         bool multiTrackingResetFlag;
 
+        void addCoordinateSystem(float scale, Eigen::Affine3f pose, std::string id);
+        void removeCoordinateSystem(std::string id);
+
     private:
         pcl::visualization::PCLVisualizer visualizer;
         pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange>* vfColorHandler_ptr;
@@ -128,8 +131,6 @@ class FFocusVisualizer {
 
         void update();
         void updateCoordinates();
-        void addCoordinateSystem(float scale, Eigen::Affine3f pose, std::string id);
-        void removeCoordinateSystem(std::string id);
 
 };
 

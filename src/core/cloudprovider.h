@@ -34,6 +34,7 @@ class CloudProvider {
 
         virtual CloudConstPtr getLastCloud() = 0;
         virtual CloudPtr getCloudCopy() = 0;
+        /* the pose of the origin of the cloud in world space. */
         virtual Eigen::Affine3f getCloudPose() = 0;
 
 };

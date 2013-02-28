@@ -57,27 +57,29 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
 
             CloudConstPtr inCloud = this->rangeFinder->getLastCloud();
 
-            //TODO add cloud transform
-            //Eigen::Affine3f pose = camera->getPose();
+            /* The pose of the camera in respect to the pointcloud.
+             * This equals to the transformation of the cloud in
+             * world space, transformed by inverted pose of the
+             * rangefinder in respect to the camera. */
             Eigen::Affine3f pose = 
-                Eigen::Affine3f (Eigen::Translation3f (
-                            inCloud->sensor_origin_[0],
-                            inCloud->sensor_origin_[1],
-                            inCloud->sensor_origin_[2]))
-                * this->rangeFinder->getCloudPose();
+                this->rangeFinder->getCloudPose() *
+                this->rangeFinder->getStaticExtrinsic().inverse()
 
+            debugPose = pose;
 
             rangeImage_ptr->createFromPointCloudWithFixedSize(*inCloud,
-                    this->camera->getResX()*scale, this->camera->getResY()*scale,
-                    this->camera->getcX()*scale, this->camera->getcY()*scale,
-                    this->camera->getfX()*scale, this->camera->getfY()*scale,
-                    pose, pcl::RangeImage::CAMERA_FRAME, noise_level, min_range);
+                this->camera->getResX()*scale, 
+                this->camera->getResY()*scale,
+                this->camera->getcX()*scale, this->camera->getcY()*scale,
+                this->camera->getfX()*scale, this->camera->getfY()*scale,
+                pose, pcl::RangeImage::CAMERA_FRAME, 
+                noise_level, min_range);
 
             //rangeImage_ptr->setTransformationToRangeImageSystem(pose);
         }
 
         pcl::PointXYZ getMiddlePoint() {
-            //FIXME apply cloud transform <- ???
+            //FIXME apply distortion
             pcl::PointWithRange pr = 
                 rangeImage_ptr->at(rangeImage_ptr->width/2, 
                                    rangeImage_ptr->height/2);
@@ -93,6 +95,9 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
         RangeImagePtr getRangeImage() {
             return rangeImage_ptr;
         }
+
+        //FIXME
+        Eigen::Affine3f debugPose;
 
     private:
         RangeImagePtr rangeImage_ptr;

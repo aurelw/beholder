@@ -117,7 +117,6 @@ void FFocusApp::updateViewfinder() {
 
     pcl::PointXYZ testp = viewFinder->getMiddlePoint();
     std::cout << testp.x << "," << testp.y << "," << testp.z << std::endl;
-
 }
 
 
