@@ -63,7 +63,7 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
              * rangefinder in respect to the camera. */
             Eigen::Affine3f pose = 
                 this->rangeFinder->getCloudPose() *
-                this->rangeFinder->getStaticExtrinsic().inverse()
+                this->rangeFinder->getStaticExtrinsic().inverse();
 
             debugPose = pose;
 

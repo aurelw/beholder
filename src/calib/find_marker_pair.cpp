@@ -40,7 +40,7 @@ typedef typename pcl::PointCloud<PointT> Cloud;
 
 
 void print_usage() {
-    pcl::console::print_error("[Error] -bw <boardWidth> -bh <boardHeight> -pw <patternWidth> -ph <patternHeight> [-bs <boardSigma>] [-nc]\n");
+    pcl::console::print_error("[Error] -bw <boardWidth> -bh <boardHeight> -pw <patternWidth> -ph <patternHeight> [-bs <boardSigma>] [-nc] [-nosave]\n");
 }
 
 
@@ -52,29 +52,29 @@ int main(int argc, char **argv) {
     if (!appopt.gotCalibStorageDir) {
         pcl::console::print_error(
             "No calibration storage directory provided. --calibstorage <path>\n");
-        return 1;
+        exit(1);
     }
 
     /* 3d marker properties */
     float boardWidth, boardHeight;
     if (pcl::console::parse(argc, argv, "-bw", boardWidth) == -1) {
         print_usage();
-        return 1;
+        exit(1);
     }
     if (pcl::console::parse(argc, argv, "-bh", boardHeight) == -1) {
         print_usage();
-        return 1;
+        exit(1);
     }
 
     /* 2d marker properties */
     int patternWidth, patternHeight;
     if (pcl::console::parse(argc, argv, "-pw", patternWidth) == -1) {
         print_usage();
-        return 1;
+        exit(1);
     }
     if (pcl::console::parse(argc, argv, "-ph", patternHeight) == -1) {
         print_usage();
-        return 1;
+        exit(1);
     }
 
     /* tolerance for the 3d marker */
@@ -84,6 +84,9 @@ int main(int argc, char **argv) {
     /* confirm */
     bool doConfirm = true;
     doConfirm = !pcl::console::find_switch(argc, argv, "-nc");
+
+    bool storeResults = true;
+    storeResults = !pcl::console::find_switch(argc, argv, "-nosave");
 
     /* help */
     if (pcl::console::find_switch(argc, argv, "-h") ||
@@ -118,16 +121,21 @@ int main(int argc, char **argv) {
             << " ====" << std::endl;
         printSimpleInfo(ss.str());
 
-        /* load image from file and display */
+        /* load image from file */
         cv::Mat img = cv::imread(fpair.first, CV_LOAD_IMAGE_COLOR);
+
+        /* load cloud from file */
+        Cloud::Ptr cloud( new Cloud);
+        pcl::io::loadPCDFile<PointT>(fpair.second, *cloud);
+
+        /* display image */
         cv::imshow("camera", img);
         // spin once
         cv::waitKey(1);
 
-        /* load cloud from file and display */
-        Cloud::Ptr cloud( new Cloud);
-        pcl::io::loadPCDFile<PointT>(fpair.second, *cloud);
+        /* dispaly cloud */
         visualizer.setMainCloud(cloud);
+        visualizer.setDrawMarker(false);
 
 
         /*** extract points from pattern ***/
@@ -161,6 +169,7 @@ int main(int argc, char **argv) {
             printSimpleInfo("[BoardMarker] ", "found.\n");
             /* draw the 3d marker */
             visualizer.setMarkerCenter(boardPoint, true);
+            visualizer.setDrawMarker(true);
         } else {
             printWarning("[BoardMarker] ", "not found.\n");
             visualizer.setMarkerCenter(boardPoint, false);
@@ -204,7 +213,9 @@ int main(int argc, char **argv) {
             if (doAddPointPair) {
                 calibStorage.addExtrinsicPointPair(point3d, point2d);
                 //FIXME don't store every time, only on exit
-                calibStorage.saveExtrinsicPointPairs();
+                if (storeResults) {
+                    calibStorage.saveExtrinsicPointPairs();
+                }
             }
 
         } else { // no marker pair
@@ -226,6 +237,8 @@ int main(int argc, char **argv) {
     } // for all pairs
 
     /* finaly save to calibration storage */
-    calibStorage.saveExtrinsicPointPairs();
+    if (storeResults) {
+        calibStorage.saveExtrinsicPointPairs();
+    }
 }
 

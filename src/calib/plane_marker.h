@@ -22,22 +22,25 @@
 #include <boost/thread/thread.hpp>
 #include <boost/foreach.hpp> 
 
-#include "pcl/common/common_headers.h"
-
-#include <pcl/filters/voxel_grid.h>
-
-#include <pcl/sample_consensus/method_types.h>
-#include <pcl/sample_consensus/model_types.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/project_inliers.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
+#include <pcl/common/common_headers.h>
 
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/kdtree/kdtree_flann.h>
+
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
 
-#define DEBUG_MARKER
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/project_inliers.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/extract_indices.h>
+
+#include "console_utils.h"
+
+//#define DEBUG_MARKER
 
 #ifdef DEBUG_MARKER
     #define DEBUG(s) printf("[PlaneMarker] "); printf(s); printf("\n")
@@ -46,6 +49,7 @@
     #define DEBUG(s)
     #define DEBUG_P(s,p)
 #endif
+
 
 template<typename PointT> 
 class PlaneMarker {
@@ -60,7 +64,7 @@ class PlaneMarker {
 
         PlaneMarker (float length, float width, float sigma);
 
-        bool computeMarkerCenter(PointCloudConstPtr c, PointT& center);
+        bool computeMarkerCenter(PointCloudConstPtr cloud, PointT& center);
 
         /* some points describing the marker */
         PointT pointA, pointB, centerPoint;
@@ -83,16 +87,14 @@ class PlaneMarker {
         int minClusterSize;
 
         /* classification methods */
-        bool checkCandidate(const PointCloudPtr& pc_ptr, 
-                const pcl::PointIndices::Ptr& indices_ptr);
-        bool findMaxDistandPoint(const PointCloudPtr& pc_ptr, 
-                const pcl::PointIndices::Ptr& indices_ptr, const float limit,
+        bool checkCandidate(const PointCloudPtr pc_ptr);
+        bool findMaxDistandPoint(const PointCloudPtr pc_ptr, 
+                const float limit,
                 const PointT& start_point, PointT& max_point);
-        bool mainDiagonal(const PointCloudPtr& pc_ptr, 
-                const pcl::PointIndices::Ptr& indices_ptr, const float limit);
-        bool secondDiagonal(const PointCloudPtr& pc_ptr, 
-                const pcl::PointIndices::Ptr& indices_ptr, const float limit);
-        void centerBetweenPoints(const PointT& a, const PointT& b, PointT& c);
+        bool mainDiagonal(const PointCloudPtr pc_ptr, const float limit);
+        bool secondDiagonal(const PointCloudPtr pc_ptr, const float limit);
+        void centerBetweenPoints(const PointT& a, 
+                const PointT& b, PointT& c);
         void centerFromMainDiagonal();
         void centerFromBothDiagonals();
 
@@ -104,7 +106,7 @@ template <typename PointT> PlaneMarker<PointT>::PlaneMarker
     pointA(),
     pointB()
 {
-    /* length should be greateter then width */
+    /* length should be greater then width */
     if (width > length) {
         marker_length = width;
         marker_width = length;
@@ -117,130 +119,116 @@ template <typename PointT> PlaneMarker<PointT>::PlaneMarker
     /* the valid delta for the found diagonal */
     marker_sigma = sigma;
 
-    /* general search properties */
+    /* search properties */
+    minClusterSize = 2000;
+    clusterTolerance = 0.05; //5cm
     maxSACIterations = 1000;
     sacDistanceThresh = 0.06;
-    clusterTolerance = 0.05; //5cm
-    minClusterSize = 2000;
 }
 
 
 template <typename PointT> bool PlaneMarker<PointT>::computeMarkerCenter(
-        PointCloudConstPtr c, 
+        PointCloudConstPtr inCloud, 
         PointT& center) 
 {
-    //FIXME clusters before planes!
-    PointCloudPtr filtered_cloud_ptr (new PointCloud(*c));
+    /* do some preprocessing to the cloud */
+    PointCloudPtr fcloud (new PointCloud);
+
+    /* remove NaNs */
+    std::vector<int> mapping;
+    pcl::removeNaNFromPointCloud(*inCloud, *fcloud, mapping);
+
 /*          
-    pcl::VoxelGrid<pcl::PointXYZ> vg;
-    vg.setInputCloud (c);
-    vg.setLeafSize (0.01f, 0.01f, 0.01f);
-    vg.filter (*filtered_cloud_ptr);
+    pcl::StatisticalOutlierRemoval<PointT> sor;
+    sor.setInputCloud(fcloud);
+    sor.setMeanK(50);
+    sor.setStddevMulThresh(1.0);
+    sor.filter(*fcloud);
+
+    // takes long, messes up results
+    pcl::VoxelGrid<PointT> vg;
+    vg.setInputCloud (fcloud);
+    vg.setLeafSize (0.005f, 0.005f, 0.005f);
+    vg.filter (*fcloud);
 */
-    pcl::PointIndices::Ptr inliers_ptr (new pcl::PointIndices);
-    pcl::PointIndices& inliers = *inliers_ptr;
 
-    pcl::ModelCoefficients coefficients;
+    /* segment all euclidean clusters in the cloud */
+    std::vector<pcl::PointIndices> cluster_indices;
 
-    //Create the filtering object
-    pcl::ExtractIndices<PointT> extract;
+    pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree 
+        (new pcl::search::KdTree<pcl::PointXYZRGBA>);
+    tree->setInputCloud (fcloud);
 
-    /* segment for candidate planes */
-    pcl::SACSegmentation<PointT> seg;
+    pcl::EuclideanClusterExtraction<PointT> ec;
+    ec.setClusterTolerance (clusterTolerance);
+    ec.setMinClusterSize(minClusterSize);
+    ec.setSearchMethod(tree);
+    ec.setInputCloud(fcloud);
+    ec.extract(cluster_indices);
 
-    seg.setOptimizeCoefficients (true);
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations (maxSACIterations);
-    seg.setDistanceThreshold (sacDistanceThresh);
+    /* search for markers in individual clusters */
+    for (auto clusteri : cluster_indices) {
 
-    int plane_counter = 0;
-    int num_total_points = filtered_cloud_ptr->size();
-    while (filtered_cloud_ptr->size() > 0.001*num_total_points) {
-
-        DEBUG_P("filtered_cloud.size(): %d", filtered_cloud_ptr->size());
-
-        seg.setInputCloud (filtered_cloud_ptr);
-        seg.segment (inliers, coefficients); 
-
-        DEBUG("segmented a plane");
-
-        /* can't fit plane */
-        if (inliers.indices.size() == 0) {
-            DEBUG("can't fit to plane!");
-            return false;
-        }
-        plane_counter++;
-
-        DEBUG_P("number of inliers: %d", inliers_ptr->indices.size()); 
-
-        //TODO project !!!!
-
-        /* get the euclidian clusters from this plane 
-         * this is slooooOw */
-        std::vector<pcl::PointIndices> cluster_indices;
-
-        pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree 
-            (new pcl::search::KdTree<pcl::PointXYZRGBA>);
-        tree->setInputCloud (filtered_cloud_ptr);
-
-        pcl::EuclideanClusterExtraction<PointT> ec;
-        ec.setClusterTolerance (clusterTolerance);
-        ec.setMinClusterSize(minClusterSize);
-        ec.setSearchMethod (tree);
-        ec.setInputCloud (filtered_cloud_ptr);
-        ec.setIndices (inliers_ptr);
-        ec.extract (cluster_indices);
-
-        DEBUG_P("number of clusters extracted: %d", cluster_indices.size());
-
-        for (size_t i=0; i<cluster_indices.size(); i++) {
-            
-            // convert to a boost shared pointer
-            pcl::PointIndices::Ptr cluster_indices_ptr 
-                (new pcl::PointIndices(cluster_indices[i]));
-
-            DEBUG_P("cluster size: %d", cluster_indices_ptr->indices.size()); 
-
-            if (checkCandidate(filtered_cloud_ptr, cluster_indices_ptr)) {
-                DEBUG("found marker");
-
-                /* extract the marker cloud */
-                PointCloudPtr marker_cloud(new PointCloud);
-                pcl::PCDWriter writer;
-                pcl::ExtractIndices<PointT> seg_extract;
-                seg_extract.setInputCloud (filtered_cloud_ptr);
-                seg_extract.setIndices (cluster_indices_ptr);
-                seg_extract.setNegative (false);
-                seg_extract.filter(*marker_cloud);
-                markerCloud = marker_cloud;
-                    
-                /* determine the center point */
-                centerFromBothDiagonals(); 
-                center = centerPoint;
-
-                return true;
-            }
+        /* if the cluster is too small, discrard */
+        if (clusteri.indices.size() < minClusterSize) {
+            continue;
         }
 
-        /* extract the candidate plane from the cloud */
-        //FIXME this might remove points from the marker
-        extract.setInputCloud (filtered_cloud_ptr);
-        extract.setIndices (inliers_ptr);
-        extract.setNegative (true);
-        extract.filter (*filtered_cloud_ptr);
+        /* get a shared pointer for the cluster indices */
+        pcl::PointIndices::Ptr clusteri_ptr(new pcl::PointIndices);
+        clusteri_ptr->indices = clusteri.indices;
+
+        /* extract the largest plane from the cluster */
+        pcl::SACSegmentation<PointT> seg;
+        seg.setOptimizeCoefficients (true);
+        seg.setModelType (pcl::SACMODEL_PLANE);
+        seg.setMethodType (pcl::SAC_RANSAC);
+        seg.setMaxIterations (maxSACIterations);
+        seg.setDistanceThreshold (sacDistanceThresh);
+
+        seg.setInputCloud(fcloud);
+        seg.setIndices(clusteri_ptr);
+
+        pcl::PointIndices::Ptr planeindices(new pcl::PointIndices);
+        pcl::ModelCoefficients::Ptr coefficients
+            (new pcl::ModelCoefficients);
+        seg.segment(*planeindices, *coefficients);
+
+        /* extract the plane cloud */
+        PointCloudPtr planeCloud(new PointCloud); 
+        pcl::ExtractIndices<PointT> extract;
+        extract.setInputCloud(fcloud);
+        extract.setIndices(planeindices);
+        extract.filter(*planeCloud);
+
+        /* project it on the plane */
+        pcl::ProjectInliers<PointT> proj;
+        proj.setModelType(pcl::SACMODEL_PLANE);
+        proj.setInputCloud(planeCloud);
+        proj.setModelCoefficients(coefficients);
+        proj.filter(*planeCloud);
+
+        /* check the plane for the marker */
+        bool foundMarker = checkCandidate(planeCloud); 
+
+        if (foundMarker) {
+            /* the marker center*/
+            centerFromBothDiagonals();
+            center = centerPoint;
+            return true;
+        }
     }
 
+    /* no plane found */
     return false;
 }
 
 
 template <typename PointT> bool PlaneMarker<PointT>::checkCandidate(
-        const PointCloudPtr& pc_ptr, 
-        const pcl::PointIndices::Ptr& indices_ptr) 
+        const PointCloudPtr pc_ptr)
 {
 
-    if (!mainDiagonal(pc_ptr, indices_ptr, marker_diagonal+marker_sigma)) {
+    if (!mainDiagonal(pc_ptr, marker_diagonal+marker_sigma)) {
         DEBUG("early exit, cluster too big");
         return false;
     }
@@ -250,7 +238,7 @@ template <typename PointT> bool PlaneMarker<PointT>::checkCandidate(
         return false;
     }
 
-    if (!secondDiagonal(pc_ptr, indices_ptr, marker_diagonal+marker_sigma)) {
+    if (!secondDiagonal(pc_ptr, marker_diagonal+marker_sigma)) {
         DEBUG("no second diagonal");
         return false;
     }
@@ -280,22 +268,19 @@ template <typename PointT> bool PlaneMarker<PointT>::checkCandidate(
 
 
 template <typename PointT> bool PlaneMarker<PointT>::findMaxDistandPoint(
-        const PointCloudPtr& pc_ptr, 
-        const pcl::PointIndices::Ptr& indices_ptr, 
+        const PointCloudPtr pc_ptr, 
         const float limit,
         const PointT& start_point, PointT& max_point) 
 {
 
-    pcl::PointIndices& indices = *indices_ptr;
-
     // find the first corner
     float max_distance = 0.0f;
-    BOOST_FOREACH( int index,  indices.indices) {
+    for (PointT point : pc_ptr->points) {
         float c_distance = 
-            pcl::euclideanDistance(pc_ptr->points[index], start_point);
+            pcl::euclideanDistance(point, start_point);
         if (c_distance > max_distance)  {
             max_distance = c_distance;
-            max_point = pc_ptr->points[index];
+            max_point = point;
             // early exit, if cluster is too big
             if (max_distance > limit) {
                 DEBUG_P("max distance: %f", max_distance);
@@ -310,17 +295,16 @@ template <typename PointT> bool PlaneMarker<PointT>::findMaxDistandPoint(
 
 
 template <typename PointT> bool PlaneMarker<PointT>::mainDiagonal(
-        const PointCloudPtr& pc_ptr, 
-        const pcl::PointIndices::Ptr& indices_ptr, 
+        const PointCloudPtr pc_ptr, 
         const float limit) 
 {
     // start with a 'random' point
-    PointT point_r = pc_ptr->points[indices_ptr->indices[0]];
+    PointT point_r = pc_ptr->points[0];
     pointR = point_r;
 
-    if (! findMaxDistandPoint(pc_ptr, indices_ptr, limit, point_r, pointA)) 
+    if (! findMaxDistandPoint(pc_ptr, limit, point_r, pointA)) 
         return false;
-    if (! findMaxDistandPoint(pc_ptr, indices_ptr, limit, pointA, pointB)) 
+    if (! findMaxDistandPoint(pc_ptr, limit, pointA, pointB)) 
         return false; 
 
     return true;
@@ -328,12 +312,9 @@ template <typename PointT> bool PlaneMarker<PointT>::mainDiagonal(
 
 
 template <typename PointT> bool PlaneMarker<PointT>::secondDiagonal(
-        const PointCloudPtr& pc_ptr, 
-        const pcl::PointIndices::Ptr& indices_ptr, 
+        const PointCloudPtr pc_ptr, 
         const float limit) 
 {
-
-    pcl::PointIndices& indices = *indices_ptr;
     PointT point_r;
 
     float distCenter_thres = marker_diagonal / 3.0;
@@ -341,15 +322,15 @@ template <typename PointT> bool PlaneMarker<PointT>::secondDiagonal(
 
     /* search for a candidate point to start */
     bool found_candidate = false;
-    BOOST_FOREACH(int index, indices.indices) {
-        if (pcl::euclideanDistance(pc_ptr->points[index], centerPoint) 
+    for (PointT point : pc_ptr->points) {
+        if (pcl::euclideanDistance(point, centerPoint) 
                 > distCenter_thres) 
         {
-            float distA = pcl::euclideanDistance(pc_ptr->points[index], pointA);
-            float distB = pcl::euclideanDistance(pc_ptr->points[index], pointB);
+            float distA = pcl::euclideanDistance(point, pointA);
+            float distB = pcl::euclideanDistance(point, pointB);
             if (std::abs(distA - distB) < distAB_thresh) {
                 found_candidate = true;
-                point_r =  pc_ptr->points[index];
+                point_r =  point;
                 break;
             }
         } 
@@ -361,8 +342,8 @@ template <typename PointT> bool PlaneMarker<PointT>::secondDiagonal(
     }
 
     // not likely to fail on limit
-    findMaxDistandPoint(pc_ptr, indices_ptr, limit, point_r, pointC);
-    findMaxDistandPoint(pc_ptr, indices_ptr, limit, pointC, pointD);
+    findMaxDistandPoint(pc_ptr, limit, point_r, pointC);
+    findMaxDistandPoint(pc_ptr, limit, pointC, pointD);
 
     return true;
 }

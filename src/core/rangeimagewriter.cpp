@@ -37,11 +37,11 @@ void RangeImageWriter::save(const std::string& fileName) {
 
     for(int y=0; y<rangeImage->height; y++) {
         for(int x=0; x<rangeImage->width; x++) {
-            image.pixelColor(x, y, 
-                    Magick::ColorGray(rangeImage->getPoint(x,y).range/maxRange));
             //FIXME better transfer function
-            float nRange = rangeImage->getPoint(x,y).range/maxRange;
-            image.pixelColor(x, y, Magick::ColorRGB(nRange, 0.0f, 1.0f - nRange));
+            //float nRange = rangeImage->getPoint(x,y).range/maxRange;
+            float nRange = rangeImage->getPoint(x,y).range/4.0;
+            image.pixelColor(x, y, 
+                    Magick::ColorRGB(nRange, 1.0f - nRange, 1.0f - nRange));
         }
     }
     

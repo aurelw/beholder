@@ -91,6 +91,10 @@ int main(int argc, char **argv) {
     cv::Mat img;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
+    /* resize captured images */
+    cv::Size imgSize(rigConfig.cameraImageWidth,
+                     rigConfig.cameraImageHeight);
+
     for (;;) {
 
         /* update and display cloud */
@@ -109,6 +113,9 @@ int main(int argc, char **argv) {
             cv::Mat displayImg;
             displayImg = img.clone();
             cv::imshow("capture", displayImg);
+
+            /* scale image to camera resolution from rigconfig */
+            cv::resize(img, img, imgSize);
 
             /* query again for storage */
             printSimpleInfo("[Capture]", 

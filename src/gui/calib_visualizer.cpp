@@ -120,6 +120,12 @@ void CalibVisualizer::setMarkerCenter(pcl::PointXYZ center, bool found) {
 }
 
 
+void CalibVisualizer::setDrawMarker(bool doDraw) {
+    drawMarker = doDraw;
+    flagUpdateMarker = true;
+}
+
+
 void CalibVisualizer::updateMarker() {
     if (!flagUpdateMarker) return;
 

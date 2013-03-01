@@ -51,6 +51,8 @@ class CalibVisualizer {
         void setMainCloud(RGBCloud::Ptr cloud);
         void setMarkerCenter(pcl::PointXYZ center, bool found=true);
 
+        void setDrawMarker(bool doDraw);
+
     protected:
 
         /* initial setup for a visualizer */

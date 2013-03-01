@@ -172,10 +172,12 @@ int main(int argc, char **argv) {
     objectPoints.resize(imagePoints.size(), pointbuff);
 
     /* do actual calibration */
+    /* TODO handle principal point */
     std::vector<cv::Mat> rvecs, tvecs;
     double rms = calibrateCamera( objectPoints, imagePoints, imageSize,
             cameraMatrix, distCoeffs, rvecs, tvecs,
-            CV_CALIB_FIX_K4|CV_CALIB_FIX_K5 );
+            CV_CALIB_FIX_K4|CV_CALIB_FIX_K5|
+            CV_CALIB_FIX_PRINCIPAL_POINT );
 
 
     /* display results */

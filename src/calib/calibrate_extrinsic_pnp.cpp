@@ -91,7 +91,9 @@ int main(int argc, char **argv) {
             ss.str() + " pairs.\n");
 
     /* calibration results */
+    // translation vector
     cv::Mat exTranslation;
+    // axis angle rotation
     cv::Mat exRotationVec;
 
     /* do calibration */
