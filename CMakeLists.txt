@@ -42,6 +42,7 @@ configure_file (
 # specify output directories
 make_directory ("${CMAKE_BINARY_DIR}/bin/")
 make_directory ("${CMAKE_BINARY_DIR}/bin/tests/")
+make_directory ("${CMAKE_BINARY_DIR}/bin/tools/")
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin") 
 
 add_subdirectory(src)
