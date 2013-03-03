@@ -17,6 +17,7 @@
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 
 #include <pcl/common/common_headers.h>
 #include <pcl/console/parse.h>
@@ -33,6 +34,7 @@
 #define KEY_c 99
 #define KEY_y 121
 #define KEY_n 110
+
 
 void print_usage() {
     std::cout << "--calibstorage <path> --rigconfig <file> [--method <\"det\"/\"ransac\">]" << std::endl;
@@ -98,17 +100,34 @@ int main(int argc, char **argv) {
 
     /* do calibration */
     if (calibMethod == "ransac") {
-        //TODO find better ransac parameters
+        //TODO different pnp method!
+        //FIXME good values
+        bool useExtrinsicGuess = false;
+        int iterationsCount = 10000;
+        float reprojectionError = 15.0;
+        cv::Mat inliers; 
+        int minInliers = imagePoints.rows;
+
         cv::solvePnPRansac(objectPoints, imagePoints,
             rigConfig.cameraMatrix, 
             rigConfig.cameraDistortionCoefficients,
-            exRotationVec, exTranslation);
+            exRotationVec, exTranslation,
+            useExtrinsicGuess,
+            iterationsCount, reprojectionError,
+            minInliers, inliers);
+
+        std::stringstream ss;
+        ss << "Inliers #" << inliers.rows << std::endl;
+        printSimpleInfo("[RANSAC] ", ss.str());
     } else {
         cv::solvePnP(objectPoints, imagePoints,
             rigConfig.cameraMatrix, 
             rigConfig.cameraDistortionCoefficients,
-            exRotationVec, exTranslation);
+            exRotationVec, exTranslation );
     }
+
+    /* don't know what im doing,... */
+    exRotationVec = exRotationVec * -1;
 
     /* display calibration result */
     printBrightInfo("[Extrinsic] ", "calibrated!\n");
