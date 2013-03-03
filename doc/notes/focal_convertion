@@ -1,0 +1,3 @@
+fx / fy from camera matrix in pixel -> pixel/radiant
+res_x/fx = radiants for field of view
+to get degrees: math.degrees(res_x/fx)
