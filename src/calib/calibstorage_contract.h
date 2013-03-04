@@ -36,6 +36,7 @@ class CalibStorageContract {
         /* pair: <img, cloud> */
         typedef std::pair<std::string, std::string> FilePair;
         typedef std::pair<cv::Point3f, cv::Point2f> PointPair3d2d;
+        typedef std::pair<cv::Point3f, cv::Point3f> PointPair3d3d;
 
     public:
 
@@ -43,15 +44,24 @@ class CalibStorageContract {
         ~CalibStorageContract();
 
         void addMainIntrinsic(cv::Mat img);
+
         void addExtrinsicPairXYZ(cv::Mat img, PlainCloud::Ptr cloud); 
         void addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud); 
+
         void addExtrinsicPointPair(cv::Point3f p3d, cv::Point2f p2d);
         void saveExtrinsicPointPairs();
 
+        void addExtrinsicPointPair3d(cv::Point3f p0, cv::Point3f p1);
+        void saveExtrinsicPointPairs3d();
+
         std::vector<std::string> getMainIntrinsicFiles();
         std::vector<FilePair> getExtrinsicFiles();
+
         std::vector<PointPair3d2d> getExtrinsicPoints();
         std::pair<cv::Mat, cv::Mat> getExtrinsicPointsMatrices();
+
+        std::vector<PointPair3d3d> getExtrinsicPoints3d();
+        std::pair<cv::Mat, cv::Mat> getExtrinsicPoints3dMatrices();
 
     protected:
 
@@ -65,6 +75,8 @@ class CalibStorageContract {
         std::string rangeFinderExtrinsicCloudDir =  "/rangefinder_extrinsic/cloud/";
         std::string rangeFinderExtrinsicPointFile =  
            rangeFinderExtrinsicDir + "pointpairs.xml";
+        std::string rangeFinderExtrinsicPoint3dFile =  
+           rangeFinderExtrinsicDir + "pointpairs_3d.xml";
 
         /* new file names */
         int findNextFile(
@@ -91,6 +103,13 @@ class CalibStorageContract {
         void loadExPointPairs();
         void writeExPointPairFile();
 
+        /* point pairs for rangefinder extrinsic */
+        std::vector<PointPair3d3d> exPointPairs3d;
+        cv::Mat exPointPairs3d_0;
+        cv::Mat exPointPairs3d_1;
+        bool exPoints3dUpdated = false;
+        void loadExPointPairs3d();
+        void writeExPointPair3dFile();
 };
 
 #endif

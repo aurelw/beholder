@@ -31,8 +31,8 @@ class CalibVisualizer {
 
     public:
 
-        typedef pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
-        typedef pcl::PointCloud<pcl::PointXYZ> PlainCloud;
+        typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
+        typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
 
     public:
 
@@ -50,8 +50,11 @@ class CalibVisualizer {
         /* set properties */
         void setMainCloud(RGBCloud::Ptr cloud);
         void setMarkerCenter(pcl::PointXYZ center, bool found=true);
+        void setCorrespondence(PlainCloud::ConstPtr cloud0, 
+                               PlainCloud::ConstPtr cloud1);
 
         void setDrawMarker(bool doDraw);
+        void setDrawCorrespondence(bool doDraw);
 
     protected:
 
@@ -85,6 +88,15 @@ class CalibVisualizer {
         bool drawMarker = true;
         bool foundMarker = false;
         bool markerAdded = false;
+
+        /* correspondence */
+        PlainCloud::ConstPtr cpCloudOne;
+        PlainCloud::ConstPtr cpCloudTwo;
+        bool flagUpdateCorrespondence = false;
+        void updateCorrespondence();
+        bool drawCorrespondence = false;
+        bool correspondenceAdded = false;
+        int numCorrespondences;
 
 };
 

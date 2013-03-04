@@ -53,8 +53,9 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
             create_directory(path(rootDir + rangeFinderExtrinsicCloudDir));
         }
 
-        /* point pair file */
+        /* point pair files */
         loadExPointPairs();
+        loadExPointPairs3d();
 
         /* check which files are already there */
         initCounters();
@@ -64,6 +65,7 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
 
 CalibStorageContract::~CalibStorageContract() {
     saveExtrinsicPointPairs();
+    saveExtrinsicPointPairs3d();
 }
 
 
@@ -128,6 +130,29 @@ void CalibStorageContract::saveExtrinsicPointPairs() {
 }
 
 
+void CalibStorageContract::addExtrinsicPointPair3d(
+        cv::Point3f p0, cv::Point3f p1) 
+{
+    PointPair3d3d ppair(p0, p1);
+    exPointPairs3d.push_back(ppair);
+    exPoints3dUpdated = true;
+    
+    /* print some output */
+    std::stringstream ss;
+    ss << "p0: " << p0 << " p1: " << p1;
+    printSimpleInfo("[CalibStorage] ", 
+            "added extrinsic 3d point pair. " + ss.str() + "\n"); 
+}
+
+
+void CalibStorageContract::saveExtrinsicPointPairs3d() {
+    if (exPoints3dUpdated) {
+        writeExPointPair3dFile();
+        exPoints3dUpdated = false;
+    }
+}
+
+
 std::vector<std::string> CalibStorageContract::getMainIntrinsicFiles() {
      return getFilesFromDir(rootDir + mainIntrinsicDir, ".jpg");
 }
@@ -165,6 +190,21 @@ CalibStorageContract::getExtrinsicPointsMatrices() {
     std::pair<cv::Mat, cv::Mat> mp;
     mp.first = exPointPairsObject.clone();
     mp.second = exPointPairsImage.clone();
+    return mp;
+}
+
+
+std::vector<CalibStorageContract::PointPair3d3d> 
+CalibStorageContract::getExtrinsicPoints3d() {
+    return exPointPairs3d;
+}
+
+
+std::pair<cv::Mat, cv::Mat> 
+CalibStorageContract::getExtrinsicPoints3dMatrices() {
+    std::pair<cv::Mat, cv::Mat> mp;
+    mp.first = exPointPairs3d_0.clone();
+    mp.second = exPointPairs3d_1.clone();
     return mp;
 }
 
@@ -312,6 +352,77 @@ void CalibStorageContract::writeExPointPairFile() {
         fs << "points2d" << points2d;
 
         printSimpleInfo("[CalibStorage] ", "stored extrinsic point pairs.\n"); 
+    }
+}
+
+
+void CalibStorageContract::loadExPointPairs3d() {
+    cv::FileStorage fs(rootDir + rangeFinderExtrinsicPoint3dFile, 
+            cv::FileStorage::READ);
+    if (fs.isOpened()) {
+
+        cv::Mat points0;
+        cv::Mat points1;
+
+        fs["points_0"] >> points0;
+        fs["points_1"] >> points1;
+
+        /* extract points from matrices and store as pair */
+        for (int row=0; row < points0.rows; row++) {
+            cv::Point3f p0;
+            p0.x = points0.at<float>(row, 0);
+            p0.y = points0.at<float>(row, 1);
+            p0.z = points0.at<float>(row, 2);
+
+            cv::Point3f p1;
+            p1.x = points1.at<float>(row, 0);
+            p1.y = points1.at<float>(row, 1);
+            p1.z = points1.at<float>(row, 2);
+
+            PointPair3d3d ppair(p0, p1);
+            exPointPairs3d.push_back(ppair);
+        }
+
+        /* alose save matrices */
+        exPointPairs3d_0 = points0;
+        exPointPairs3d_1 = points1;
+    }
+}
+
+
+void CalibStorageContract::writeExPointPair3dFile() {
+
+    cv::FileStorage fs(rootDir + rangeFinderExtrinsicPoint3dFile, 
+            cv::FileStorage::WRITE);
+    if (fs.isOpened()) {
+
+        cv::Mat points0((int)exPointPairs3d.size(), 3, 
+                cv::DataType<float>::type);
+        cv::Mat points1((int)exPointPairs3d.size(), 3, 
+                cv::DataType<float>::type);
+
+        /* copy points to matrices */
+        int row = 0;
+        for (PointPair3d3d ppair : exPointPairs3d) {
+            cv::Point3f p0 = ppair.first;
+            cv::Point3f p1 = ppair.second;
+
+            points0.at<float>(row, 0) = p0.x;
+            points0.at<float>(row, 1) = p0.y;
+            points0.at<float>(row, 2) = p0.z;
+
+            points1.at<float>(row, 0) = p1.x;
+            points1.at<float>(row, 1) = p1.y;
+            points1.at<float>(row, 2) = p1.z;
+
+            row++;
+        }
+
+        /* store matrices in file */
+        fs << "points_0" << points0;
+        fs << "points_1" << points1;
+
+        printSimpleInfo("[CalibStorage] ", "stored extrinsic 3d point pairs.\n"); 
     }
 }
 

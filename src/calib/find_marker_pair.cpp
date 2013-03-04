@@ -22,12 +22,16 @@
 #include <pcl/console/parse.h>
 #include <pcl/io/pcd_io.h>
 
-#include "calibstorage_contract.h"
+/* core */
 #include "basicappoptions.h"
 #include "calib_visualizer.h"
 #include "console_utils.h"
 #include "mathutils.h"
+
+/* calib */
+#include "calibstorage_contract.h"
 #include "plane_marker.h"
+#include "calib_utils.h"
 
 #define KEY_ESC 27
 #define KEY_ENTER 13
@@ -40,7 +44,7 @@ typedef typename pcl::PointCloud<PointT> Cloud;
 
 
 void print_usage() {
-    pcl::console::print_error("[Error] -bw <boardWidth> -bh <boardHeight> -pw <patternWidth> -ph <patternHeight> [-bs <boardSigma>] [-nc] [-nosave]\n");
+    pcl::console::print_error("[Error] -bw <boardWidth> -bh <boardHeight> -pw <patternWidth> -ph <patternHeight> -ps <patternSquareSize> [-bs <boardSigma>] [-nc] [-nosave]\n");
 }
 
 
@@ -51,7 +55,13 @@ int main(int argc, char **argv) {
 
     if (!appopt.gotCalibStorageDir) {
         pcl::console::print_error(
-            "No calibration storage directory provided. --calibstorage <path>\n");
+            "No calibration storage provided. --calibstorage <path>\n");
+        exit(1);
+    }
+
+    if (!appopt.gotRigConfigFile) {
+        pcl::console::print_error(
+            "No rig config provided. --rigconfig <file>\n");
         exit(1);
     }
 
@@ -68,11 +78,16 @@ int main(int argc, char **argv) {
 
     /* 2d marker properties */
     int patternWidth, patternHeight;
+    float squareSize;
     if (pcl::console::parse(argc, argv, "-pw", patternWidth) == -1) {
         print_usage();
         exit(1);
     }
     if (pcl::console::parse(argc, argv, "-ph", patternHeight) == -1) {
+        print_usage();
+        exit(1);
+    }
+    if (pcl::console::parse(argc, argv, "-ps", squareSize) == -1) {
         print_usage();
         exit(1);
     }
@@ -100,6 +115,10 @@ int main(int argc, char **argv) {
 
     /* the calibdation storage */
     CalibStorageContract calibStorage(appopt.calibStorageDir);
+
+    /* the rig config */
+    RigConfig rigConfig;
+    rigConfig.loadFromFile(appopt.rigConfigFile);
 
     /* setup visualizer */
     CalibVisualizer visualizer;
@@ -157,7 +176,6 @@ int main(int argc, char **argv) {
         cv::imshow("camera", img);
         cv::waitKey(1);
 
-
         /*** extract 3d marker ***/
         PointT bPoint;
         PlaneMarker<PointT> planeMarker(boardWidth, boardHeight, boardSigma);
@@ -189,6 +207,31 @@ int main(int argc, char **argv) {
             /* get the middle point from 2d pattern */
             cv::Point2f point2d = patternCorners[patternCorners.size()/2];
 
+            /* get the transformation of the pattern
+             * and it's middle point in 3d */
+            cv::Mat patternTvec, patternRvec;
+            getPatternTransform(patternSize, squareSize,
+                    patternCorners, 
+                    rigConfig.cameraMatrix, 
+                    rigConfig.cameraDistortionCoefficients,
+                    patternTvec, patternRvec);
+
+            //FIXME transform point properly
+            cv::Point3f patternPoint3d;
+            patternPoint3d.x = patternTvec.at<double>(0,0);
+            patternPoint3d.y = patternTvec.at<double>(1,0);
+            patternPoint3d.z = patternTvec.at<double>(2,0);
+
+            cv::Mat rmat;
+            cv::Rodrigues(patternRvec, rmat);
+            cv::Matx33f rotation_matrix = rmat;
+            patternPoint3d = rotation_matrix * patternPoint3d;
+
+            std::stringstream ss;
+            ss << "Chessboard at tvec:" << patternTvec << " rvec: ";
+            ss << patternRvec << std::endl;
+            printSimpleInfo("[Chessboard 3D] ", ss.str());
+
 
             /* query the user if the sample should be stored */
             bool doAddPointPair = true;
@@ -212,9 +255,12 @@ int main(int argc, char **argv) {
             /* store point pair */
             if (doAddPointPair) {
                 calibStorage.addExtrinsicPointPair(point3d, point2d);
+                calibStorage.addExtrinsicPointPair3d(
+                        point3d, patternPoint3d);
                 //FIXME don't store every time, only on exit
                 if (storeResults) {
                     calibStorage.saveExtrinsicPointPairs();
+                    calibStorage.saveExtrinsicPointPairs3d();
                 }
             }
 
@@ -239,6 +285,7 @@ int main(int argc, char **argv) {
     /* finaly save to calibration storage */
     if (storeResults) {
         calibStorage.saveExtrinsicPointPairs();
+        calibStorage.saveExtrinsicPointPairs3d();
     }
 }
 

@@ -120,14 +120,34 @@ void CalibVisualizer::setMarkerCenter(pcl::PointXYZ center, bool found) {
 }
 
 
+void CalibVisualizer::setCorrespondence(PlainCloud::ConstPtr cloud0,
+        PlainCloud::ConstPtr cloud1)
+{
+    boost::unique_lock<boost::shared_mutex> lock(mutex);
+    cpCloudOne = cloud0;
+    cpCloudTwo = cloud1;
+    flagUpdateCorrespondence = true;
+}
+
+
 void CalibVisualizer::setDrawMarker(bool doDraw) {
     drawMarker = doDraw;
     flagUpdateMarker = true;
 }
 
 
+void CalibVisualizer::setDrawCorrespondence(bool doDraw) {
+    drawCorrespondence = doDraw;
+    flagUpdateCorrespondence = true;
+}
+
+
 void CalibVisualizer::updateMarker() {
-    if (!flagUpdateMarker) return;
+    if (!flagUpdateMarker) {
+        return;
+    } else {
+        flagUpdateMarker = false;
+    }
 
     if (markerAdded) {
         visualizer->removeShape("markerCenter");
@@ -139,7 +159,6 @@ void CalibVisualizer::updateMarker() {
                     1.0, 0.64, 0.0, //orange
                     "markerCenter");
             markerAdded = true;
-            //visualizer->updateText("", 10, 10, "markerText");
         } else {
             //visualizer->updateText("Marker not found.", 10, 10, "markerText");
         }
@@ -149,9 +168,68 @@ void CalibVisualizer::updateMarker() {
 }
 
 
+void CalibVisualizer::updateCorrespondence() {
+    if (!flagUpdateCorrespondence) {
+        return;
+    } else {
+        flagUpdateCorrespondence = false;
+    }
+
+    if (correspondenceAdded) {
+        //visualizer->removeCorrespondences("cal_corr0");
+        //
+        /* remove clouds */
+        visualizer->removePointCloud("cpCloudOne");
+        visualizer->removePointCloud("cpCloudTwo");
+
+        /* remove arrows */
+        for (int i=0; i<numCorrespondences; i++) {
+            std::stringstream ss;
+            ss << "crsArrow" << i;
+            visualizer->removeShape(ss.str());
+        }
+    }
+
+    if (drawCorrespondence) {
+        /* specify correspondences */
+        std::vector<int> crs;
+        for (int i=0; i<cpCloudTwo->points.size(); i++) {
+            crs.push_back(i);
+        }
+        numCorrespondences = crs.size();
+
+        //visualizer->addCorrespondences<pcl::PointXYZ>(
+        //        cpCloudOne, cpCloudTwo, crs, "cal_corr0");
+
+        /* draw clouds */
+        visualizer->addPointCloud(cpCloudOne, "cpCloudOne");
+        visualizer->addPointCloud(cpCloudTwo, "cpCloudTwo");
+
+        /* draw arrows */
+        for (int i=0; i<numCorrespondences; i++) {
+            /* fancy pancy colors */
+            float cP0 = 1.0 - (numCorrespondences/(float)i);
+            float cP1 = numCorrespondences / (float)i;
+            float cP2 = (2*cP0 + cP1)/2;
+            std::stringstream ss;
+            ss << "crsArrow" << i;
+            visualizer->addArrow(
+                    cpCloudOne->points[i],
+                    cpCloudTwo->points[i],
+                    cP0, cP1, cP2, //dark red
+                    false, // no length
+                    ss.str());
+        }
+
+        correspondenceAdded = true;
+    }
+}
+
+
 void CalibVisualizer::updateAllProperties() {
     updateMainCloud();
     updateMarker();
+    updateCorrespondence();
 }
 
 

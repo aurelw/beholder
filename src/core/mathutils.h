@@ -38,6 +38,10 @@ inline pcl::PointXYZ vecToPoint(const Eigen::Vector3f &vec) {
 }
 
 
+inline Eigen::Vector3f pointToVec(pcl::PointXYZ point) {
+    return Eigen::Vector3f(point.x, point.y, point.z);
+}
+
 inline pcl::PointXYZ pointRGBAtoXYZ(const pcl::PointXYZRGBA &p) {
     pcl::PointXYZ np;
     np.x = p.x;
@@ -56,8 +60,21 @@ inline pcl::PointXYZRGBA pointXYZtoRGBA(const pcl::PointXYZ &p) {
 }
 
 
-inline Eigen::Vector3f pointToVec(pcl::PointXYZ point) {
-    return Eigen::Vector3f(point.x, point.y, point.z);
+inline pcl::PointXYZ pointCVtoPCL(const cv::Point3f &p) {
+    pcl::PointXYZ np;
+    np.x = p.x;
+    np.y = p.y;
+    np.z = p.z;
+    return np;
+}
+
+
+inline cv::Point3f pointPCLtoCV(const pcl::PointXYZ &p) {
+    cv::Point3f np;
+    np.x = p.x;
+    np.y = p.y;
+    np.z = p.z;
+    return np;
 }
 
 
