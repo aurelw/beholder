@@ -54,7 +54,7 @@ class CalibVisualizer {
                                PlainCloud::ConstPtr cloud1);
 
         void setDrawMarker(bool doDraw);
-        void setDrawCorrespondence(bool doDraw);
+        void setDrawCorrespondence(bool doDraw, bool arrow=true);
 
     protected:
 
@@ -97,6 +97,7 @@ class CalibVisualizer {
         bool drawCorrespondence = false;
         bool correspondenceAdded = false;
         int numCorrespondences;
+        bool drawCorrespondenceArrows = true;
 
 };
 

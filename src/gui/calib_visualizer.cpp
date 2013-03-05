@@ -136,8 +136,9 @@ void CalibVisualizer::setDrawMarker(bool doDraw) {
 }
 
 
-void CalibVisualizer::setDrawCorrespondence(bool doDraw) {
+void CalibVisualizer::setDrawCorrespondence(bool doDraw, bool arrow) {
     drawCorrespondence = doDraw;
+    drawCorrespondenceArrows = arrow;
     flagUpdateCorrespondence = true;
 }
 
@@ -208,17 +209,25 @@ void CalibVisualizer::updateCorrespondence() {
         /* draw arrows */
         for (int i=0; i<numCorrespondences; i++) {
             /* fancy pancy colors */
-            float cP0 = 1.0 - (numCorrespondences/(float)i);
-            float cP1 = numCorrespondences / (float)i;
+            float cP0 = 1.0 - (i/(float)numCorrespondences);
+            float cP1 = i/(float)numCorrespondences;
             float cP2 = (2*cP0 + cP1)/2;
             std::stringstream ss;
             ss << "crsArrow" << i;
-            visualizer->addArrow(
-                    cpCloudOne->points[i],
-                    cpCloudTwo->points[i],
-                    cP0, cP1, cP2, //dark red
-                    false, // no length
-                    ss.str());
+            if (drawCorrespondenceArrows) {
+                visualizer->addArrow(
+                        cpCloudOne->points[i],
+                        cpCloudTwo->points[i],
+                        cP0, cP1, cP2,
+                        false, // no length
+                        ss.str());
+            } else {
+                visualizer->addLine(
+                        cpCloudOne->points[i],
+                        cpCloudTwo->points[i],
+                        cP0, cP1, cP2,
+                        ss.str());
+            }
         }
 
         correspondenceAdded = true;
