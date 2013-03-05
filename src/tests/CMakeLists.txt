@@ -1,6 +1,7 @@
 include_directories (../common/)
 include_directories (../core/)
 include_directories (../gui/)
+include_directories (../calib/)
 
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin/tests/")
 
@@ -47,3 +48,8 @@ configure_file ("rigconfig_camerainterface.xml" "${EXECUTABLE_OUTPUT_PATH}/rigco
 set (test_calibvisualizer_source_files test_calibvisualizer.cpp)
 add_executable (test_calibvisualizer ${test_calibvisualizer_source_files})
 target_link_libraries (test_calibvisualizer core gui)
+
+### estimateAffine3D Test
+set (test_estimateaffine_files test_estimateaffine.cpp)
+add_executable (test_estimateaffine ${test_estimateaffine_files})
+target_link_libraries (test_estimateaffine core calib)

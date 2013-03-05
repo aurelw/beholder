@@ -34,3 +34,7 @@ set (calibrate_intrinsic_files calibrate_intrinsic.cpp)
 add_executable (calibrate_intrinsic ${calibrate_intrinsic_files})
 target_link_libraries (calibrate_intrinsic core calib)
 
+# calibrate_intrinsic
+set (calibrate_extrinsic_3dreg_files calibrate_extrinsic_3dreg.cpp)
+add_executable (calibrate_extrinsic_3dreg ${calibrate_extrinsic_3dreg_files})
+target_link_libraries (calibrate_extrinsic_3dreg core calib)
