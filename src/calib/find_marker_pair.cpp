@@ -172,7 +172,10 @@ int main(int argc, char **argv) {
             printWarning("[Chessboard] ", "not found.\n");
         }
         /* draw the 2d pattern */
-        cv::drawChessboardCorners(img, patternSize, patternCorners, found2d);
+        cv::drawChessboardCorners(img, patternSize, 
+                patternCorners, found2d);
+        cv::Point2f patternCenter = patternCorners[patternCorners.size()/2];
+        cv::circle(img, patternCenter, 15.0, cv::Scalar(0, 255, 0), -1);
         cv::imshow("camera", img);
         cv::waitKey(1);
 
@@ -217,15 +220,20 @@ int main(int argc, char **argv) {
                     patternTvec, patternRvec);
 
             //FIXME transform point properly
+            // center point of the marker in object space
+            cv::Point3f objectPoint(0.0, 0.0, 0.0);
+            // point in camera space
             cv::Point3f patternPoint3d;
-            patternPoint3d.x = patternTvec.at<double>(0,0);
-            patternPoint3d.y = patternTvec.at<double>(1,0);
-            patternPoint3d.z = patternTvec.at<double>(2,0);
+
+            cv::Point3f t;
+            t.x = patternTvec.at<double>(0,0);
+            t.y = patternTvec.at<double>(1,0);
+            t.z = patternTvec.at<double>(2,0);
 
             cv::Mat rmat;
             cv::Rodrigues(patternRvec, rmat);
             cv::Matx33f rotation_matrix = rmat;
-            patternPoint3d = rotation_matrix * patternPoint3d;
+            patternPoint3d = (rotation_matrix * objectPoint) + t;
 
             std::stringstream ss;
             ss << "Chessboard at tvec:" << patternTvec << " rvec: ";
