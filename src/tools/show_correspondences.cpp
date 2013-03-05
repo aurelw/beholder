@@ -16,8 +16,11 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
+#include <pcl/common/common_headers.h>
+#include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/registration/icp.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -39,7 +42,7 @@
 
 
 void print_usage() {
-    std::cout << "--calibstorage <path> --rigconfig <file>" << std::endl;
+    std::cout << "--calibstorage <path> --rigconfig <file> [-e] [-l]" << std::endl;
 }
 
 
@@ -59,6 +62,15 @@ int main(int argc, char **argv) {
                 "No rigconfig provided. --rigconfig <file>\n");
         exit(1);
     }
+
+    bool doExtrinsic = false;
+    doExtrinsic = pcl::console::find_switch(argc, argv, "-e");
+
+    bool doArrows = true;
+    doArrows = !pcl::console::find_switch(argc, argv, "-l");
+
+    bool doICP = false;
+    doICP = pcl::console::find_switch(argc, argv, "--icp");
 
     /* help */
     if (pcl::console::find_switch(argc, argv, "-h") ||
@@ -95,9 +107,27 @@ int main(int argc, char **argv) {
     cloud0 = pointCloudFromPoints(points0);
     cloud1 = pointCloudFromPoints(points1);
 
-
     /* transform the camera cloud */
-    //TODO
+    if (doExtrinsic) {
+        Eigen::Affine3f ext = transRotVecToAffine3f(
+                rc.rangefinderExTranslation,
+                rc.rangefinderExRotationVec);
+        pcl::transformPointCloud(*cloud0, *cloud0, ext);
+    }
+
+    /* do additiwonal icp */
+    if (doICP) {
+        pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+        icp.setInputCloud(cloud0);
+        icp.setInputTarget(cloud1);
+        icp.setMaximumIterations(5000);
+        pcl::PointCloud<pcl::PointXYZ> alignCloud;
+        icp.align(alignCloud);
+        Eigen::Matrix4f mat;
+        mat = icp.getFinalTransformation();
+        Eigen::Affine3f icpTrans(mat);
+        pcl::transformPointCloud(*cloud0, *cloud0, icpTrans);
+    }
 
     /* print some information */
     std::stringstream ss;
@@ -106,7 +136,7 @@ int main(int argc, char **argv) {
 
     /* visualize */
     visualizer.setCorrespondence(cloud0, cloud1);
-    visualizer.setDrawCorrespondence(true);
+    visualizer.setDrawCorrespondence(true, doArrows);
 
     /* just loop */
     for (;;) {

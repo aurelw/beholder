@@ -34,3 +34,4 @@ void getPatternTransform(cv::Size patternSize, float squareSize,
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloudFromPoints(
         const std::vector<cv::Point3f> &points);
+

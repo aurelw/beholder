@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
     pointPairs = calibStorage.getExtrinsicPointsMatrices();
     cv::Mat objectPoints = pointPairs.first;
     cv::Mat imagePoints = pointPairs.second;
+    objectPoints.convertTo(objectPoints, CV_32F);
+    imagePoints.convertTo(imagePoints, CV_32F);
 
     /* print info about calibration data */
     std::stringstream ss;
@@ -127,7 +129,7 @@ int main(int argc, char **argv) {
     }
 
     /* don't know what im doing,... */
-    exRotationVec = exRotationVec * -1;
+    //exRotationVec = exRotationVec * -1;
 
     /* display calibration result */
     printBrightInfo("[Extrinsic] ", "calibrated!\n");
