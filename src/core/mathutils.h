@@ -28,6 +28,10 @@ Eigen::Affine3f transRotVecToAffine3f(
         const cv::Mat &translationVec, 
         const cv::Mat &rotationVec);
 
+void affine3fToTransRotVec(
+        const Eigen::Affine3f &aff,
+        cv::Mat &tvec, cv::Mat &rvec);
+
 
 inline pcl::PointXYZ vecToPoint(const Eigen::Vector3f &vec) {
     pcl::PointXYZ point;

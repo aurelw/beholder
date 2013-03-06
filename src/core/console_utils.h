@@ -32,6 +32,8 @@ void printBrightInfo(const std::string &label, const std::string &text);
 void printWarning(const std::string &str);
 void printWarning(const std::string &label, const std::string &text);
 
+std::string affineToString(const Eigen::Affine3f aff);
+
 #define DEBUG_PRINT(a) std::cout << "[DEBUG] " << __FILE__ << ":" <<__LINE__ << "  " #a << " -> " << a << std::endl
 
 #endif

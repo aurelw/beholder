@@ -233,6 +233,7 @@ int main(int argc, char **argv) {
             cv::Mat rmat;
             cv::Rodrigues(patternRvec, rmat);
             cv::Matx33f rotation_matrix = rmat;
+            //pre rotation
             patternPoint3d = (rotation_matrix * objectPoint) + t;
 
             std::stringstream ss;

@@ -53,3 +53,9 @@ target_link_libraries (test_calibvisualizer core gui)
 set (test_estimateaffine_files test_estimateaffine.cpp)
 add_executable (test_estimateaffine ${test_estimateaffine_files})
 target_link_libraries (test_estimateaffine core calib)
+
+### Convert Affine Test
+set (test_convertaffine_files test_convertaffine.cpp)
+add_executable (test_convertaffine ${test_convertaffine_files})
+target_link_libraries (test_convertaffine core)
+

@@ -22,22 +22,71 @@ Eigen::Affine3f transRotVecToAffine3f(
         const cv::Mat &translationVec, 
         const cv::Mat &rotationVec)
 {
-    Eigen::Affine3f pose, rot;
 
-    //TODO check if this is really correct
-    /* do axis angle rotation */
+    /* Copies the axis angle rotation
+     * and the translation to an
+     * Affine3f transformation matrix
+     */
+
+    /* axis angle roation */
+#if 1
+    Eigen::Vector3f axis(
+            rotationVec.at<float>(0,0),
+            rotationVec.at<float>(1,0),
+            rotationVec.at<float>(2,0));
+    float angle = axis.norm(); // length of the vector 
+    axis.normalize();
+    Eigen::AngleAxisf rot(angle, axis);
+    std::cout << "axis angle" << std::endl;
+#endif
+
+
+#if 0
+    /* do euler angle rotation */
+    Eigen::Affine3f rot;
     rot = Eigen::AngleAxisf(rotationVec.at<float>(0,0), Eigen::Vector3f::UnitX())
-      * Eigen::AngleAxisf(rotationVec.at<float>(1,0),  Eigen::Vector3f::UnitY())
+      * Eigen::AngleAxisf(rotationVec.at<float>(1,0), Eigen::Vector3f::UnitY())
       * Eigen::AngleAxisf(rotationVec.at<float>(2,0), Eigen::Vector3f::UnitZ());
+    std::cout << "euler angle" << std::endl;
+#endif
 
+    //TODO check again but might be correct at this point
+    //pretranslate/rotate?
+    Eigen::Affine3f pose;
     pose = Eigen::Affine3f (Eigen::Translation3f (
                 translationVec.at<float>(0, 0),
                 translationVec.at<float>(1, 0),
-                translationVec.at<float>(2, 0))) *
-            Eigen::Affine3f(rot);
+                translationVec.at<float>(2, 0)));
+    pose.rotate(rot);
 
     return pose;
 }
+
+
+void affine3fToTransRotVec(const Eigen::Affine3f &aff,
+        cv::Mat &tvec, cv::Mat &rvec)
+{   
+    /* decompose matrix */
+    Eigen::Vector3f pos = aff.translation();
+
+    Eigen::AngleAxisf rot(aff.rotation());
+    Eigen::Vector3f rotVec = rot.axis();
+    float angle = rot.angle();
+    rotVec *= angle;
+
+    /* copy translation vector */
+    tvec = cv::Mat::zeros(3, 1, CV_32F);
+    tvec.at<float>(0,0) = pos[0];
+    tvec.at<float>(1,0) = pos[1];
+    tvec.at<float>(2,0) = pos[2];
+
+    /* copy axis angle rotation */
+    rvec = cv::Mat::zeros(3, 1, CV_32F);
+    rvec.at<float>(0,0) = rotVec[0];
+    rvec.at<float>(1,0) = rotVec[1];
+    rvec.at<float>(2,0) = rotVec[2];
+}
+
 
 
 /* http://geomalgorithms.com/a07-_distance.html */

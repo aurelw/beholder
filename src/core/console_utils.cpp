@@ -55,3 +55,13 @@ void printWarning(const std::string &label, const std::string &text) {
     printWarning(label);
     pcl::console::print_info(text.c_str());
 }
+
+
+std::string affineToString(const Eigen::Affine3f aff) {
+    Eigen::MatrixXf m(4,4);
+    m = aff.matrix();
+    std::stringstream ss;
+    ss << m;
+    return ss.str();
+}
+

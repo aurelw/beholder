@@ -105,26 +105,23 @@ int main(int argc, char **argv) {
         cameraPoints.push_back(camPoint);
     }
 
-    /* calibration results */
-    cv::Mat affineTransform(3,4,CV_32F);
-    // translation vector
-    cv::Mat exTranslation;
-    // axis angle rotation
-    cv::Mat exRotationVec;
-
     /* align the two clouds */
-    //std::vector<int> inliers(1);
-    //inliers.resize(cameraPoints.rows);
+    //cv::Mat affineTransform(3,4,CV_32F);
+    cv::Mat affineTransform;
     std::vector<uchar> inliers;
+    //FIXME 'estimates' garbage, no proper affine transformation
+    //       Seems like the rotation matrix is ill fitted.
     cv::estimateAffine3D(rangeFinderPoints, cameraPoints,
             affineTransform, inliers);
     affineTransform.convertTo(affineTransform, CV_32F);
 
-    /* decompose matrix */
+    /**** decompose matrix ****/
+    /* translation vector */
+    cv::Mat exTranslation(3,1,CV_32F);
     exTranslation = affineTransform.col(3);
-    cv::Mat rotationMat(3,3, CV_32F);
 
     /* extract rotation matrix */
+    cv::Mat rotationMat(3,3, CV_32F);
     rotationMat.at<float>(0,0) = affineTransform.at<float>(0,0);
     rotationMat.at<float>(1,0) = affineTransform.at<float>(1,0);
     rotationMat.at<float>(2,0) = affineTransform.at<float>(2,0);
@@ -134,7 +131,13 @@ int main(int argc, char **argv) {
     rotationMat.at<float>(0,2) = affineTransform.at<float>(0,2);
     rotationMat.at<float>(1,2) = affineTransform.at<float>(1,2);
     rotationMat.at<float>(2,2) = affineTransform.at<float>(2,2);
+    std::cout << rotationMat << std::endl;
+
+    /* convet to axis angle rotation */
+    //FIXME this is not a rodrigues matrix!
+    cv::Mat exRotationVec(3,1,CV_32F);
     cv::Rodrigues(rotationMat, exRotationVec);
+
 
     /* print info about calibration data */
     std::stringstream ss;
@@ -149,6 +152,8 @@ int main(int argc, char **argv) {
     printBrightInfo("[Extrinsic] ", "calibrated!\n");
     std::cout << "Translation: " << exTranslation << std::endl;
     std::cout << "Rotation: " << exRotationVec << std::endl;
+    std::cout << "Affine: " << std::endl << 
+        affineTransform << std::endl;
 
     /* save extrinsic to rigconfig */
     rigConfig.rangefinderExTranslation = exTranslation;

@@ -113,6 +113,15 @@ int main(int argc, char **argv) {
                 rc.rangefinderExTranslation,
                 rc.rangefinderExRotationVec);
         pcl::transformPointCloud(*cloud0, *cloud0, ext);
+
+        printBrightInfo("=== [Extrinsic] ===", "\n");
+        printSimpleInfo("[Affine]", "\n");
+        std::cout << affineToString(ext) << std::endl;
+        printSimpleInfo("[tvec]", "\n");
+        std::cout << rc.rangefinderExTranslation << std::endl;
+        printSimpleInfo("[rvec]", "\n");
+        std::cout << rc.rangefinderExRotationVec << std::endl;
+        printBrightInfo("===================", "\n");
     }
 
     /* do additiwonal icp */
