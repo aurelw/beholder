@@ -28,6 +28,7 @@
 
 #include "viewfinder.h"
 #include "cameraparameters.h"
+#include "console_utils.h"
 
 
 template <class PointType>
@@ -66,6 +67,14 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
                 this->rangeFinder->getStaticExtrinsic().inverse();
 
             debugPose = pose;
+
+            std::cout << "RF Extrinsic:" << std::endl;
+            std::cout << affineToString(
+                      this->rangeFinder->getStaticExtrinsic()) 
+                      << std::endl;
+
+            std::cout << "ViewFinder Pose:" << std::endl;
+            std::cout << affineToString(debugPose) << std::endl;
 
             rangeImage_ptr->createFromPointCloudWithFixedSize(*inCloud,
                 this->camera->getResX()*scale, 

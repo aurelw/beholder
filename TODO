@@ -1,4 +1,16 @@
 === CALIBRATION ===
-* hyrid calibration, pnp correspondence with ransac, 
-  remove outliers, do plane <-> plane correspondence
 
+* hyrid calibration, pnp correspondence with ransac, remove 
+  outliers, do plane <-> plane correspondence.
+
+* use pcl::registration::TransformationEstimationSVD instead 
+  of cv::estimateAffine3D to calibrate the extrinsic between
+  two calibration clouds.
+
+* range error between 3d/2d marker may not be as much of a 
+  problem if projective registration is used, as with full
+  3D SVD. One source for the range difference is the change
+  of intrinsic parameters compared to the reference 
+  calibration (changing focus). Use the distribution of
+  errors to estimate a new camera matrix and do full
+  marker extraction and extrinsic calibration again. 

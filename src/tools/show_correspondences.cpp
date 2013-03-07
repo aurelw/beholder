@@ -42,13 +42,21 @@
 
 
 void print_usage() {
-    std::cout << "--calibstorage <path> --rigconfig <file> [-e] [-l]" << std::endl;
+    std::cout << "--calibstorage <path> --rigconfig <file> [-e] [-l] [-k] [--icp]" << std::endl;
 }
 
 
 int main(int argc, char **argv) {
 
     /*** command line arguments ***/
+    /* help */
+    if (pcl::console::find_switch(argc, argv, "-h") ||
+        pcl::console::find_switch(argc, argv, "--help")) 
+    {
+        print_usage();
+        exit(0);
+    }
+
     BasicAppOptions appopt(argc, argv);
 
     if (!appopt.gotCalibStorageDir) {
@@ -69,16 +77,12 @@ int main(int argc, char **argv) {
     bool doArrows = true;
     doArrows = !pcl::console::find_switch(argc, argv, "-l");
 
+    bool drawKinectFrame = false;
+    drawKinectFrame = pcl::console::find_switch(argc, argv, "-k");
+
     bool doICP = false;
     doICP = pcl::console::find_switch(argc, argv, "--icp");
 
-    /* help */
-    if (pcl::console::find_switch(argc, argv, "-h") ||
-        pcl::console::find_switch(argc, argv, "--help")) 
-    {
-        print_usage();
-        exit(0);
-    }
     /*****************************/
 
     /* calibration storage */
@@ -103,39 +107,46 @@ int main(int argc, char **argv) {
         points1.push_back(pair.second);
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud0, cloud1;
-    cloud0 = pointCloudFromPoints(points0);
-    cloud1 = pointCloudFromPoints(points1);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudKinect, cloudCam;
+    cloudKinect = pointCloudFromPoints(points0);
+    cloudCam = pointCloudFromPoints(points1);
 
-    /* transform the camera cloud */
+    /* handle extrinsic of the camera */
+    Eigen::Affine3f ext = transRotVecToAffine3f(
+            rc.rangefinderExTranslation,
+            rc.rangefinderExRotationVec);
+
+    if (drawKinectFrame) {
+        visualizer.addCoordinateSystem(ext, "ext", 1.0, true);
+    }
+
+    printBrightInfo("=== [Extrinsic] ===", "\n");
+    printSimpleInfo("[Affine]", "\n");
+    std::cout << affineToString(ext) << std::endl;
+    printSimpleInfo("[tvec]", "\n");
+    std::cout << rc.rangefinderExTranslation << std::endl;
+    printSimpleInfo("[rvec]", "\n");
+    std::cout << rc.rangefinderExRotationVec << std::endl;
+    printBrightInfo("===================", "\n");
+
+    /* transform the cloud if specified */
     if (doExtrinsic) {
-        Eigen::Affine3f ext = transRotVecToAffine3f(
-                rc.rangefinderExTranslation,
-                rc.rangefinderExRotationVec);
-        pcl::transformPointCloud(*cloud0, *cloud0, ext);
-
-        printBrightInfo("=== [Extrinsic] ===", "\n");
-        printSimpleInfo("[Affine]", "\n");
-        std::cout << affineToString(ext) << std::endl;
-        printSimpleInfo("[tvec]", "\n");
-        std::cout << rc.rangefinderExTranslation << std::endl;
-        printSimpleInfo("[rvec]", "\n");
-        std::cout << rc.rangefinderExRotationVec << std::endl;
-        printBrightInfo("===================", "\n");
+        // transform the kinect cloud into main camera space
+        pcl::transformPointCloud(*cloudKinect, *cloudKinect, ext);
     }
 
     /* do additiwonal icp */
     if (doICP) {
         pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
-        icp.setInputCloud(cloud0);
-        icp.setInputTarget(cloud1);
+        icp.setInputCloud(cloudKinect);
+        icp.setInputTarget(cloudCam);
         icp.setMaximumIterations(5000);
         pcl::PointCloud<pcl::PointXYZ> alignCloud;
         icp.align(alignCloud);
         Eigen::Matrix4f mat;
         mat = icp.getFinalTransformation();
         Eigen::Affine3f icpTrans(mat);
-        pcl::transformPointCloud(*cloud0, *cloud0, icpTrans);
+        pcl::transformPointCloud(*cloudKinect, *cloudKinect, icpTrans);
     }
 
     /* print some information */
@@ -144,7 +155,7 @@ int main(int argc, char **argv) {
     printSimpleInfo("[Correspondence] ", ss.str());
 
     /* visualize */
-    visualizer.setCorrespondence(cloud0, cloud1);
+    visualizer.setCorrespondence(cloudKinect, cloudCam);
     visualizer.setDrawCorrespondence(true, doArrows);
 
     /* just loop */

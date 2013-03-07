@@ -35,6 +35,8 @@ class CalibStorageContract {
 
         /* pair: <img, cloud> */
         typedef std::pair<std::string, std::string> FilePair;
+
+        /* point pair <3d-cloud-point, 2d-marker-point> */
         typedef std::pair<cv::Point3f, cv::Point2f> PointPair3d2d;
         typedef std::pair<cv::Point3f, cv::Point3f> PointPair3d3d;
 
@@ -51,6 +53,7 @@ class CalibStorageContract {
         void addExtrinsicPointPair(cv::Point3f p3d, cv::Point2f p2d);
         void saveExtrinsicPointPairs();
 
+        /* 3d-marker point, 2d-marker point */
         void addExtrinsicPointPair3d(cv::Point3f p0, cv::Point3f p1);
         void saveExtrinsicPointPairs3d();
 

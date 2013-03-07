@@ -96,12 +96,12 @@ void FFocusVisualizer::updateCoordinates() {
     /* add kinect coordinate system */
     removeCoordinateSystem("kinectCoord");
     if (displayKinectCoordFrame) {
-        addCoordinateSystem(0.3, cameraPose * rangeFinderExtrinsic, "kinectCoord");
+        addCoordinateSystem(1.0, cameraPose * rangeFinderExtrinsic, "kinectCoord");
     }
 
     /* add DSLR coordinate system */
     removeCoordinateSystem("dslrCoord");
-    addCoordinateSystem(0.3, cameraPose, "dslrCoord");
+    addCoordinateSystem(1.0, cameraPose, "dslrCoord");
 
     /* display the distance in meters */
     stringstream sstr;

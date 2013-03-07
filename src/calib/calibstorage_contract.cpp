@@ -130,6 +130,7 @@ void CalibStorageContract::saveExtrinsicPointPairs() {
 }
 
 
+/* 3d marker, 2d marker */
 void CalibStorageContract::addExtrinsicPointPair3d(
         cv::Point3f p0, cv::Point3f p1) 
 {

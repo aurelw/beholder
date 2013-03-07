@@ -168,16 +168,20 @@ int main(int argc, char **argv) {
         /* display results on image */
         if (found2d) {
             printSimpleInfo("[Chessboard] ", "found.\n");
+            /* draw center point */
+            cv::Point2f patternCenter = 
+                patternCorners[patternCorners.size()/2];
+                cv::circle(img, patternCenter, 15.0, 
+                        cv::Scalar(0, 255, 0), -1);
         } else {
             printWarning("[Chessboard] ", "not found.\n");
         }
         /* draw the 2d pattern */
         cv::drawChessboardCorners(img, patternSize, 
                 patternCorners, found2d);
-        cv::Point2f patternCenter = patternCorners[patternCorners.size()/2];
-        cv::circle(img, patternCenter, 15.0, cv::Scalar(0, 255, 0), -1);
         cv::imshow("camera", img);
         cv::waitKey(1);
+
 
         /*** extract 3d marker ***/
         PointT bPoint;
@@ -233,7 +237,11 @@ int main(int argc, char **argv) {
             cv::Mat rmat;
             cv::Rodrigues(patternRvec, rmat);
             cv::Matx33f rotation_matrix = rmat;
+
             //pre rotation
+            // -> FIXME check again
+            // at the moment this looks correct.
+            // also float/double convertion is correct
             patternPoint3d = (rotation_matrix * objectPoint) + t;
 
             std::stringstream ss;
