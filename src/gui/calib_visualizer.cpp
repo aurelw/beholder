@@ -21,94 +21,12 @@
 #include "console_utils.h"
 
 
-CalibVisualizer::CalibVisualizer() {
-}
-
-
-CalibVisualizer::~CalibVisualizer() {
-    stop();
-}
-
-
 void CalibVisualizer::initVisualizer() {
-    if (visualizer == NULL) {
-        return;
-    }
+    BasicVisualizer::initVisualizer();
 
-    /* set some basic visualizer properties */
-    visualizer->addCoordinateSystem(0.5);
-    visualizer->setBackgroundColor(0.1, 0.1, 0.1);
-
-    /* other properties */
-    //visualizer->addText("", 10, 10, "markerText");
-
-    registerCallbacks();
-}
-
-
-void keyboardCallback(const pcl::visualization::KeyboardEvent &event, void* cvis) {
-}
-
-void CalibVisualizer::registerCallbacks() {
-    visualizer->registerKeyboardCallback(keyboardCallback, (void*) this);
-}
-
-
-void CalibVisualizer::spinOnce() {
-    /* if there is no visualizer present, create on in this thread */
-    if (visualizer == NULL) {
-        visualizer.reset (new pcl::visualization::PCLVisualizer);
-        initVisualizer();
-    }
-
-    if (!threadRunning) {
-        updateAllProperties();
-        visualizer->spinOnce(10, false);
-    }
-}
-
-
-void CalibVisualizer::start() {
-    if (!threadRunning) {
-        threadRunning = true;
-        thread = new boost::thread(
-            boost::bind( &CalibVisualizer::runVisualizer, this ));
-    }
-}
-
-
-void CalibVisualizer::stop() {
-    if (threadRunning) {
-        stopThread = true;
-        thread->join();
-        delete thread;
-        stopThread = false;
-        threadRunning = false;
-    }  
-}
-
-
-void CalibVisualizer::setMainCloud(RGBCloud::Ptr cloud) {
-    boost::unique_lock<boost::shared_mutex> lock(mutex);
-    mainCloud = cloud;
-    flagUpdateMainCloud = true;
-}
-
-
-void CalibVisualizer::updateMainCloud() {
-    if (!flagUpdateMainCloud) return;
-
-    if (mainCloudAdded) {
-        if (drawMainCloud && mainCloud != NULL) {
-            visualizer->updatePointCloud(mainCloud, "mainCloud");
-        } else {
-            visualizer->removePointCloud("mainCloud");
-            mainCloudAdded = false;
-        }
-    } else if (drawMainCloud && mainCloud != NULL) {
-        visualizer->addPointCloud(mainCloud, "mainCloud");
-        mainCloudAdded = true;
-    }
+    Eigen::Affine3f idm;
+    idm.setIdentity();
+    addCoordinateSystem(idm, "world", 1.0);
 }
 
 
@@ -236,28 +154,8 @@ void CalibVisualizer::updateCorrespondence() {
 
 
 void CalibVisualizer::updateAllProperties() {
-    updateMainCloud();
+    BasicVisualizer::updateAllProperties();
     updateMarker();
     updateCorrespondence();
-}
-
-
-void CalibVisualizer::runVisualizer() {
-
-    visualizer.reset (new pcl::visualization::PCLVisualizer);
-    initVisualizer();
-
-    while (!stopThread) {
-        {
-            boost::shared_lock<boost::shared_mutex> lock(mutex);
-            
-            /* update visualizer properties */
-            updateAllProperties();
-
-            visualizer->spinOnce(10, false);
-        }
-        // give setters the chance to acquire a lock
-        usleep(5);
-    }
 }
 

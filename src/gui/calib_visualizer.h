@@ -26,8 +26,10 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/image_viewer.h>
 
+#include "basic_visualizer.h"
 
-class CalibVisualizer {
+
+class CalibVisualizer : public BasicVisualizer {
 
     public:
 
@@ -36,50 +38,19 @@ class CalibVisualizer {
 
     public:
 
-        CalibVisualizer();
-        ~CalibVisualizer();
-
-        /* dispatch */
-        //FIXME visualizer is not local thread data
-        //so rendering fails
-        void start();
-        void stop();
-
-        void spinOnce();
-
         /* set properties */
-        void setMainCloud(RGBCloud::Ptr cloud);
         void setMarkerCenter(pcl::PointXYZ center, bool found=true);
         void setCorrespondence(PlainCloud::ConstPtr cloud0, 
                                PlainCloud::ConstPtr cloud1);
 
+        /* set draw options */
         void setDrawMarker(bool doDraw);
         void setDrawCorrespondence(bool doDraw, bool arrow=true);
 
     protected:
 
-        /* initial setup for a visualizer */
-        void initVisualizer();
-
-        void updateAllProperties();
-
-        /* threading */
-        boost::thread *thread;
-        bool threadRunning = false;
-        bool stopThread = false;
-        void runVisualizer();
-        boost::shared_mutex mutex;
-
-        /* pcl visualizer */
-        pcl::visualization::PCLVisualizer::Ptr visualizer;
-        void registerCallbacks();
-
-        /* main cloud */
-        RGBCloud::Ptr mainCloud;
-        bool flagUpdateMainCloud = false;
-        void updateMainCloud();
-        bool drawMainCloud = true;
-        bool mainCloudAdded = false;
+        void updateAllProperties() override;
+        void initVisualizer() override;
 
         /* plane marker */
         pcl::PointXYZ markerCenter;

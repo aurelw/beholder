@@ -1,7 +1,7 @@
 include_directories (../common/)
 include_directories (../core/)
 
-set (gui_source_files ffocus_visualizer.cpp calib_visualizer.cpp)
+set (gui_source_files ffocus_visualizer.cpp calib_visualizer.cpp basic_visualizer.cpp)
 add_library (gui ${gui_source_files})
 
 #add_executable (ftrack ftrack.cpp)
