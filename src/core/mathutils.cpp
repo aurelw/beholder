@@ -37,7 +37,6 @@ Eigen::Affine3f transRotVecToAffine3f(
     float angle = axis.norm(); // length of the vector 
     axis.normalize();
     Eigen::AngleAxisf rot(angle, axis);
-    std::cout << "axis angle" << std::endl;
 #endif
 
 
@@ -47,11 +46,9 @@ Eigen::Affine3f transRotVecToAffine3f(
     rot = Eigen::AngleAxisf(rotationVec.at<float>(0,0), Eigen::Vector3f::UnitX())
       * Eigen::AngleAxisf(rotationVec.at<float>(1,0), Eigen::Vector3f::UnitY())
       * Eigen::AngleAxisf(rotationVec.at<float>(2,0), Eigen::Vector3f::UnitZ());
-    std::cout << "euler angle" << std::endl;
 #endif
 
-    //TODO check again but might be correct at this point
-    //pretranslate/rotate?
+    /* compose new pose */
     Eigen::Affine3f pose;
     pose = Eigen::Affine3f (Eigen::Translation3f (
                 translationVec.at<float>(0, 0),
@@ -120,6 +117,28 @@ void intersectLines(const Eigen::Vector3f &p0, const Eigen::Vector3f &p1,
 }
 
 
+Eigen::Affine3f interpolateAffine(const Eigen::Affine3f &pose0, 
+        const Eigen::Affine3f &pose1, float blend)
+{
+    /* interpolate translation */
+    Eigen::Vector3f t0 = pose0.translation();
+    Eigen::Vector3f t1 = pose1.translation();
+    Eigen::Vector3f tIP = (t1 - t0)*blend;
+
+    /* interpolate rotation */
+    Eigen::Quaternionf r0(pose0.rotation());
+    Eigen::Quaternionf r1(pose1.rotation());
+    Eigen::Quaternionf rIP(r1.slerp(blend, r0));
+
+    /* compose resulting pose */
+    Eigen::Affine3f ipAff = pose0;
+    ipAff.rotate(rIP);
+    ipAff.translate(tIP);
+    return ipAff;
+}
+
+
+
 void printAffine3f(const Eigen::Affine3f m) {
     std::cout << "[" << m(0,0) << ", " << m(0,1) << ", " 
                      << m(0,2) << ", " << m(0,3) << ", "
@@ -133,5 +152,27 @@ void printAffine3f(const Eigen::Affine3f m) {
                      << m(3,0) << ", " << m(3,1) << ", " 
                      << m(3,2) << ", " << m(3,3) 
                      << "]" << std::endl;
+}
+
+
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudXYZtoRGBA(
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr inCloud)
+{
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr newCloud
+        (new pcl::PointCloud<pcl::PointXYZRGBA>);
+
+    int numPoints = inCloud->size();
+    newCloud->resize(numPoints);
+
+    for (int i; i<numPoints; i++) {
+        pcl::PointXYZRGBA &np = newCloud->at(i);
+        const pcl::PointXYZ &op = inCloud->at(i);
+
+        np.x = op.x;
+        np.y = op.y;
+        np.z = op.z;
+    }
+
+    return newCloud;
 }
 

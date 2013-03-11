@@ -64,6 +64,10 @@ inline pcl::PointXYZRGBA pointXYZtoRGBA(const pcl::PointXYZ &p) {
 }
 
 
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudXYZtoRGBA(
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr inCloud);
+
+
 inline pcl::PointXYZ pointCVtoPCL(const cv::Point3f &p) {
     pcl::PointXYZ np;
     np.x = p.x;
@@ -90,6 +94,12 @@ inline cv::Point3f pointPCLtoCV(const pcl::PointXYZ &p) {
 void intersectLines(const Eigen::Vector3f &p0, const Eigen::Vector3f &p1,
                     const Eigen::Vector3f &q0, const Eigen::Vector3f &q1,
                     Eigen::Vector3f &pointOnP, Eigen::Vector3f &pointOnQ);
+
+/* linearly interpolate between twon affine transformations.
+ * lerp with quaternions, blender may be in [0,1] range. */
+Eigen::Affine3f interpolateAffine(const Eigen::Affine3f &pose0, 
+        const Eigen::Affine3f &pose1, float blend);
+
 
 void printAffine3f(const Eigen::Affine3f m);
 
