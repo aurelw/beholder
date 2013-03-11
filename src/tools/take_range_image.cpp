@@ -29,7 +29,7 @@
 
 
 void print_usage() {
-    std::cout << "--rigconfig <file> [-o <outputfile>] [-m]" << std::endl;
+    std::cout << "--rigconfig <file> [-o <outputfile>] [-m] [-s scale]" << std::endl;
 }
 
 
@@ -47,6 +47,10 @@ int main(int argc, char **argv) {
     /* ozutput file to write the range image to */
     std::string outputFile = "range_image.png"; 
     pcl::console::parse(argc, argv, "-o", outputFile);
+
+    /* scale the range image (when sampling) */
+    float scale = 0.5;
+    pcl::console::parse(argc, argv, "-s", scale);
 
     /* wait for user input to take the range image */
     bool manualRelease = false;
@@ -83,7 +87,7 @@ int main(int argc, char **argv) {
     rangeFinder->setCloudSource(rangeimageProvider);
 
     /* viewfinder to take the range image */
-    ViewFinderRangeImage<pcl::PointXYZ> viewFinder(0.25);
+    ViewFinderRangeImage<pcl::PointXYZ> viewFinder(scale);
     viewFinder.setRangeFinder(rangeFinder);
     viewFinder.setCameraParameters(cameraParameters);
 
