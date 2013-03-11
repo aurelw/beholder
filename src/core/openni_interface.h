@@ -40,10 +40,11 @@ class OpenNiInterface :
 
     public:
 
-        typedef typename pcl::PointXYZRGBA PointType;
-        typedef typename pcl::PointCloud<PointType> Cloud;
-        typedef typename Cloud::Ptr CloudPtr;
-        typedef typename Cloud::ConstPtr CloudConstPtr;
+        typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
+        typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
+        typedef typename Cloud::Ptr RGBCloudPtr;
+        typedef typename Cloud::ConstPtr RGBCloudConstPtr;
+
 
         typedef typename  boost::shared_ptr<OpenNiInterface> Ptr;
 
@@ -60,17 +61,18 @@ class OpenNiInterface :
         void waitForFirstFrame();
 
         /* CloudProvider implementation */
-        CloudConstPtr getLastCloud();
-        CloudPtr getCloudCopy();
+        RGBCloudConstPtr getLastCloud();
+        RGBCloudPtr getCloudCopy();
         Eigen::Affine3f getCloudPose();
 
     private:
 
         void setupGrabber();
-        void cloud_callback(const CloudConstPtr& cld);
+        void cloud_callback(const RGBCloudConstPtr& cld);
+        void plain_cloud_callback(const PlainCloud::ConstPtr& cld);
 
         pcl::OpenNIGrabber *grabber;
-        CloudConstPtr cloud;
+        RGBCloudConstPtr cloud;
 
         bool isStreaming;
         bool isConnected;

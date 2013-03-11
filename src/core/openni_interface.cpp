@@ -18,7 +18,7 @@
 
 #include "openni_interface.h"
 
-#include <boost/foreach.hpp>
+#include "mathutils.h"
 
 
 OpenNiInterface::~OpenNiInterface() {
@@ -29,6 +29,16 @@ OpenNiInterface::~OpenNiInterface() {
 void OpenNiInterface::cloud_callback(const CloudConstPtr &cld) {
     // assignment to shared pointers is threadsafe
     cloud = cld;
+    if (cloud != NULL) {
+        isStreaming = true;
+        update();
+    }
+}
+
+
+void OpenNiInterface::plain_cloud_callback(const PlainCloud::ConstPtr &cld) {
+    // assignment to shared pointers is threadsafe
+    cloud = cloudXYZtoRGBA(cld);
     if (cloud != NULL) {
         isStreaming = true;
         update();
@@ -67,10 +77,17 @@ void OpenNiInterface::setupGrabber() {
         return;
     }
     
-    // setup callback
-    boost::function <void (const CloudConstPtr&)> cloud_cb = 
-        boost::bind (&OpenNiInterface::cloud_callback, this, _1);
-    grabber->registerCallback(cloud_cb);
+    /* callbacks for XYZRGBA or XYZ */
+    bool captureRGB = true;
+    if (captureRGB) {
+        boost::function <void (const CloudConstPtr&)> cloud_cb = 
+            boost::bind (&OpenNiInterface::cloud_callback, this, _1);
+        grabber->registerCallback(cloud_cb);
+    } else {
+        boost::function <void (const PlainCloud::ConstPtr&)> plain_cloud_cb = 
+            boost::bind (&OpenNiInterface::plain_cloud_callback, this, _1);
+        grabber->registerCallback(plain_cloud_cb);
+    }
 
     // start 
     grabber->start();
