@@ -56,6 +56,7 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
             float min_range = 0.0f;
             float scale = imageScale;
 
+            // get the cloud before the pose
             CloudConstPtr inCloud = this->rangeFinder->getLastCloud();
 
             /* The pose of the camera in respect to the pointcloud.
@@ -65,16 +66,6 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
             Eigen::Affine3f pose = 
                 this->rangeFinder->getCloudPose() *
                 this->rangeFinder->getStaticExtrinsic().inverse();
-
-            debugPose = pose;
-
-            std::cout << "RF Extrinsic:" << std::endl;
-            std::cout << affineToString(
-                      this->rangeFinder->getStaticExtrinsic()) 
-                      << std::endl;
-
-            std::cout << "ViewFinder Pose:" << std::endl;
-            std::cout << affineToString(debugPose) << std::endl;
 
             rangeImage_ptr->createFromPointCloudWithFixedSize(*inCloud,
                 this->camera->getResX()*scale, 
@@ -104,9 +95,6 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
         RangeImagePtr getRangeImage() {
             return rangeImage_ptr;
         }
-
-        //FIXME
-        Eigen::Affine3f debugPose;
 
     private:
         RangeImagePtr rangeImage_ptr;
