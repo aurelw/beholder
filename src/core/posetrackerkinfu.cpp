@@ -39,8 +39,14 @@ PoseTrackerKinfu::PoseTrackerKinfu(const RigConfig &rigConfig) :
         staticExtrinsic = transRotVecToAffine3f(exTranslation, exRotationVec);
     }
 
-    /* setup kinfu tracking */
+    /* setup capture interface */
     capture.open(kinectFuId);
+    // register to rgb image
+    capture.setRegistration(true);
+    //FIXME this should be read from device interface
+    capture.depth_focal_length_VGA = 525;
+
+    /* setup kinfu tracking */
     kinfuWrapper.reset( new KinfuWrapper );
     kinfuWrapper->setCaptureSource(capture);
     kinfuWrapper->init();
