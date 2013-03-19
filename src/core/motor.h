@@ -36,6 +36,8 @@ class Motor {
         virtual bool connect() = 0;
         virtual void disconnect() = 0;
         virtual void setPosition(float p) = 0;
+        virtual void stepUp() = 0;
+        virtual void stepDown() = 0;
         virtual float getPosition();
 
     protected:

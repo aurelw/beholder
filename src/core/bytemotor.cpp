@@ -23,6 +23,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "mathutils.h"
+
 
 ByteMotor::ByteMotor(const RigConfig &rigConfig, std::string id) : 
     connected(false)
@@ -30,6 +32,9 @@ ByteMotor::ByteMotor(const RigConfig &rigConfig, std::string id) :
     devicePath = rigConfig.fMotorDevice;
     lLimit = rigConfig.fMotorLimitL;
     hLimit = rigConfig.fMotorLimitH;
+
+    setBounds(lLimit, 0.0f, 1.0f);
+    setBounds(hLimit, 0.0f, 1.0f);
 }
 
 
@@ -97,14 +102,21 @@ void ByteMotor::disconnect() {
 }
 
 
+bool ByteMotor::checkLimits(const float p) {
+    return (p > lLimit && p < hLimit);
+}
+
+
 void ByteMotor::setPosition(float p) {
-    if (p < lLimit || p > hLimit) {
+    if (!checkLimits(p)) {
         return;
     }
 
     position = p;
-    unsigned char byte_pos =  256 * position;
-    sendRawBytePos(byte_pos);
+    int new_bytePos =  position*256;
+    setBounds(new_bytePos, 0, 255);
+    bytePos = new_bytePos;
+    sendRawBytePos(bytePos);
 }
 
 
@@ -117,3 +129,22 @@ void ByteMotor::sendRawBytePos(unsigned char byte) {
     } 
 }
 
+
+void ByteMotor::stepUp() {
+    // prevent overflow
+    if (bytePos < 254) {
+        unsigned char new_byte_pos = bytePos + 1;
+        float new_position = new_byte_pos / 255.0f;
+        setPosition(new_position);
+    }
+}
+
+
+void ByteMotor::stepDown() {
+    // prevent overflow
+    if (bytePos > 1) {
+        unsigned char new_byte_pos = bytePos - 1;
+        float new_position = new_byte_pos / 255.0f;
+        setPosition(new_position);
+    }
+}

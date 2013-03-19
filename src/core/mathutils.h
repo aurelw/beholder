@@ -22,6 +22,14 @@
 #include <pcl/common/common_headers.h>
 #include <opencv2/opencv.hpp>
 
+template <class T>
+void setBounds(T &v, const T &low, const T &high) {
+    if (v < low) {
+        v = low;
+    } else if (v > high) {
+        v = high;
+    }
+}
 
 
 Eigen::Affine3f transRotVecToAffine3f(

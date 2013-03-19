@@ -30,18 +30,23 @@ class ByteMotor : public Motor {
 
         ~ByteMotor();
 
-        virtual bool connect();
-        virtual void disconnect();
-        virtual void setPosition(float p);
+        virtual bool connect() override;
+        virtual void disconnect() override;
+        virtual void setPosition(float p) override;
+        virtual void stepUp() override;
+        virtual void stepDown() override;
 
     private:
 
         void sendRawBytePos(unsigned char byte); 
+        bool checkLimits(const float p);
 
         std::string devicePath;
         int fd;
         bool connected;
         float lLimit, hLimit;
+
+        unsigned char bytePos;
 
 };
 

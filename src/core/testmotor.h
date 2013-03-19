@@ -26,9 +26,11 @@ class TestMotor : public Motor {
         TestMotor(const RigConfig &rigConfig, std::string id);
         ~TestMotor();
 
-        virtual bool connect();
-        virtual void disconnect();
-        virtual void setPosition(float p);
+        virtual bool connect() override;
+        virtual void disconnect() override;
+        virtual void setPosition(float p) override;
+        virtual void stepUp() override;
+        virtual void stepDown() override;
 
     private:
 

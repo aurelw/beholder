@@ -61,3 +61,13 @@ void TestMotor::setPosition(float p) {
     position = p;
 }
 
+
+void TestMotor::stepUp() {
+    setPosition(position+0.01);
+}
+
+
+void TestMotor::stepDown() {
+    setPosition(position-0.01);
+}
+
