@@ -20,3 +20,13 @@ set (show_correspondences_files show_correspondences.cpp)
 add_executable (show_correspondences ${show_correspondences_files})
 target_link_libraries (show_correspondences core calib gui)
 
+### Contrast level in VideoStream
+set (contrast_level_files contrast_level.cpp)
+add_executable (contrast_level ${contrast_level_files})
+target_link_libraries (contrast_level core calib gui)
+
+### Contrast level in VideoStream
+set (motor_control_files motor_control.cpp)
+add_executable (motor_control ${motor_control_files})
+target_link_libraries (motor_control core calib gui)
+
