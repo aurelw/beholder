@@ -57,6 +57,17 @@ void printWarning(const std::string &label, const std::string &text) {
 }
 
 
+void printError(const std::string &str) {
+    pcl::console::print_error(str.c_str());
+}
+
+
+void printError(const std::string &label, const std::string &text) {
+    printError(label);
+    pcl::console::print_info(text.c_str());
+}
+
+
 std::string affineToString(const Eigen::Affine3f aff) {
     Eigen::MatrixXf m(4,4);
     m = aff.matrix();
