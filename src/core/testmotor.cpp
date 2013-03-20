@@ -71,3 +71,13 @@ void TestMotor::stepDown() {
     setPosition(position-0.01);
 }
 
+
+bool TestMotor::isUpperLimit() {
+    return (position+0.01 > hLimit);
+}
+
+
+bool TestMotor::isLowerLimit() {
+    return (position-0.01 < lLimit);
+}
+

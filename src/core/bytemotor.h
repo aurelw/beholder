@@ -35,17 +35,20 @@ class ByteMotor : public Motor {
         virtual void setPosition(float p) override;
         virtual void stepUp() override;
         virtual void stepDown() override;
+        virtual bool isUpperLimit() override;
+        virtual bool isLowerLimit() override;
 
     private:
 
         void sendRawBytePos(unsigned char byte); 
-        bool checkLimits(const float p);
+        void setBytePosition(unsigned char p);
+        bool checkLimits(unsigned char p);
 
         std::string devicePath;
         int fd;
         bool connected;
-        float lLimit, hLimit;
 
+        unsigned char lLimit, hLimit;
         unsigned char bytePos;
 
 };

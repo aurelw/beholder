@@ -38,6 +38,8 @@ class Motor {
         virtual void setPosition(float p) = 0;
         virtual void stepUp() = 0;
         virtual void stepDown() = 0;
+        virtual bool isUpperLimit() = 0;
+        virtual bool isLowerLimit() = 0;
         virtual float getPosition();
 
     protected:

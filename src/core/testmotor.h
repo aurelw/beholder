@@ -31,6 +31,8 @@ class TestMotor : public Motor {
         virtual void setPosition(float p) override;
         virtual void stepUp() override;
         virtual void stepDown() override;
+        virtual bool isUpperLimit() override;
+        virtual bool isLowerLimit() override;
 
     private:
 

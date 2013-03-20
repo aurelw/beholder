@@ -24,17 +24,25 @@
 #include <unistd.h>
 
 #include "mathutils.h"
+#include "console_utils.h"
 
 
 ByteMotor::ByteMotor(const RigConfig &rigConfig, std::string id) : 
     connected(false)
 {
     devicePath = rigConfig.fMotorDevice;
-    lLimit = rigConfig.fMotorLimitL;
-    hLimit = rigConfig.fMotorLimitH;
 
-    setBounds(lLimit, 0.0f, 1.0f);
-    setBounds(hLimit, 0.0f, 1.0f);
+    /* convert limits to byte positions */
+    float ll = rigConfig.fMotorLimitL;
+    float hl = rigConfig.fMotorLimitH;
+    setBounds(ll, 0.0f, 1.0f);
+    setBounds(hl, 0.0f, 1.0f);
+    int ll_i = ll * 256;
+    int hl_i = hl * 256;
+    setBounds(ll_i, 0, 255);
+    setBounds(hl_i, 0, 255);
+    lLimit = ll_i;
+    hLimit = hl_i;
 }
 
 
@@ -47,7 +55,7 @@ bool ByteMotor::connect() {
     fd = open(devicePath.c_str(), O_RDWR|O_NOCTTY|O_NDELAY);
     fcntl(fd, F_SETFL, FNDELAY);
     if (fd == -1) {
-        std::cerr << "[ERROR] Can't connect to servo driver." << std::endl;
+        printError("[ByteMotor]", "Can't connect to servo driver.\n");
         return false;
     }
 
@@ -56,15 +64,14 @@ bool ByteMotor::connect() {
 
     retval = tcgetattr( fd, &my_termios );
     if (retval == -1) {
-        std::cerr << "[ERROR] Can't connect to servo driver." << std::endl;
+        printError("[ByteMotor]", "Can't connect to servo driver.\n");
         return false;
     } 
 
     // baudrate
     retval = cfsetospeed(&my_termios, B38400);
     if (retval == -1) {
-        std::cerr << "[ERROR] Can't connect to servo driver (baudrate)." 
-            << std::endl;
+        printError("[ByteMotor]", "Can't connect to servo driver (baudrate).\n");
         return false;
     }
 
@@ -86,36 +93,45 @@ bool ByteMotor::connect() {
 
     retval = tcsetattr( fd, TCSANOW, &my_termios );
     if (retval == -1) {
-        std::cerr << "[ERROR] Can't connect to servo driver (termios)." 
-            << std::endl;
+        printError("[ByteMotor]", "Can't connect to servo driver (termios).\n");
         return false;
     }
     
+    printBrightInfo("[ByteMotor]", " connected.\n");
     connected = true;
     return true;
 }
 
 
 void ByteMotor::disconnect() {
+    printBrightInfo("[ByteMotor]", " disconnected.\n");
     close(fd);
     connected = false;
 }
 
 
-bool ByteMotor::checkLimits(const float p) {
-    return (p > lLimit && p < hLimit);
+bool ByteMotor::checkLimits(unsigned char p) {
+    return (p >= lLimit && p <= hLimit);
 }
 
 
 void ByteMotor::setPosition(float p) {
+    if (p < 0 || p > 1.0) {
+        return;
+    }
+    int new_bytePos =  p*256;
+    setBounds(new_bytePos, 0, 255);
+    setBytePosition(new_bytePos);
+}
+
+
+void ByteMotor::setBytePosition(unsigned char p) {
     if (!checkLimits(p)) {
         return;
     }
 
-    position = p;
-    int new_bytePos =  position*256;
-    setBounds(new_bytePos, 0, 255);
-    bytePos = new_bytePos;
+    bytePos = p;
+    position = bytePos / 255.0f;
     sendRawBytePos(bytePos);
 }
 
@@ -130,12 +146,28 @@ void ByteMotor::sendRawBytePos(unsigned char byte) {
 }
 
 
+bool ByteMotor::isUpperLimit() {
+    /* prevent overflow */
+    if (bytePos == 255) {
+        return true;
+    }
+    return (bytePos + 1 > hLimit);
+}
+
+
+bool ByteMotor::isLowerLimit() {
+    /* prevent overflow */
+    if (bytePos == 0) {
+        return true;
+    }
+    return (bytePos - 1 < lLimit);
+}
+
+
 void ByteMotor::stepUp() {
     // prevent overflow
     if (bytePos < 254) {
-        unsigned char new_byte_pos = bytePos + 1;
-        float new_position = new_byte_pos / 255.0f;
-        setPosition(new_position);
+        setBytePosition(bytePos + 1);
     }
 }
 
@@ -143,8 +175,7 @@ void ByteMotor::stepUp() {
 void ByteMotor::stepDown() {
     // prevent overflow
     if (bytePos > 1) {
-        unsigned char new_byte_pos = bytePos - 1;
-        float new_position = new_byte_pos / 255.0f;
-        setPosition(new_position);
+        setBytePosition(bytePos - 1);
     }
 }
+
