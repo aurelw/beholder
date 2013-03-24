@@ -57,6 +57,8 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
         loadExPointPairs();
         loadExPointPairs3d();
 
+        loadFocusSamples();
+
         /* check which files are already there */
         initCounters();
     }
@@ -66,6 +68,7 @@ CalibStorageContract::CalibStorageContract(const std::string &dir) {
 CalibStorageContract::~CalibStorageContract() {
     saveExtrinsicPointPairs();
     saveExtrinsicPointPairs3d();
+    saveFocusSamples();
 }
 
 
@@ -207,6 +210,29 @@ CalibStorageContract::getExtrinsicPoints3dMatrices() {
     mp.first = exPointPairs3d_0.clone();
     mp.second = exPointPairs3d_1.clone();
     return mp;
+}
+
+
+void CalibStorageContract::addFocusSample(
+        float distance, float position, bool isReverse)
+{
+    FocusSample sample = {distance, position, isReverse};
+    focusSamples.push_back(sample);
+    focusSamplesUpdated = true;
+}
+
+
+void CalibStorageContract::saveFocusSamples() {
+    if (focusSamplesUpdated) {
+        focusSamplesUpdated = false;
+        writeFocusSamples();
+    }
+}
+
+
+std::vector<CalibStorageContract::FocusSample> 
+CalibStorageContract::getFocusSamples() {
+    return focusSamples;
 }
 
 
@@ -426,4 +452,53 @@ void CalibStorageContract::writeExPointPair3dFile() {
         printSimpleInfo("[CalibStorage] ", "stored extrinsic 3d point pairs.\n"); 
     }
 }
+
+
+void CalibStorageContract::loadFocusSamples() {
+    std::ifstream csvfile;
+    csvfile.open((rootDir + focusSamplesFile).c_str());
+
+    /* check if file exists */
+    if (!csvfile.is_open()) {
+        return;
+    }
+    
+    std::string line;
+    while (std::getline(csvfile, line)) {
+        /* tokenize */
+        std::stringstream lineStream(line);
+        std::string cell;
+        std::stringstream cellStream;
+        while (std::getline(lineStream, cell, ',')) {
+            cellStream << cell << " ";
+        }
+
+        /* read the cells */
+        float distance = 0.0;
+        float position = 0.0;
+        bool isReverse = false;
+        cellStream >> distance;
+        cellStream >> position;
+        cellStream >> isReverse;
+
+        /* add sample */
+        FocusSample sample = {distance, position, isReverse};
+        focusSamples.push_back(sample); 
+    }
+}
+
+
+void CalibStorageContract::writeFocusSamples() {
+    std::ofstream csvfile;
+    csvfile.open((rootDir + focusSamplesFile).c_str());
+
+    for (auto &sample : focusSamples) {
+        csvfile << sample.distance << ", " 
+                << sample.position << ", "
+                << sample.isReverse << std::endl;
+    }
+
+    csvfile.close();
+}
+
 

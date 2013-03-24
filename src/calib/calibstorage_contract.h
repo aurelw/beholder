@@ -40,31 +40,42 @@ class CalibStorageContract {
         typedef std::pair<cv::Point3f, cv::Point2f> PointPair3d2d;
         typedef std::pair<cv::Point3f, cv::Point3f> PointPair3d3d;
 
+        typedef struct FocusSample {
+            float distance;
+            float position;
+            bool isReverse;
+        } FocusSample;
+
     public:
 
         CalibStorageContract(const std::string &dir);
         ~CalibStorageContract();
 
+        /* intrinsic sample images */
         void addMainIntrinsic(cv::Mat img);
+        std::vector<std::string> getMainIntrinsicFiles();
 
+        /* extrinsic sample images/clouds */
         void addExtrinsicPairXYZ(cv::Mat img, PlainCloud::Ptr cloud); 
         void addExtrinsicPairRGB(cv::Mat img, RGBCloud::Ptr cloud); 
+        std::vector<FilePair> getExtrinsicFiles();
 
+        /* 3d <-> 2d correspondece extrinsic */
         void addExtrinsicPointPair(cv::Point3f p3d, cv::Point2f p2d);
         void saveExtrinsicPointPairs();
+        std::vector<PointPair3d2d> getExtrinsicPoints();
+        std::pair<cv::Mat, cv::Mat> getExtrinsicPointsMatrices();
 
         /* 3d-marker point, 2d-marker point */
         void addExtrinsicPointPair3d(cv::Point3f p0, cv::Point3f p1);
         void saveExtrinsicPointPairs3d();
-
-        std::vector<std::string> getMainIntrinsicFiles();
-        std::vector<FilePair> getExtrinsicFiles();
-
-        std::vector<PointPair3d2d> getExtrinsicPoints();
-        std::pair<cv::Mat, cv::Mat> getExtrinsicPointsMatrices();
-
         std::vector<PointPair3d3d> getExtrinsicPoints3d();
         std::pair<cv::Mat, cv::Mat> getExtrinsicPoints3dMatrices();
+
+        /* focus distance samples */
+        void addFocusSample(float distance, float position, bool isReverse);
+        void saveFocusSamples();
+        std::vector<FocusSample> getFocusSamples();
 
     protected:
 
@@ -80,6 +91,7 @@ class CalibStorageContract {
            rangeFinderExtrinsicDir + "pointpairs.xml";
         std::string rangeFinderExtrinsicPoint3dFile =  
            rangeFinderExtrinsicDir + "pointpairs_3d.xml";
+        std::string focusSamplesFile = "focusSamples.csv";
 
         /* new file names */
         int findNextFile(
@@ -113,6 +125,13 @@ class CalibStorageContract {
         bool exPoints3dUpdated = false;
         void loadExPointPairs3d();
         void writeExPointPair3dFile();
+
+        /* samples for focus distance */
+        std::vector<FocusSample> focusSamples;
+        bool focusSamplesUpdated = false;
+        void loadFocusSamples();
+        void writeFocusSamples();
+
 };
 
 #endif
