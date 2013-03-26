@@ -82,17 +82,23 @@ int main(int argc, char **argv) {
     Motor::Ptr fMotor(NULL);
 #endif
 
+    /* messuring method for contrast */
+    ContrastMessure cMessure;
+
+    /* additional autofocus */
     ContrastAutofocus af(vStream, fMotor);
 
+    /* gui */
     cv::namedWindow("camera", CV_WINDOW_NORMAL|CV_GUI_EXPANDED);
 
     for (;;) {
-        cv::Mat img = vStream->getFrame();
-        img.convertTo(img, CV_32F);
-        cv::Mat nimg;
-        cv::normalize(img, nimg, 0, 1.0, CV_MINMAX);
+        /* get image from stream */
+        cv::Mat img = vStream->getFrame().clone();
 
-        cv::imshow("camera", nimg);
+        /* convert image */
+        cv::Mat gray_img = cMessure.preprocess(img);
+
+        cv::imshow("camera", gray_img);
 
         int key = cv::waitKey(2);
         if (key == KEY_ESC) {
@@ -101,9 +107,13 @@ int main(int argc, char **argv) {
 
         if (key == KEY_f) {
             std::cout << "Focusing.... " << std::endl;
-            float pos = af.focus(false);
-            std::cout << "focused at position " << pos << std::endl;
-            fMotor->setPosition(pos);
+            float pos;
+            if (af.focus(pos, false)) {
+                std::cout << "focused at position " << pos << std::endl;
+                fMotor->setPosition(pos);
+            } else {
+                std::cout << "focusing failes." << std::endl;
+            }
         }
 
         if (key == KEY_u) {
@@ -126,8 +136,9 @@ int main(int argc, char **argv) {
             }
         }
 
-        float contrast = af.currentContrastLevel();
+        float contrast = cMessure.messure(gray_img);
         float position = fMotor->getPosition();
+
         std::cout << "Contrast Level: " << contrast 
                   << " Position: " << position << std::endl;
     }

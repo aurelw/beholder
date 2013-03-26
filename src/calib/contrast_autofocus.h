@@ -29,19 +29,35 @@ class ContrastAutofocus {
 
     public:
 
+        typedef boost::shared_ptr<ContrastAutofocus> Ptr;
+
+    public:
+
         ContrastAutofocus(VideoStream::Ptr stream, Motor::Ptr motor);
 
         float currentContrastLevel();
 
-        float focus(const bool reverse=false);
+        /* trys to focus with contrast,
+         *  returns true if successful.
+         *  parameter focusDistance returns the valid distance */
+        bool focus(float &focusPosition, const bool reverse=false);
+
+        /* a focus position for one direction is known.
+         * find the position for the other direction */
+        bool focusOtherDirection(const float knownPosition, 
+            const bool isKnownDown, float &otherDirection);
+
+        /* finds focus position for both directions */
+        bool focusBothDirections(float &upPosition, float &downPosition);
+
+        ContrastMessure cMessure;
 
     private:
 
         bool searchLocalMaximum(bool doReverse, float &position);
         void doBacklashGap(const bool doReverse);
-        float messureContrast();
+        float messureContrast(int nsamples=1);
 
-        ContrastMessure cMessure;
         VideoStream::Ptr vStream;
         Motor::Ptr fMotor;
 

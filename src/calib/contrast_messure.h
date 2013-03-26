@@ -35,6 +35,7 @@ class ContrastMessure {
 
         ContrastMessure(Method m=MLAPLACIAN);
 
+        cv::Mat preprocess(const cv::Mat& img);
         float messure(const cv::Mat& img);
 
     private:

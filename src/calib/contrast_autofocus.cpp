@@ -18,6 +18,8 @@
 
 #include "contrast_autofocus.h"
 
+#include "console_utils.h"
+
 
 ContrastAutofocus::ContrastAutofocus(
         VideoStream::Ptr stream, Motor::Ptr motor)
@@ -28,21 +30,11 @@ ContrastAutofocus::ContrastAutofocus(
 
 
 float ContrastAutofocus::currentContrastLevel() {
-
-    //FIXME propper sampling
-    /* sleep for some time*/
-    sleep(0.1);
-
-    /* get the messureing region */
-    cv::Mat img = vStream->getFrame();
-
-    /* messure contrast */
-    return cMessure.messure(img);
-
+    return messureContrast(1);
 }
 
 
-float ContrastAutofocus::focus(const bool doReverse) {
+bool ContrastAutofocus::focus(float &focusPosition, const bool doReverse) {
 
     float fPosition = 0.0;
 
@@ -57,14 +49,16 @@ float ContrastAutofocus::focus(const bool doReverse) {
 
     /* focus point found */
     if (foundInit && !reverseInitDir) {
-        return fPosition;
+        focusPosition = fPosition;
+        return true;
     }
 
     /* focus point found but wrong direction */
     if (foundInit && reverseInitDir) {
         doBacklashGap(initDir);
         if (searchLocalMaximum(doReverse, fPosition)) {
-            return fPosition;
+            focusPosition = fPosition;
+            return true;
         }
     }
 
@@ -74,19 +68,51 @@ float ContrastAutofocus::focus(const bool doReverse) {
 
     /* focus point found */
     if (foundOther && reverseInitDir) {
-        return fPosition;
+        focusPosition = fPosition;
+        return true;
     }
 
     /* focus point found but wrong direction */
     if (foundOther && !reverseInitDir) {
         doBacklashGap(otherDir);
         if (searchLocalMaximum(doReverse, fPosition)) {
-            return fPosition;
+            focusPosition = fPosition;
+            return true;
         }
     }
 
     /* now this feels hopeless */
-    return 0.0;
+    return false;
+}
+
+
+bool ContrastAutofocus::focusOtherDirection(const float knownPosition,
+        const bool isKnownReverse, float &otherDirection)
+{
+    fMotor->setPosition(knownPosition); 
+    doBacklashGap(isKnownReverse);
+    return searchLocalMaximum(!isKnownReverse, otherDirection);
+}
+
+
+bool ContrastAutofocus::focusBothDirections(
+        float &upPosition, float &downPosition)
+{
+    bool foundDown = false;
+    bool foundUp = searchLocalMaximum(false, upPosition); 
+
+    if (foundUp) {
+        doBacklashGap(false);
+    }
+
+    foundDown = searchLocalMaximum(true, downPosition);
+
+    if (foundDown && !foundUp) {
+        doBacklashGap(true);
+        foundUp = searchLocalMaximum(false, upPosition);
+    }
+
+    return (foundUp && foundDown);
 }
 
 
@@ -112,54 +138,83 @@ bool ContrastAutofocus::searchLocalMaximum(bool doReverse, float &position) {
 
     /* if a negative gradient is observed for
      * #searchLimit steps, abort early */
-    const int searchLimit = 4;
+    const int searchLimit = 10;
     int searchLimitCounter = 0;
 
     /* theshold for a gradient difference */
     float gradientThresh = 0.01; // factor to lastConstrast
 
-    float lastContrast = messureContrast();
-    float lastPosition = fMotor->getPosition();
+    float maxContrast = messureContrast(5);
+    float maxPosition = fMotor->getPosition();
 
     while (true) {
         if (doReverse) {
             if (fMotor->isLowerLimit()) {
-                return false;
+                break;
             }
             fMotor->stepDown();
         } else {
             if (fMotor->isUpperLimit()) {
-                return false;
+                break;
             }
             fMotor->stepUp();
         }
 
-        // FIXME threshhold for gradient
-        float cContrast = messureContrast();
-        if (!positiveGradient) {
-           positiveGradient = (cContrast > lastContrast*(1+gradientThresh)); 
-        /* negative gradient after positive */
-        } else if (cContrast < lastContrast*(1-gradientThresh)) { 
-            /* found local maximum */
-            position = lastPosition;
-            return true;
-        }
+        float cContrast = messureContrast(5);
+        float cPosition = fMotor->getPosition();
 
-        /* early exit if there is no positive gradient */
-        if (!positiveGradient) {
+        /* new maximum? -> positve gradient, new focus point */
+        if (cContrast > maxContrast*(1+gradientThresh)) {
+            maxContrast = cContrast;
+            maxPosition = cPosition;
+            positiveGradient = true;
+            searchLimitCounter = 0;
+        /* negative gradient */
+        } else { 
             searchLimitCounter++;
-            if (searchLimitCounter >= searchLimit) {
-                return false;
-            }
         }
 
-        lastPosition = fMotor->getPosition();
-        lastContrast = cContrast;
+        /* no new local maximum in #searchLimit steps */
+        if (searchLimitCounter >= searchLimit) {
+            break;
+        }
+    }
+
+    if (positiveGradient) {
+        position = maxPosition;
+        return true;
+    } else {
+        position = 0;
+        return false;
     }
 }
 
 
-float ContrastAutofocus::messureContrast() {
-    return cMessure.messure(vStream->getFrame());
+float ContrastAutofocus::messureContrast(int nsamples) {
+    if (nsamples < 1) {
+        nsamples = 1;
+    }
+
+    std::vector<float> samples;
+
+    sleep(0.1);
+
+    /* capture n samples */
+    while (samples.size() != nsamples) {
+        cv::Mat frame = vStream->getFrame();
+        frame = cMessure.preprocess(frame);
+        float sample = cMessure.messure(frame);
+        /* make sure that the new sample is unique */
+        if (samples.size() == 0 || 
+            (samples.back() != sample))
+        {
+            samples.push_back(sample);
+        }
+    }
+
+    /* return the mean of all samples */
+    float mean = std::accumulate(samples.begin(), samples.end(), 0.0f)
+                    / samples.size();
+    return mean;
 }
 

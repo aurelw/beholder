@@ -219,6 +219,12 @@ void CalibStorageContract::addFocusSample(
     FocusSample sample = {distance, position, isReverse};
     focusSamples.push_back(sample);
     focusSamplesUpdated = true;
+    
+    std::stringstream ss;
+    ss << "pos: " << position << " distance: " << distance <<
+        (isReverse ? " down" : " up");
+    printSimpleInfo("[CalibStorage] ", 
+            "focus sampled added. " + ss.str() + "\n"); 
 }
 
 

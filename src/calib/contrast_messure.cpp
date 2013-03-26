@@ -24,22 +24,43 @@ ContrastMessure::ContrastMessure(ContrastMessure::Method m) {
 }
 
 
-float ContrastMessure::messure(const cv::Mat& img) {
-
-    float contrast = 0;
-
+cv::Mat ContrastMessure::preprocess(const cv::Mat& img) {
     /* convert to gray level image */
     cv::Mat gray_img;
     cv::cvtColor(img, gray_img, CV_RGB2GRAY);
     gray_img.convertTo(gray_img, CV_32F);
-    cv::normalize(gray_img, gray_img, 0, 1.0, CV_MINMAX);
+    gray_img = gray_img / 255.;
+
+    /* normalize */
+    //cv::normalize(gray_img, gray_img, 0, 1.0, CV_MINMAX);
+    
+    /* scale down */
+    float scaling = 1.0;
+    cv::Size ssize(gray_img.size().width * scaling, 
+                   gray_img.size().height * scaling);
+    cv::resize(gray_img, gray_img, ssize);
+
+    /* denoise */
+    //FIXME 2.4 required
+    //cv::fastNlMeansDenoising(gray_img, gray_img);
+
+
+
+    return gray_img;
+}
+
+
+float ContrastMessure::messure(const cv::Mat& img) {
+
+    float contrast = 0;
+
 
 
     /* messure the standard deviation */
     if (method == STD) {
         cv::Scalar mean;
         cv::Scalar sigma;
-        cv::meanStdDev(gray_img, mean, sigma);
+        cv::meanStdDev(img, mean, sigma);
         contrast = sigma[0];
 
     /* modified laplacian */
@@ -49,8 +70,8 @@ float ContrastMessure::messure(const cv::Mat& img) {
         cv::transpose(kernel_x, kernel_y);
 
         cv::Mat lX, lY;
-        cv::filter2D(gray_img, lX, -1, kernel_x);
-        cv::filter2D(gray_img, lY, -1, kernel_y);
+        cv::filter2D(img, lX, -1, kernel_x);
+        cv::filter2D(img, lY, -1, kernel_y);
 
         cv::Mat lapImg;
         lX = cv::abs(lX);
@@ -59,7 +80,7 @@ float ContrastMessure::messure(const cv::Mat& img) {
 
         cv::Scalar mean;
         cv::Scalar sigma;
-        cv::meanStdDev(gray_img, mean, sigma);
+        cv::meanStdDev(img, mean, sigma);
 
         contrast = 1 - mean[0];
     }
