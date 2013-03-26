@@ -40,7 +40,7 @@ class BasicVisualizer {
         ~BasicVisualizer();
 
         /* set properties */
-        void setMainCloud(RGBCloud::Ptr cloud);
+        void setMainCloud(RGBCloud::ConstPtr cloud);
 
         /* dispatch */
         void start(bool waitInit=true);
@@ -75,7 +75,7 @@ class BasicVisualizer {
         void registerCallbacks();
 
         /* main cloud */
-        RGBCloud::Ptr mainCloud;
+        RGBCloud::ConstPtr mainCloud;
         bool flagUpdateMainCloud = false;
         void updateMainCloud();
         bool drawMainCloud = true;

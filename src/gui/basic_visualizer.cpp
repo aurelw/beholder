@@ -89,7 +89,7 @@ void BasicVisualizer::stop() {
 }
 
 
-void BasicVisualizer::setMainCloud(RGBCloud::Ptr cloud) {
+void BasicVisualizer::setMainCloud(RGBCloud::ConstPtr cloud) {
     boost::unique_lock<boost::shared_mutex> lock(mutex);
     mainCloud = cloud;
     flagUpdateMainCloud = true;
