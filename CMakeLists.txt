@@ -20,11 +20,20 @@ find_package(Boost COMPONENTS signals filesystem serialization REQUIRED)
 include_directories(${Boost_INCLUDE_DIR} )
 
 # OpenCV
-find_package( OpenCV REQUIRED )
+find_package( OpenCV 2.3 REQUIRED )
 
 # ImageMagick
 find_package(ImageMagick COMPONENTS Magick++)
 include_directories(${ImageMagick_INCLUDE_DIRS} )
+
+# Octave
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/)
+find_package(Octave)
+include_directories(${OCTAVE_INCLUDE_DIR})
+link_directories(${OCTAVE_LIBDIR})
+
+include_directories("/usr/include/octave-3.6.2/")
+link_directories(${PCL_LIBRARY_DIRS})
 
 # ZMQ
 #find_package(ZeroMQ REQUIRED)

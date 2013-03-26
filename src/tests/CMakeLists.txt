@@ -59,3 +59,8 @@ set (test_convertaffine_files test_convertaffine.cpp)
 add_executable (test_convertaffine ${test_convertaffine_files})
 target_link_libraries (test_convertaffine core)
 
+### estimateAffine3D Test
+set (test_octave_files test_octave.cpp)
+add_executable (test_octave ${test_octave_files})
+target_link_libraries (test_octave core calib)
+

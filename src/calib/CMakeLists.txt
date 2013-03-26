@@ -2,11 +2,8 @@ include_directories (../common/)
 include_directories (../core/)
 include_directories (../gui/)
 
-set (calib_source_files calibstorage_contract.cpp calib_utils.cpp contrast_messure.cpp contrast_autofocus.cpp)
-add_library (calib ${calib_source_files})
-
-#set (calib_source_files calibstorage_contract.cpp calib_utils.cpp contrast_messure.cpp contrast_autofocus.cpp octave_interface.cpp)
-#target_link_libraries(calib core ${OCTAVE_LIBRARIES})
+set (calib_source_files calibstorage_contract.cpp calib_utils.cpp contrast_messure.cpp contrast_autofocus.cpp octave_interface.cpp)
+target_link_libraries(calib core ${OCTAVE_LIBRARIES})
 
 
 #### tools and exexutables ####
