@@ -21,6 +21,9 @@
 
 #include "highgui.h"
 
+#define KEY_ESC 27
+
+
 int main() {
 
     /* create highui window */
@@ -42,7 +45,7 @@ int main() {
             " height: " << size.height << std::endl;
 
         cv::imshow("capture", vStream->getFrame());
-        if (cv::waitKey(10) >= 0) {
+        if (cv::waitKey(10) == KEY_ESC) {
             break;
         }
     }
