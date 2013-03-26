@@ -50,6 +50,7 @@ class ViewFinder {
         
         virtual void compute() = 0;
         virtual pcl::PointXYZ getMiddlePoint() = 0;
+        virtual bool getMiddleRange(float &distance) = 0;
 
     public:
 

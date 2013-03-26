@@ -91,6 +91,18 @@ class ViewFinderRangeImage : public ViewFinder<PointType> {
             return p;
         }
 
+
+        bool getMiddleRange(float &distance) {
+            //FIXME apply distortion
+            pcl::PointWithRange pr = 
+                rangeImage_ptr->at(rangeImage_ptr->width/2, 
+                                   rangeImage_ptr->height/2);
+
+            distance = pr.range;
+
+            return (! isPointNaN(pr));
+        }
+
         /**** RangeImage specific *****/
         RangeImagePtr getRangeImage() {
             return rangeImage_ptr;

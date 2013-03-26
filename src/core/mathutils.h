@@ -41,6 +41,14 @@ void affine3fToTransRotVec(
         cv::Mat &tvec, cv::Mat &rvec);
 
 
+template<class T>
+bool isPointNaN(T point) {
+    return (!(pcl_isfinite(point.x) &&
+              pcl_isfinite(point.y) &&
+              pcl_isfinite(point.z)));
+}
+
+
 inline pcl::PointXYZ vecToPoint(const Eigen::Vector3f &vec) {
     pcl::PointXYZ point;
     point.x = vec[0];
