@@ -61,6 +61,11 @@ class ContrastAutofocus {
         VideoStream::Ptr vStream;
         Motor::Ptr fMotor;
 
+        /* focus parameters */
+        float messureDelay = 0.2;
+        float contrastThreshold = 0.01;
+        int numImagesPerSample = 5;
+
 };
 
 #endif

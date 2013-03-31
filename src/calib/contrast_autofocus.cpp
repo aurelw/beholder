@@ -142,9 +142,9 @@ bool ContrastAutofocus::searchLocalMaximum(bool doReverse, float &position) {
     int searchLimitCounter = 0;
 
     /* theshold for a gradient difference */
-    float gradientThresh = 0.01; // factor to lastConstrast
+    float gradientThresh = contrastThreshold; // factor to lastConstrast
 
-    float maxContrast = messureContrast(5);
+    float maxContrast = messureContrast(numImagesPerSample);
     float maxPosition = fMotor->getPosition();
 
     while (true) {
@@ -160,7 +160,7 @@ bool ContrastAutofocus::searchLocalMaximum(bool doReverse, float &position) {
             fMotor->stepUp();
         }
 
-        float cContrast = messureContrast(5);
+        float cContrast = messureContrast(numImagesPerSample);
         float cPosition = fMotor->getPosition();
 
         /* new maximum? -> positve gradient, new focus point */
@@ -197,7 +197,7 @@ float ContrastAutofocus::messureContrast(int nsamples) {
 
     std::vector<float> samples;
 
-    sleep(0.1);
+    sleep(messureDelay);
 
     /* capture n samples */
     while (samples.size() != nsamples) {
