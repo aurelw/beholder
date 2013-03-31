@@ -32,11 +32,19 @@ find_package(Octave)
 include_directories(${OCTAVE_INCLUDE_DIR})
 link_directories(${OCTAVE_LIBDIR})
 
-include_directories("/usr/include/octave-3.6.2/")
-link_directories(${PCL_LIBRARY_DIRS})
-
 # ZMQ
 #find_package(ZeroMQ REQUIRED)
+
+# LIBALG
+find_package( alglib REQUIRED )
+link_directories(${ALGLIB_LIBRARY_DIRS})
+include_directories(${ALGLIB_INCLUDE_DIRS})
+
+# GSL
+find_package( GSL )
+link_directories(${GSL_LIBRARY_DIRS})
+include_directories(${GSL_INCLUDE_DIRS})
+
 
 ### configure ###
 set (BEHOLDER_VERSION 0.1)

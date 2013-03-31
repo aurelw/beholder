@@ -116,6 +116,7 @@ bool ByteMotor::checkLimits(unsigned char p) {
 
 
 void ByteMotor::setPosition(float p) {
+    DEBUG_PRINT(p);
     if (p < 0 || p > 1.0) {
         return;
     }

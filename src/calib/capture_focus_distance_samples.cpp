@@ -51,7 +51,7 @@ class CaptureFocusSamples {
 
     public:
 
-        CaptureFocusSamples(const BasicAppOptions &appOpt);
+        CaptureFocusSamples(const BasicAppOptions &appOpt, bool doVis3d=false);
         ~CaptureFocusSamples();
 
         bool init();
@@ -76,6 +76,7 @@ class CaptureFocusSamples {
         ViewFinderRangeImage<pcl::PointXYZRGBA>::Ptr viewFinder;
 
         /* cloud visualization */
+        bool doVisualize3d;
         CalibVisualizer visualizer;
         boost::thread *thread;
         bool stopThread = false;
@@ -83,10 +84,12 @@ class CaptureFocusSamples {
 };
 
 
-CaptureFocusSamples::CaptureFocusSamples(const BasicAppOptions &appopt) :
+CaptureFocusSamples::CaptureFocusSamples(
+        const BasicAppOptions &appopt, bool doVis3d) :
     calibStorage(appopt.calibStorageDir)
 {
     rigConfig.loadFromFile(appopt.rigConfigFile);
+    doVisualize3d = doVis3d;
 }
 
 
@@ -138,8 +141,10 @@ bool CaptureFocusSamples::init() {
     viewFinder->setRangeFinder(rangeFinder);
 
     /* cloud visualizer */
-    thread = new boost::thread(
-        boost::bind( &CaptureFocusSamples::visualizerThread, this ));
+    if (doVisualize3d) {
+        thread = new boost::thread(
+            boost::bind( &CaptureFocusSamples::visualizerThread, this ));
+    }
 
     return true;
 }
@@ -192,11 +197,12 @@ void CaptureFocusSamples::querySamples(float upPos, bool doUp,
         /* store samples */
         if (input == "y") {
             if (doUp) {
-                calibStorage.addFocusSample(upPos, distance, false);
+                calibStorage.addFocusSample(distance, upPos, false);
             }
             if (doDown) {
-                calibStorage.addFocusSample(downPos, distance, true);
+                calibStorage.addFocusSample(distance, downPos, true);
             }
+            calibStorage.saveFocusSamples();
             break;
 
         /* discard samples */
@@ -304,6 +310,7 @@ void CaptureFocusSamples::run() {
                     break;
                 } else if (input == "d") {
                     doDown = true;
+                    break;
                 }
             }
 
@@ -328,7 +335,7 @@ void CaptureFocusSamples::run() {
 /* =============================== */
 
 void print_usage() {
-    std::cout << "--rigconfig <file> --calibstorage <dir>" << std::endl;
+    std::cout << "--rigconfig <file> --calibstorage <dir> --vis3d" << std::endl;
 }
 
 
@@ -356,9 +363,11 @@ int main(int argc, char **argv) {
                 "No calibstorage provided. --calibstorage <path>\n");
         exit(1);
     }
+
+    bool doVis3d = pcl::console::find_switch(argc, argv, "--vis3d");
     /*****************************/
 
-    CaptureFocusSamples captureFS(appopt);
+    CaptureFocusSamples captureFS(appopt, doVis3d);
 
     if (captureFS.init()) {
         captureFS.run();

@@ -35,3 +35,7 @@ void getPatternTransform(cv::Size patternSize, float squareSize,
 pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloudFromPoints(
         const std::vector<cv::Point3f> &points);
 
+std::string samplesToOctaveString(
+        const std::vector<std::pair<float, float>> &samples,
+        const std::string &prefix="");
+

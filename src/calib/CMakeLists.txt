@@ -3,6 +3,7 @@ include_directories (../core/)
 include_directories (../gui/)
 
 set (calib_source_files calibstorage_contract.cpp calib_utils.cpp contrast_messure.cpp contrast_autofocus.cpp octave_interface.cpp)
+add_library (calib ${calib_source_files})
 target_link_libraries(calib core ${OCTAVE_LIBRARIES})
 
 
@@ -33,7 +34,7 @@ set (calibrate_intrinsic_files calibrate_intrinsic.cpp)
 add_executable (calibrate_intrinsic ${calibrate_intrinsic_files})
 target_link_libraries (calibrate_intrinsic core calib)
 
-# calibrate_intrinsic
+# calibrate_extrinsic_3dreg
 set (calibrate_extrinsic_3dreg_files calibrate_extrinsic_3dreg.cpp)
 add_executable (calibrate_extrinsic_3dreg ${calibrate_extrinsic_3dreg_files})
 target_link_libraries (calibrate_extrinsic_3dreg core calib)
@@ -42,3 +43,9 @@ target_link_libraries (calibrate_extrinsic_3dreg core calib)
 set (capture_focus_distance_samples_files capture_focus_distance_samples.cpp)
 add_executable (capture_focus_distance_samples ${capture_focus_distance_samples_files})
 target_link_libraries (capture_focus_distance_samples core calib gui)
+
+# calibrate focus transfer
+set (calibrate_focus_transfer_files calibrate_focus_transfer.cpp)
+add_executable (calibrate_focus_transfer ${calibrate_focus_transfer_files})
+target_link_libraries (calibrate_focus_transfer core calib)
+

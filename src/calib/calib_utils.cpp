@@ -63,3 +63,20 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloudFromPoints(
     return cloud;
 }
 
+
+std::string samplesToOctaveString(
+        const std::vector<std::pair<float, float>> &samples,
+        const std::string &prefix)
+{
+    std::stringstream x_ss, y_ss;
+    x_ss << prefix << "x = [";
+    y_ss << prefix << "y = [";
+    for (auto &sample : samples) {
+       x_ss << sample.first << ","; 
+       y_ss << sample.second << ","; 
+    }
+    x_ss << "];" << std::endl;
+    y_ss << "];" << std::endl;
+    return x_ss.str() + y_ss.str();
+}
+

@@ -25,8 +25,13 @@ set (contrast_level_files contrast_level.cpp)
 add_executable (contrast_level ${contrast_level_files})
 target_link_libraries (contrast_level core calib gui)
 
-### Contrast level in VideoStream
+### Motor controler
 set (motor_control_files motor_control.cpp)
 add_executable (motor_control ${motor_control_files})
 target_link_libraries (motor_control core calib gui)
+
+### Plot Focus Transfer
+set (plot_focus_transfer_files plot_focus_transfer.cpp)
+add_executable (plot_focus_transfer ${plot_focus_transfer_files})
+target_link_libraries (plot_focus_transfer core calib gui)
 

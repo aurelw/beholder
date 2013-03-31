@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptors.hpp>

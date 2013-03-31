@@ -35,7 +35,7 @@ int main() {
     }
 
     /* compute polynome */
-    std::vector<float> poly = octif.fitPolynome(samples, 4);
+    std::vector<float> poly = octif.polyfit(samples, 4);
 
     /* print polynome */
     std::cout << "Poly: ";
