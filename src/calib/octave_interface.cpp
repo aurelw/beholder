@@ -32,7 +32,7 @@ OctaveInterface::OctaveInterface() {
 }
 
 
-std::vector<float> OctaveInterface::fitPolynome(
+std::vector<float> OctaveInterface::polyfit(
         const std::vector<std::pair<float, float>> &samples,
         int degree)
 {
@@ -43,8 +43,8 @@ std::vector<float> OctaveInterface::fitPolynome(
     Matrix m_x = Matrix(1, size);
     Matrix m_y = Matrix(1, size);
     for (int i=0; i<samples.size(); i++) {
-        m_x(1, i) = samples[i].first;
-        m_y(1, i) = samples[i].second;
+        m_x(0, i) = samples[i].first;
+        m_y(0, i) = samples[i].second;
     }
 
     /* build value list for interpretor */
@@ -59,7 +59,7 @@ std::vector<float> OctaveInterface::fitPolynome(
 
     Matrix m_out = out_vl(0).matrix_value();
     for (int i=0; i<m_out.numel(); i++) {
-        poly.push_back(m_out(1, i));
+        poly.push_back(m_out(0, i));
     }
 
     return poly;

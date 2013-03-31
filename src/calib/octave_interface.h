@@ -33,7 +33,7 @@ class OctaveInterface {
 
         OctaveInterface(const OctaveInterface&) = delete;
 
-        std::vector<float> fitPolynome(
+        std::vector<float> polyfit(
             const std::vector<std::pair<float, float>> &samples,
             int degree);
 
