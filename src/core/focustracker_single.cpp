@@ -72,8 +72,6 @@ pcl::PointXYZ FocusTrackerSingle::pick() {
     viewFinder.compute();
     trackedPoint = viewFinder.getMiddlePoint();
 
-    std::cout << trackedPoint.x << "," << trackedPoint.y << "," << trackedPoint.z << std::endl;
-
     return trackedPoint;
 }
 

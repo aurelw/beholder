@@ -49,3 +49,6 @@ set (calibrate_focus_transfer_files calibrate_focus_transfer.cpp)
 add_executable (calibrate_focus_transfer ${calibrate_focus_transfer_files})
 target_link_libraries (calibrate_focus_transfer core calib)
 
+# fit exp term
+configure_file ("fit_focus_transfer_expterm.py" "${EXECUTABLE_OUTPUT_PATH}/fit_focus_transfer_expterm.py" COPYONLY)
+

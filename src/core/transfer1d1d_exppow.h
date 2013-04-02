@@ -16,37 +16,26 @@
    * You should have received a copy of the GNU General Public License
    * along with Beholder. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef __FOCUS_MOTOR_TWO_POLYS_H__
-#define __FOCUS_MOTOR_TWO_POLYS_H__
-
-#include "focusmotor.h"
-#include "motor.h"
-#include "rig_config.h"
 #include "transfer1d1d.h"
 
-class FocusMotorTwoPolys : public FocusMotor {
+#ifndef __TRANSFER_1D1D_EXP_POW_H__
+#define __TRANSFER_1D1D_EXP_POW_H__
+
+
+class Transfer1d1dExpPow : public Transfer1d1d {
 
     public:
 
-        FocusMotorTwoPolys(const RigConfig &rigConfig);
+        Transfer1d1dExpPow(float a, float b, float c, float d);
 
-        virtual void setDistance(float m);
+        virtual float transfer(float x);
 
-    private:
+    protected:
 
-        virtual void createTransferFunctions(const RigConfig &rigConfig);
+        float a_, b_, c_, d_;
 
-        Motor::Ptr motor;
-        Transfer1d1d::Ptr hTransfer;
-        Transfer1d1d::Ptr lTransfer;
-
-        float lastDistance;
-       
-        const float directionChangeTresh = 0.01; 
-        bool doUpTransfer = true;
-        float currentLowest = 1.0;
-        float currentHighest = 0.0;
 };
+
 
 #endif
 

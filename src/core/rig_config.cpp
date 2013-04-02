@@ -56,6 +56,7 @@ RigConfig::RigConfig() {
     fMotorDevice = "/dev/ttyUSB0";
     fMotorLimitH = 0.0f;
     fMotorLimitL = 0.0f;
+    fMotorTransferType = "exppow";
 
     /* default tracking camera data */
     trackingCameraExTranslation = Mat::zeros(3, 1, CV_32F);
@@ -211,6 +212,8 @@ void RigConfig::saveFocusMotor() {
     fs << "type" << fMotorType;
     fs << "device" << fMotorDevice;
 
+    fs << "transferType" << fMotorTransferType;
+
     fs << "ha" << fMotorHa;
     fs << "hb" << fMotorHb;
     fs << "hc" << fMotorHc;
@@ -239,6 +242,8 @@ void RigConfig::loadFocusMotor() {
 
     node["type"] >> fMotorType;
     node["device"] >> fMotorDevice;
+
+    node["transferType"] >> fMotorTransferType;
 
     node["ha"] >> fMotorHa;
     node["hb"] >> fMotorHb;
