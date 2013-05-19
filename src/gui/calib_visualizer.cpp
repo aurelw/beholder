@@ -48,6 +48,30 @@ void CalibVisualizer::setCorrespondence(PlainCloud::ConstPtr cloud0,
 }
 
 
+void CalibVisualizer::setPlainCloud(PlainCloud::ConstPtr cloud) {
+    boost::unique_lock<boost::shared_mutex> lock(mutex);
+    plainCloud = cloud;
+    flagUpdatePlainCloud = true;
+}
+
+
+void CalibVisualizer::setRegistration(
+        PlainCloud::ConstPtr cloud0,
+        PlainCloud::ConstPtr cloud1)
+{
+    boost::unique_lock<boost::shared_mutex> lock(mutex);
+    regCloud0 = cloud0;
+    regCloud1 = cloud1;
+    flagUpdateRegistration = true;
+}
+
+
+void CalibVisualizer::setDrawRegistration(bool doDraw) {
+    drawRegistration = doDraw;
+    flagUpdateRegistration = true;
+}
+
+
 void CalibVisualizer::setDrawMarker(bool doDraw) {
     drawMarker = doDraw;
     flagUpdateMarker = true;
@@ -58,6 +82,12 @@ void CalibVisualizer::setDrawCorrespondence(bool doDraw, bool arrow) {
     drawCorrespondence = doDraw;
     drawCorrespondenceArrows = arrow;
     flagUpdateCorrespondence = true;
+}
+
+
+void CalibVisualizer::setDrawPlainCloud(bool doDraw) {
+    drawPlainCloud = doDraw;
+    flagUpdatePlainCloud = true;
 }
 
 
@@ -153,9 +183,57 @@ void CalibVisualizer::updateCorrespondence() {
 }
 
 
+void CalibVisualizer::updatePlainCloud() {
+    if (!flagUpdatePlainCloud) {
+        return;
+    } else {
+        flagUpdatePlainCloud = false;
+    }
+
+    if (plainCloudAdded) {
+        if (drawPlainCloud && plainCloud != NULL) {
+            visualizer->updatePointCloud(plainCloud, "plainCloud");
+        } else {
+            visualizer->removePointCloud("plainCloud");
+            plainCloudAdded = false;
+        }
+    } else if (drawPlainCloud && plainCloud != NULL) {
+        visualizer->addPointCloud(plainCloud, "plainCloud");
+        plainCloudAdded = true;
+    }
+}
+
+
+void CalibVisualizer::updateRegistration() {
+    if (!flagUpdateRegistration) {
+        return;
+    } else {
+        flagUpdateRegistration = false;
+    }
+
+    if (registrationCloudAdded) {
+        if (drawRegistration && regCloud0 != NULL && regCloud1 != NULL) {
+            visualizer->updatePointCloud(regCloud0, "regCloud0");
+            visualizer->updatePointCloud(regCloud1, "regCloud1");
+        } else {
+            visualizer->removePointCloud("regCloud0");
+            visualizer->removePointCloud("regCloud1");
+            registrationCloudAdded = false;
+        }
+    } else if (drawRegistration && regCloud0 != NULL && regCloud1 != NULL) {
+        visualizer->addPointCloud(regCloud0, "regCloud0");
+        visualizer->addPointCloud(regCloud1, "regCloud1");
+        registrationCloudAdded = true;
+    }
+}
+
+
+
 void CalibVisualizer::updateAllProperties() {
     BasicVisualizer::updateAllProperties();
     updateMarker();
     updateCorrespondence();
+    updatePlainCloud();
+    updateRegistration();
 }
 
