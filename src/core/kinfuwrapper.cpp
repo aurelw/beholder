@@ -122,6 +122,15 @@ Eigen::Affine3f KinfuWrapper::getLastPose() {
 }
 
 
+KinfuWrapper::PointCloudPtr KinfuWrapper::getFullCloud() {
+    pcl::gpu::TsdfVolume &tsdfVolume = kinfu.volume();
+
+    PointCloudPtr vCloud(new PointCloud());
+    tsdfVolume.fetchCloudHost(*vCloud);
+    return vCloud;
+}
+
+
 void KinfuWrapper::reset() {
     //kinfu.reset();
 }
