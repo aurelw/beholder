@@ -162,7 +162,7 @@ pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudXYZtoRGBA(
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr newCloud
         (new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    int numPoints = inCloud->size();
+    int numPoints = inCloud->points.size();
     newCloud->resize(numPoints);
 
     for (int i; i<numPoints; i++) {
@@ -172,6 +172,12 @@ pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudXYZtoRGBA(
         np.x = op.x;
         np.y = op.y;
         np.z = op.z;
+
+        np.r = 1.0;
+        np.g = 1.0;
+        np.b = 1.0;
+
+        np.a = 0.0;
     }
 
     return newCloud;

@@ -90,6 +90,7 @@ void RigConfig::saveToFile(std::string fname) {
     saveFocusMotor();
     saveStreaming();
     savePhotoCapture();
+    saveTrackingCamera();
     fs.release();
     printSimpleInfo("[RigConfig] ", "saved to file " + fname + "\n");
 }
@@ -104,6 +105,9 @@ void RigConfig::loadFromFile(std::string fname) {
     loadFocusMotor();
     loadPhotoCapture();
     loadStreaming();
+    if (hasTrackingCamera) {
+        loadTrackingCamera();
+    }
     fs.release();
     printSimpleInfo("[RigConfig] ", "loaded from file " + fname + "\n");
 }
