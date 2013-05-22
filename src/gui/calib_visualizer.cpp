@@ -62,6 +62,10 @@ void CalibVisualizer::setRegistration(
     boost::unique_lock<boost::shared_mutex> lock(mutex);
     regCloud0 = cloud0;
     regCloud1 = cloud1;
+
+    targetColorHandler.reset( new ColorHandler(regCloud0, 255, 0, 0) );
+    regColorHandler.reset( new ColorHandler(regCloud0, 0, 0, 255) );
+
     flagUpdateRegistration = true;
 }
 
@@ -213,16 +217,18 @@ void CalibVisualizer::updateRegistration() {
 
     if (registrationCloudAdded) {
         if (drawRegistration && regCloud0 != NULL && regCloud1 != NULL) {
-            visualizer->updatePointCloud(regCloud0, "regCloud0");
-            visualizer->updatePointCloud(regCloud1, "regCloud1");
+            visualizer->updatePointCloud(regCloud0, 
+                    *targetColorHandler, "regCloud0");
+            visualizer->updatePointCloud(regCloud1, 
+                    *regColorHandler, "regCloud1");
         } else {
             visualizer->removePointCloud("regCloud0");
             visualizer->removePointCloud("regCloud1");
             registrationCloudAdded = false;
         }
     } else if (drawRegistration && regCloud0 != NULL && regCloud1 != NULL) {
-        visualizer->addPointCloud(regCloud0, "regCloud0");
-        visualizer->addPointCloud(regCloud1, "regCloud1");
+        visualizer->addPointCloud(regCloud0, *targetColorHandler, "regCloud0");
+        visualizer->addPointCloud(regCloud1, *regColorHandler, "regCloud1");
         registrationCloudAdded = true;
     }
 }

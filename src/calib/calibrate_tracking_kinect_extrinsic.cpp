@@ -26,6 +26,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/registration/gicp.h>
 
 /* calib */
 #include "calibstorage_contract.h"
@@ -57,6 +58,8 @@ class CalibrateTrackerExtrinsic {
         void saveClouds();
         void loadClouds();
         void displayClouds();
+
+        Eigen::Affine3f trackerExtrinsic;
 
     private:
 
@@ -147,9 +150,9 @@ void CalibrateTrackerExtrinsic::captureClouds() {
     printSimpleInfo("[Capturing]", " range finder kinect.\n");
     Eigen::Affine3f firstRfPose = kinfu->getLastPose();
     captureScene();
+    Eigen::Affine3f lastRfPose = kinfu->getLastPose();
     Cloud::Ptr rfCloud = kinfu->getFullCloud();
     rfCloud = postProcessScene(rfCloud);
-    Eigen::Affine3f lastRfPose = kinfu->getLastPose();
 
 
     /* relative pose for movement */
@@ -176,8 +179,8 @@ void CalibrateTrackerExtrinsic::captureClouds() {
     /* rearange both pointclouds into global coordinate system */
     targetCloud.reset(new Cloud(*rfCloud));
     regCloud.reset(new Cloud(*trCloud));
-    pcl::transformPointCloud(*targetCloud, *targetCloud, relPose);
     pcl::transformPointCloud(*targetCloud, *targetCloud, lastRfPose.inverse());
+    //pcl::transformPointCloud(*regCloud, *regCloud, relPose);
     pcl::transformPointCloud(*regCloud, *regCloud, firstTrPose.inverse());
 
 }
@@ -185,13 +188,19 @@ void CalibrateTrackerExtrinsic::captureClouds() {
 
 void CalibrateTrackerExtrinsic::registerClouds() {
 
+    /* do a guess for extrinsic */
+    Eigen::Vector3f axis(1.0, 0.0, 0.0);
+    float angle = 1.57; // 90 degrees
+    Eigen::AngleAxisf exRotGuess(angle, axis);
+    Eigen::Affine3f exGuess(exRotGuess); 
+    pcl::transformPointCloud(*regCloud, *regCloud, exGuess);
+
     /* register clouds */
 #if 1
     printSimpleInfo("[Registration]", " registering sensors.... ");
     std::cout.flush();
     Eigen::Affine3f sceneEx = registerScenes(targetCloud, regCloud);
     std::cout << "done." << std::endl;
-    std::cout << affineToString(sceneEx) << std::endl;
 #endif
 
     char key;
@@ -207,11 +216,16 @@ void CalibrateTrackerExtrinsic::registerClouds() {
     visualizer.setDrawRegistration(true);
     visualizer.setRegistration(targetCloud, tRegCloud);
 
-    visualizer.addCoordinateSystem(sceneEx, "ext", 0.5, true);
+    /* compensate for initial guess */
+    sceneEx = exGuess.inverse() * sceneEx;
+    std::cout << affineToString(sceneEx) << std::endl;
+    visualizer.addCoordinateSystem(sceneEx.inverse(), "ext", 0.5, true);
 
     while (!visualizer.getKeyEvent(key) || key != 'c') {
         sleep(0.1);
     }
+
+    trackerExtrinsic = sceneEx;
 }
 
 
@@ -225,12 +239,16 @@ Eigen::Affine3f CalibrateTrackerExtrinsic::registerScenes(
         Cloud::ConstPtr cloud0, Cloud::ConstPtr cloud1)
 {
     /* align clouds */
-    pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+
+    //pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+    pcl::GeneralizedIterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp; 
     icp.setInputCloud(cloud0);
     icp.setInputTarget(cloud1);
 
-    //icp.setMaxCorrespondenceDistance (0.10);
-    icp.setMaximumIterations(10000);
+    //icp.setMaxCorrespondenceDistance (1);
+    //icp.setMaximumIterations(3000);
+    //icp.setTransformationEpsilon(1e-16);
+    //icp.setEuclideanFitnessEpsilon(5);
 
     pcl::PointCloud<pcl::PointXYZ> alignCloud;
     icp.align(alignCloud);
@@ -273,6 +291,8 @@ void CalibrateTrackerExtrinsic::captureScene() {
     while (true) {
         kinfu->spinOnce();
         visualizer.setPlainCloud(kinfu->getLastCloud());
+        visualizer.removeCoordinateSystem("kinfu_pos");
+        visualizer.addCoordinateSystem(kinfu->getLastPose(), "kinfu_pos");
 
         /* handle key events */
         char key;
@@ -283,6 +303,8 @@ void CalibrateTrackerExtrinsic::captureScene() {
         }
 
     } //while
+
+    visualizer.removeCoordinateSystem("kinfu_pos");
 }
 
 
@@ -326,12 +348,20 @@ int main(int argc, char **argv) {
         calibTrackerEx.displayClouds();
     } else {
         calibTrackerEx.captureClouds();
+        calibTrackerEx.displayClouds();
         if (doSave) {
             calibTrackerEx.saveClouds();
         }
     }
 
     calibTrackerEx.registerClouds();
+
+    /* save extrinsic to rigconfig */
+    cv::Mat exRot, exTrans;
+    affine3fToTransRotVec(calibTrackerEx.trackerExtrinsic, exTrans, exRot);
+    rigConfig.trackingCameraExTranslation = exTrans;
+    rigConfig.trackingCameraExRotationVec = exRot;
+    rigConfig.saveToFile(appopt.rigConfigFile);
 
 }
 

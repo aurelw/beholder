@@ -35,6 +35,7 @@ class CalibVisualizer : public BasicVisualizer {
 
         typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
         typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
+        typedef typename pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> ColorHandler;
 
     public:
 
@@ -93,7 +94,10 @@ class CalibVisualizer : public BasicVisualizer {
         bool flagUpdateRegistration = false;
         bool registrationCloudAdded = false;
         void updateRegistration();
+        ColorHandler::Ptr targetColorHandler;
+        ColorHandler::Ptr regColorHandler;
 
 };
 
 #endif
+
