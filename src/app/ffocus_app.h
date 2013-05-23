@@ -18,6 +18,8 @@
 
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/common/transforms.h>
+
 
 #include "cameraparameters.h"
 #include "rig_config.h"
@@ -34,6 +36,7 @@
 #include "focuscontroller_multinearest.h"
 #include "focuscontroller_interpolate.h"
 #include "poicollection.h"
+#include "openni_interface.h"
 
 #include "focustracker_single.h"
 #include "focustracker_multi.h"
@@ -82,6 +85,7 @@ class FFocusApp {
 
         pcl::RangeImagePlanar::Ptr rangeImage_ptr;
         pcl::PointCloud<PointType>::Ptr point_cloud_ptr;
+        pcl::PointCloud<PointType>::Ptr rfCloud;
 
         PointType focusPoint;
         float fPlaneDistance;
@@ -93,6 +97,10 @@ class FFocusApp {
         /* POIs */
         POICollection poiCollection;
         PointOfInterest::Ptr poi;
+
+        /* serparate openni interface */
+        OpenNiInterfacePlain::Ptr openNiInterface;
+        bool doSeparateRangeFinder;
 
 };
 

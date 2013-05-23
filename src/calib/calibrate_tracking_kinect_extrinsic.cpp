@@ -154,7 +154,6 @@ void CalibrateTrackerExtrinsic::captureClouds() {
     Cloud::Ptr rfCloud = kinfu->getFullCloud();
     rfCloud = postProcessScene(rfCloud);
 
-
     /* relative pose for movement */
     Eigen::Affine3f relPose = firstRfPose.inverse() * lastRfPose;
 
@@ -180,7 +179,6 @@ void CalibrateTrackerExtrinsic::captureClouds() {
     targetCloud.reset(new Cloud(*rfCloud));
     regCloud.reset(new Cloud(*trCloud));
     pcl::transformPointCloud(*targetCloud, *targetCloud, lastRfPose.inverse());
-    //pcl::transformPointCloud(*regCloud, *regCloud, relPose);
     pcl::transformPointCloud(*regCloud, *regCloud, firstTrPose.inverse());
 
 }
@@ -225,7 +223,7 @@ void CalibrateTrackerExtrinsic::registerClouds() {
         sleep(0.1);
     }
 
-    trackerExtrinsic = sceneEx;
+    trackerExtrinsic = sceneEx.inverse();
 }
 
 

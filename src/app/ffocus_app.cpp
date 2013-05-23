@@ -32,6 +32,8 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
             doDriveFocus(driveFocus)
 {
 
+    rfCloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+
     /* set the RigConfig */
     rigConfig = rigConf;
 
@@ -44,8 +46,21 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
     cloudProvider = poseTracker->getKinfu();
 
     /* setup RangeFinder */
+    doSeparateRangeFinder = rigConfig->hasTrackingCamera;
     rangeFinder.reset( new RangeFinder<pcl::PointXYZ>(*rigConfig) );
-    rangeFinder->setCloudSource(cloudProvider);
+    if (doSeparateRangeFinder) {
+        printSimpleInfo("[FTrack]", " using separate kinect for tracking.\n");
+        openNiInterface.reset( 
+                new OpenNiInterfacePlain(rigConfig->rangefinderDeviceID) );
+        openNiInterface->init();
+        openNiInterface->waitForFirstFrame();
+        rangeFinder->setCloudSource(openNiInterface);
+    } else {
+        printSimpleInfo("[FTrack]", 
+                " same sensor for tracking and rangefinder.\n");
+        rangeFinder->setCloudSource(poseTracker->getKinfu());
+    }
+    printSimpleInfo("[FTrack]", " rangefinder initialized.\n");
 
     /* setup ViewFinder */
     viewFinder.reset( new ViewFinderRangeImage<pcl::PointXYZ>(0.1) );
@@ -59,6 +74,7 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
     visualizer.setRangeFinderExtrinsic(rangeFinder->getStaticExtrinsic());
 
     /* setup focus tracking */
+    /*
     if (trackerType=="multi") {
         focusTracker = new FocusTrackerMulti();
     } else if (trackerType=="nearest") {
@@ -73,6 +89,7 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
     focusTracker->setPoseTracker(poseTracker);
     focusTracker->setRangeFinder(rangeFinder);
     focusTracker->init();
+    */
 
     /* init the motor interface */
     fmotor.reset(new FocusMotorTwoPolys(*rigConfig));
@@ -93,9 +110,23 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
 
 
 void FFocusApp::pickFocusPoint() {
+    DEBUG_PRINT("pickFocusPoint");
     /* get selected point */
     viewFinder->compute();
     pcl::PointXYZ fp = viewFinder->getMiddlePoint();
+
+    /* viewfinding is done in global coordinate space
+     * so transform to camera space */
+    if (doSeparateRangeFinder) {
+        Eigen::Vector3f fp_v = pointToVec(fp);
+        fp_v = poseTracker->getPose() * fp_v;
+        fp = vecToPoint(fp_v);
+    }
+
+    //FIXME
+    RangeImageWriter writer(
+        viewFinder->getRangeImage());
+    writer.save("pick_focus_ri.png");
 
     /* create a POI */
     poi.reset(new PointOfInterest("poi1"));
@@ -112,6 +143,7 @@ void FFocusApp::pickFocusPoint() {
 
 
 void FFocusApp::updateViewfinder() {
+    DEBUG_PRINT("updateViewfinder");
     viewFinder->compute();
     rangeImage_ptr = viewFinder->getRangeImage();
     visualizer.setViewFinderRangeImage(rangeImage_ptr);
@@ -155,6 +187,22 @@ void FFocusApp::spinOnce() {
     if (visualizer.capStreamFlag || visualizer.capStreamAndCastFlag || visualizer.capCloudFlag) {
         point_cloud_ptr = cloudProvider->getCloudCopy();
         visualizer.setEnvironmentCloud(point_cloud_ptr);
+
+        /* display a separate cloud for the range finder */
+        if (doSeparateRangeFinder) {
+            pcl::PointCloud<pcl::PointXYZ>::ConstPtr tmpCld = 
+                rangeFinder->getLastCloud();
+            rfCloud.reset( new 
+                    pcl::PointCloud<pcl::PointXYZ>(*tmpCld));
+
+            /* transform to camera space */
+            Eigen::Affine3f rfCloudPose =
+                poseTracker->getPose() * rangeFinder->getStaticExtrinsic();
+            pcl::transformPointCloud(*rfCloud, *rfCloud,
+                    rfCloudPose);
+
+            visualizer.setRangeFinderCloud(rfCloud);
+        }
     }
 
     /* viewfinder cloud */

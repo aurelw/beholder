@@ -119,8 +119,8 @@ bool CaptureFocusSamples::init() {
     cv::namedWindow("camera", CV_WINDOW_NORMAL|CV_GUI_EXPANDED);
 
     /* cloud interface */
-    OpenNiInterface::Ptr oniIf(
-            new OpenNiInterface(rigConfig.rangefinderDeviceID));
+    OpenNiInterfaceRGB::Ptr oniIf(
+            new OpenNiInterfaceRGB(rigConfig.rangefinderDeviceID));
     if (!oniIf->init()) {
         pcl::console::print_error("Can't connect to cloud interface!\n");
         return false;

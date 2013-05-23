@@ -26,7 +26,7 @@ OpenNiInterface::~OpenNiInterface() {
 }
 
 
-void OpenNiInterface::cloud_callback(const CloudConstPtr &cld) {
+void OpenNiInterface::cloud_callback(const RGBCloudConstPtr &cld) {
     // assignment to shared pointers is threadsafe
     cloud = cld;
     if (cloud != NULL) {
@@ -46,24 +46,6 @@ void OpenNiInterface::plain_cloud_callback(const PlainCloud::ConstPtr &cld) {
 }
 
 
-OpenNiInterface::CloudConstPtr OpenNiInterface::getLastCloud() {
-    return cloud;
-}
-
-
-OpenNiInterface::CloudPtr OpenNiInterface::getCloudCopy() {
-    CloudPtr ncloud(new Cloud (*getLastCloud()));
-    return ncloud;
-}
-
-
-Eigen::Affine3f OpenNiInterface::getCloudPose() {
-    Eigen::Affine3f mid;
-    mid.setIdentity();
-    return mid;
-}
-
-
 void OpenNiInterface::setupGrabber() {
 
     // modes can be specified
@@ -72,7 +54,7 @@ void OpenNiInterface::setupGrabber() {
 
     try {
         //FIXME deviceId
-        grabber = new pcl::OpenNIGrabber();
+        grabber = new pcl::OpenNIGrabber(deviceId);
     } catch (pcl::IOException &exc) {
         return;
     }
@@ -80,7 +62,7 @@ void OpenNiInterface::setupGrabber() {
     /* callbacks for XYZRGBA or XYZ */
     bool captureRGB = true;
     if (captureRGB) {
-        boost::function <void (const CloudConstPtr&)> cloud_cb = 
+        boost::function <void (const RGBCloudConstPtr&)> cloud_cb = 
             boost::bind (&OpenNiInterface::cloud_callback, this, _1);
         grabber->registerCallback(cloud_cb);
     } else {
@@ -104,6 +86,60 @@ bool OpenNiInterface::init() {
 void OpenNiInterface::waitForFirstFrame() {
     while (!isStreaming) {
         usleep(10);
+    }
+}
+
+
+/////////////////////////////////
+
+
+OpenNiInterfaceRGB::RGBCloudConstPtr OpenNiInterfaceRGB::getLastCloud() {
+    return cloud;
+}
+
+
+OpenNiInterfaceRGB::RGBCloudPtr OpenNiInterfaceRGB::getCloudCopy() {
+    RGBCloudPtr ncloud(new Cloud (*getLastCloud()));
+    return ncloud;
+}
+
+
+Eigen::Affine3f OpenNiInterfaceRGB::getCloudPose() {
+    Eigen::Affine3f mid;
+    mid.setIdentity();
+    return mid;
+}
+
+
+/////////////////////////////////
+
+
+OpenNiInterfacePlain::PlainCloud::ConstPtr 
+OpenNiInterfacePlain::getLastCloud() {
+    return plainCloud;
+}
+
+
+OpenNiInterfacePlain::PlainCloud::Ptr 
+OpenNiInterfacePlain::getCloudCopy() {
+    PlainCloud::Ptr ncloud(new PlainCloud (*getLastCloud()));
+    return ncloud;
+}
+
+
+Eigen::Affine3f OpenNiInterfacePlain::getCloudPose() {
+    Eigen::Affine3f mid;
+    mid.setIdentity();
+    return mid;
+}
+
+
+void OpenNiInterfacePlain::cloud_callback(const RGBCloudConstPtr& cld) {
+    cloud = cld;
+    if (cloud != NULL) {
+        plainCloud = cloudRGBAtoXYZ(cloud);
+        isStreaming = true;
+        update();
     }
 }
 
