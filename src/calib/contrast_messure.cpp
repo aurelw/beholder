@@ -80,7 +80,9 @@ float ContrastMessure::messure(const cv::Mat& img) {
 
         cv::Scalar mean;
         cv::Scalar sigma;
-        cv::meanStdDev(img, mean, sigma);
+        //cv::meanStdDev(img, mean, sigma);
+        //FIXME check why 'img' was used here rather than lapImg
+        cv::meanStdDev(lapImg, mean, sigma);
 
         contrast = 1 - mean[0];
     }
