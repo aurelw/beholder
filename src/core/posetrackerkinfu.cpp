@@ -28,12 +28,16 @@ PoseTrackerKinfu::PoseTrackerKinfu(const RigConfig &rigConfig) :
 
     /* setup from rig config */
     if (rigConfig.hasTrackingCamera) { // load a seperate tracking camera
-        kinectFuId = std::stoi(rigConfig.trackingCameraDeviceID); 
+        //FIXME
+        //kinectFuId = std::stoi(rigConfig.trackingCameraDeviceID); 
+        kinectFuId = 1;
         exTranslation = rigConfig.trackingCameraExTranslation;
         exRotationVec = rigConfig.trackingCameraExRotationVec;
         staticExtrinsic = transRotVecToAffine3f(exTranslation, exRotationVec);
     } else { // use range finder for tracking
-        kinectFuId = std::stoi(rigConfig.rangefinderDeviceID); 
+        //FIXME
+        //kinectFuId = std::stoi(rigConfig.rangefinderDeviceID); 
+        kinectFuId = 0;
         exTranslation = rigConfig.rangefinderExTranslation;
         exRotationVec = rigConfig.rangefinderExRotationVec;
         staticExtrinsic = transRotVecToAffine3f(exTranslation, exRotationVec);

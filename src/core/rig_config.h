@@ -62,6 +62,7 @@ class RigConfig {
         std::string fMotorType;
         std::string fMotorDevice;
         // cooeffitiens of the transfer functions
+        std::string fMotorTransferType;
         float fMotorHa, fMotorHb, fMotorHc, fMotorHd, fMotorHe, fMotorHf, fMotorHg;
         float fMotorLa, fMotorLb, fMotorLc, fMotorLd, fMotorLe, fMotorLf, fMotorLg;
         // additional axis limits (0.0 - 1.0)

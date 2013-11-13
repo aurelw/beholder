@@ -35,6 +35,7 @@ class CalibVisualizer : public BasicVisualizer {
 
         typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
         typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
+        typedef typename pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> ColorHandler;
 
     public:
 
@@ -46,6 +47,15 @@ class CalibVisualizer : public BasicVisualizer {
         /* set draw options */
         void setDrawMarker(bool doDraw);
         void setDrawCorrespondence(bool doDraw, bool arrow=true);
+
+        /* just another plain cloud */
+        void setPlainCloud(PlainCloud::ConstPtr cloud);
+        void setDrawPlainCloud(bool doDraw);
+
+        /* to visualizer global registration */
+        void setRegistration(PlainCloud::ConstPtr cloud0,
+                PlainCloud::ConstPtr cloud1);
+        void setDrawRegistration(bool doDraw);
 
     protected:
 
@@ -70,6 +80,24 @@ class CalibVisualizer : public BasicVisualizer {
         int numCorrespondences;
         bool drawCorrespondenceArrows = true;
 
+        /* plain cloud */
+        PlainCloud::ConstPtr plainCloud;
+        bool drawPlainCloud = false;
+        bool flagUpdatePlainCloud = false;
+        bool plainCloudAdded = false;
+        void updatePlainCloud();
+
+        /* registration */
+        PlainCloud::ConstPtr regCloud0;
+        PlainCloud::ConstPtr regCloud1;
+        bool drawRegistration = false;
+        bool flagUpdateRegistration = false;
+        bool registrationCloudAdded = false;
+        void updateRegistration();
+        ColorHandler::Ptr targetColorHandler;
+        ColorHandler::Ptr regColorHandler;
+
 };
 
 #endif
+

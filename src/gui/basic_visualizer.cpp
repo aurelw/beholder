@@ -43,12 +43,33 @@ void BasicVisualizer::initVisualizer() {
 
 
 void keyboardCallback(const pcl::visualization::KeyboardEvent &event, void* cvis) {
+    BasicVisualizer *vis = (BasicVisualizer*) cvis;
+
+    if (event.keyDown()) {
+        boost::shared_lock<boost::shared_mutex> lock(vis->keyMutex);
+        vis->keyEvents.push_back( event.getKeyCode() );
+    }
 }
+
 
 void BasicVisualizer::registerCallbacks() {
     visualizer->registerKeyboardCallback(keyboardCallback, (void*) this);
 }
 
+
+bool BasicVisualizer::getKeyEvent(char &key) {
+    boost::shared_lock<boost::shared_mutex> lock(keyMutex);
+
+    if (keyEvents.size() == 0) {
+        key = 0;
+        return false;
+    }
+
+    key = keyEvents.front();
+    keyEvents.pop_front();
+    return true;
+}
+    
 
 void BasicVisualizer::spinOnce() {
     /* if there is no visualizer present, create on in this thread */

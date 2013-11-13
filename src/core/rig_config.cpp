@@ -56,6 +56,7 @@ RigConfig::RigConfig() {
     fMotorDevice = "/dev/ttyUSB0";
     fMotorLimitH = 0.0f;
     fMotorLimitL = 0.0f;
+    fMotorTransferType = "exppow";
 
     /* default tracking camera data */
     trackingCameraExTranslation = Mat::zeros(3, 1, CV_32F);
@@ -89,6 +90,7 @@ void RigConfig::saveToFile(std::string fname) {
     saveFocusMotor();
     saveStreaming();
     savePhotoCapture();
+    saveTrackingCamera();
     fs.release();
     printSimpleInfo("[RigConfig] ", "saved to file " + fname + "\n");
 }
@@ -103,6 +105,9 @@ void RigConfig::loadFromFile(std::string fname) {
     loadFocusMotor();
     loadPhotoCapture();
     loadStreaming();
+    if (hasTrackingCamera) {
+        loadTrackingCamera();
+    }
     fs.release();
     printSimpleInfo("[RigConfig] ", "loaded from file " + fname + "\n");
 }
@@ -211,6 +216,8 @@ void RigConfig::saveFocusMotor() {
     fs << "type" << fMotorType;
     fs << "device" << fMotorDevice;
 
+    fs << "transferType" << fMotorTransferType;
+
     fs << "ha" << fMotorHa;
     fs << "hb" << fMotorHb;
     fs << "hc" << fMotorHc;
@@ -239,6 +246,8 @@ void RigConfig::loadFocusMotor() {
 
     node["type"] >> fMotorType;
     node["device"] >> fMotorDevice;
+
+    node["transferType"] >> fMotorTransferType;
 
     node["ha"] >> fMotorHa;
     node["hb"] >> fMotorHb;

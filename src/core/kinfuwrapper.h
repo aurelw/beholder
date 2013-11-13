@@ -60,6 +60,8 @@ class KinfuWrapper : public UpdateSignal, public CloudProvider<pcl::PointXYZ> {
         PointCloudPtr getCloudCopy();
         Eigen::Affine3f getCloudPose();
 
+        PointCloudPtr getFullCloud();
+
     private:
 
         pcl::gpu::KinfuTracker kinfu;

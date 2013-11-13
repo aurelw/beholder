@@ -78,9 +78,13 @@ class FFocusVisualizer {
             vfColorHandler_ptr = NULL;
             envColorHandler_ptr = NULL;
             visualizer.addCoordinateSystem(1.0);
+
+            /* set a default cloud */
+            rfCloud.reset(new PointCloud);
         }
 
         void setEnvironmentCloud(PointCloudPtr cloud);
+        void setRangeFinderCloud(PointCloudPtr cloud);
         void setViewFinderRangeImage(RangeImagePtr ri);
         void setCameraPose(const Eigen::Affine3f& pose);
         void setRangeFinderExtrinsic(const Eigen::Affine3f& pose);
@@ -115,6 +119,7 @@ class FFocusVisualizer {
         pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange>* envColorHandler_ptr;
         
         pcl::PointCloud<pcl::PointXYZ>::Ptr envCloud;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr rfCloud;
         RangeImagePtr vfRangeImg;
 
         Eigen::Affine3f cameraPose, rangeFinderExtrinsic;

@@ -18,8 +18,10 @@
 
 #include "focusmotor_twopolys.h"
 
+#include "console_utils.h"
 #include "motor_factory.h"
 #include "transfer1d1d_constantpoly.h"
+#include "transfer1d1d_exppow.h"
 
 
 FocusMotorTwoPolys::FocusMotorTwoPolys(const RigConfig &rigConfig) {
@@ -31,27 +33,57 @@ FocusMotorTwoPolys::FocusMotorTwoPolys(const RigConfig &rigConfig) {
 
 
 void FocusMotorTwoPolys::createTransferFunctions(const RigConfig &rigConfig) {
-    hTransfer.reset (new Transfer1d1dConstantPoly(
-            rigConfig.fMotorHa, rigConfig.fMotorHb, rigConfig.fMotorHc, 
-            rigConfig.fMotorHd, rigConfig.fMotorHe, rigConfig.fMotorHf, 
-            rigConfig.fMotorHg));
-    lTransfer.reset (new Transfer1d1dConstantPoly(
-            rigConfig.fMotorLa, rigConfig.fMotorLb, rigConfig.fMotorLc, 
-            rigConfig.fMotorLd, rigConfig.fMotorLe, rigConfig.fMotorLf, 
-            rigConfig.fMotorLg));
+    if (rigConfig.fMotorTransferType == "poly") {
+        hTransfer.reset (new Transfer1d1dConstantPoly(
+                rigConfig.fMotorHa, rigConfig.fMotorHb, rigConfig.fMotorHc, 
+                rigConfig.fMotorHd, rigConfig.fMotorHe, rigConfig.fMotorHf, 
+                rigConfig.fMotorHg));
+        lTransfer.reset (new Transfer1d1dConstantPoly(
+                rigConfig.fMotorLa, rigConfig.fMotorLb, rigConfig.fMotorLc, 
+                rigConfig.fMotorLd, rigConfig.fMotorLe, rigConfig.fMotorLf, 
+                rigConfig.fMotorLg));
+    } else if (rigConfig.fMotorTransferType == "exppow") {
+        hTransfer.reset (new Transfer1d1dExpPow(
+                    rigConfig.fMotorHa, rigConfig.fMotorHb, 
+                    rigConfig.fMotorHc, rigConfig.fMotorHd));
+        lTransfer.reset (new Transfer1d1dExpPow(
+                    rigConfig.fMotorLa, rigConfig.fMotorLb, 
+                    rigConfig.fMotorLc, rigConfig.fMotorLd));
+    }
 }
 
 
 void FocusMotorTwoPolys::setDistance(float m) {
     float position;
-    if (m > lastDistance) {
+
+    if (doUpTransfer) {
         position = hTransfer->transfer(m);
     } else {
         position = lTransfer->transfer(m);
     }
-    lastDistance = m;
+
+    if (position < currentLowest) {
+        currentLowest = position;
+    }
+
+    if (position > currentHighest) {
+        currentHighest = position;
+    }
+
+    /* down movement, change to lTransfer */
+    if (doUpTransfer && (currentHighest - position > directionChangeTresh)) {
+        doUpTransfer = false;
+        currentLowest = position;
+        currentHighest = position;
+    /* up movement, change to hTransfer */
+    } else if (!doUpTransfer && 
+            (position - currentLowest > directionChangeTresh))
+    {
+        doUpTransfer = true;
+        currentLowest = position;
+        currentHighest = position;
+    }
 
     motor->setPosition(position);
 }
-
 

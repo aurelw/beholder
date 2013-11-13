@@ -32,7 +32,7 @@
 
 
 void print_usage() {
-    std::cout << "--calibstorage <path> --rigconfig <file> -d <degree>" << std::endl;
+    std::cout << "--calibstorage <path> --rigconfig <file> -d <degree> -k <splineK>" << std::endl;
 }
 
 

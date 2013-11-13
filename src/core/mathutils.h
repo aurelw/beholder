@@ -84,6 +84,10 @@ pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudXYZtoRGBA(
         pcl::PointCloud<pcl::PointXYZ>::ConstPtr inCloud);
 
 
+pcl::PointCloud<pcl::PointXYZ>::Ptr cloudRGBAtoXYZ(
+        pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr inCloud);
+
+
 inline pcl::PointXYZ pointCVtoPCL(const cv::Point3f &p) {
     pcl::PointXYZ np;
     np.x = p.x;

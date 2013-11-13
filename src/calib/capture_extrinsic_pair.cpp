@@ -70,8 +70,8 @@ int main(int argc, char **argv) {
     }
 
     /* cloud interface */
-    OpenNiInterface::Ptr oniIf(
-            new OpenNiInterface(rigConfig.rangefinderDeviceID));
+    OpenNiInterfaceRGB::Ptr oniIf(
+            new OpenNiInterfaceRGB(rigConfig.rangefinderDeviceID));
     bool cloudConnected = oniIf->init();
     if (!cloudConnected) {
         pcl::console::print_error("Can't connect to cloud interface!\n");

@@ -49,3 +49,10 @@ set (calibrate_focus_transfer_files calibrate_focus_transfer.cpp)
 add_executable (calibrate_focus_transfer ${calibrate_focus_transfer_files})
 target_link_libraries (calibrate_focus_transfer core calib)
 
+# fit exp term
+configure_file ("fit_focus_transfer_expterm.py" "${EXECUTABLE_OUTPUT_PATH}/fit_focus_transfer_expterm.py" COPYONLY)
+
+# calibrate seperate tracking kinect extrinsic
+set (calibrate_tracking_kinect_extrinsic_files calibrate_tracking_kinect_extrinsic.cpp)
+add_executable (calibrate_tracking_kinect_extrinsic ${calibrate_tracking_kinect_extrinsic_files})
+target_link_libraries (calibrate_tracking_kinect_extrinsic core calib gui)

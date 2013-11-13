@@ -34,6 +34,9 @@ class BasicVisualizer {
         typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
         typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
 
+        friend void keyboardCallback (
+            const pcl::visualization::KeyboardEvent &event, void* visvoid);
+
     public:
 
         BasicVisualizer();
@@ -54,7 +57,14 @@ class BasicVisualizer {
                 float mRed=1.0, float mGreen=0.0, float mBlue=0.0);
         void removeCoordinateSystem(const std::string &id="default");
 
+        /* key events */
+        bool getKeyEvent(char &key);
+
     protected:
+
+        /* keyboard events */
+        boost::shared_mutex keyMutex;
+        std::list<char> keyEvents;
 
         /* initial setup for a visualizer */
         virtual void initVisualizer();

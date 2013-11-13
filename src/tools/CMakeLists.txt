@@ -35,3 +35,8 @@ set (plot_focus_transfer_files plot_focus_transfer.cpp)
 add_executable (plot_focus_transfer ${plot_focus_transfer_files})
 target_link_libraries (plot_focus_transfer core calib gui)
 
+### Upgrade or generate a rigconfig
+set (upgrade_rigconfig_files upgrade_rigconfig.cpp)
+add_executable (upgrade_rigconfig ${upgrade_rigconfig_files})
+target_link_libraries (upgrade_rigconfig core)
+

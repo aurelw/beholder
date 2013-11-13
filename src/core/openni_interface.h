@@ -34,17 +34,15 @@
 
 
 class OpenNiInterface : 
-    public UpdateSignal, 
-    public CloudProvider<pcl::PointXYZRGBA> 
+    public UpdateSignal
 {
 
     public:
 
         typedef typename pcl::PointCloud<pcl::PointXYZRGBA> RGBCloud;
         typedef typename pcl::PointCloud<pcl::PointXYZ> PlainCloud;
-        typedef typename Cloud::Ptr RGBCloudPtr;
-        typedef typename Cloud::ConstPtr RGBCloudConstPtr;
-
+        typedef typename RGBCloud::Ptr RGBCloudPtr;
+        typedef typename RGBCloud::ConstPtr RGBCloudConstPtr;
 
         typedef typename  boost::shared_ptr<OpenNiInterface> Ptr;
 
@@ -60,16 +58,12 @@ class OpenNiInterface :
         bool init();
         void waitForFirstFrame();
 
-        /* CloudProvider implementation */
-        RGBCloudConstPtr getLastCloud();
-        RGBCloudPtr getCloudCopy();
-        Eigen::Affine3f getCloudPose();
 
-    private:
+    protected:
 
         void setupGrabber();
-        void cloud_callback(const RGBCloudConstPtr& cld);
-        void plain_cloud_callback(const PlainCloud::ConstPtr& cld);
+        virtual void cloud_callback(const RGBCloudConstPtr& cld);
+        virtual void plain_cloud_callback(const PlainCloud::ConstPtr& cld);
 
         pcl::OpenNIGrabber *grabber;
         RGBCloudConstPtr cloud;
@@ -79,5 +73,60 @@ class OpenNiInterface :
         std::string deviceId;
 };
 
-#endif
 
+
+
+class OpenNiInterfaceRGB : 
+    public OpenNiInterface, 
+    public CloudProvider<pcl::PointXYZRGBA>
+{
+
+public:
+
+    typedef typename  boost::shared_ptr<OpenNiInterfaceRGB> Ptr;
+
+public:
+
+    OpenNiInterfaceRGB(std::string device) :
+        OpenNiInterface(device)
+    {
+    }
+
+    /* CloudProvider implementation */
+    RGBCloudConstPtr getLastCloud();
+    RGBCloudPtr getCloudCopy();
+    Eigen::Affine3f getCloudPose();
+
+};
+
+
+
+
+class OpenNiInterfacePlain : 
+    public OpenNiInterface, 
+    public CloudProvider<pcl::PointXYZ>
+{
+
+public :
+
+    typedef typename  boost::shared_ptr<OpenNiInterfacePlain> Ptr;
+
+public:
+
+    OpenNiInterfacePlain(std::string device) :
+        OpenNiInterface(device)
+    {
+    }
+
+    PlainCloud::ConstPtr plainCloud;
+    virtual void cloud_callback(const RGBCloudConstPtr& cld) override;
+
+    /* CloudProvider implementation */
+    PlainCloud::ConstPtr getLastCloud();
+    PlainCloud::Ptr getCloudCopy();
+    Eigen::Affine3f getCloudPose();
+        
+};
+
+
+#endif

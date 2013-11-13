@@ -34,6 +34,12 @@ void FFocusVisualizer::setEnvironmentCloud(PointCloudPtr cloud) {
 }
 
 
+void FFocusVisualizer::setRangeFinderCloud(PointCloudPtr cloud) {
+    rfCloud = cloud;
+    toggleUpdate = true;
+}
+
+
 void FFocusVisualizer::setViewFinderRangeImage(RangeImagePtr ri) {
     vfRangeImg = ri;
     if (vfColorHandler_ptr == NULL) {
@@ -178,6 +184,9 @@ void FFocusVisualizer::update() {
         case ENV_CLOUD:
             if (!visualizer.updatePointCloud(envCloud, "envCloud")) {
                 visualizer.addPointCloud(envCloud, "envCloud");
+            }
+            if (!visualizer.updatePointCloud(rfCloud, "rfCloud")) {
+                visualizer.addPointCloud(rfCloud, "rfCloud");
             }
             visualizer.removePointCloud("dslrCloud");
             break;
