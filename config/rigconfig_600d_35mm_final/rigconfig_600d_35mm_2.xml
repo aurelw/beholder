@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<capabilities>
+  <hasRangeFinder>1</hasRangeFinder>
+  <hasMotor>1</hasMotor>
+  <hasButtonInterface>1</hasButtonInterface>
+  <hasTrackingCamera>1</hasTrackingCamera>
+  <hasStereo>0</hasStereo>
+  <hasIMU>0</hasIMU>
+  <hasStreaming>1</hasStreaming>
+  <hasPhotoCapture>1</hasPhotoCapture></capabilities>
+<metaData>
+  <name>DefaultRig</name>
+  <configDate>today</configDate>
+  <configVersion>1</configVersion></metaData>
+<rangeFinder>
+  <exTanslation type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      1.04983831e-02 5.86400777e-02 6.50334731e-02</data></exTanslation>
+  <exRotationVec type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      8.69820267e-03 6.73997728e-03 1.08057540e-02</data></exRotationVec>
+  <deviceID>"A00362903314043A"</deviceID></rangeFinder>
+<camera>
+  <imageWidth>1920</imageWidth>
+  <imageHeight>1280</imageHeight>
+  <cameraMatrix type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>3</cols>
+    <dt>f</dt>
+    <data>
+      3.06496851e+03 0. 9.59500000e+02 0. 3.06475732e+03 6.39500000e+02
+      0. 0. 1.</data></cameraMatrix>
+  <distortionCoefficients type_id="opencv-matrix">
+    <rows>1</rows>
+    <cols>5</cols>
+    <dt>f</dt>
+    <data>
+      -1.09051406e-01 2.63475537e-01 3.90376481e-05 -8.38358130e-04
+      -6.05831623e-01</data></distortionCoefficients></camera>
+<focusMotor>
+  <type>ByteServo</type>
+  <device>/dev/ttyUSB0</device>
+  <transferType>exppow</transferType>
+  <ha>1.8944003906250000e+03</ha>
+  <hb>7.7743396104779094e-05</hb>
+  <hc>-1.1686781644821167e+00</hc>
+  <hd>-1.8934295654296875e+03</hd>
+  <he>0.</he>
+  <hf>0.</hf>
+  <hg>0.</hg>
+  <la>2.1448479003906250e+03</la>
+  <lb>6.9460707891266793e-05</lb>
+  <lc>-1.1543786525726318e+00</lc>
+  <ld>-2.1438818359375000e+03</ld>
+  <le>0.</le>
+  <lf>0.</lf>
+  <lg>0.</lg>
+  <limitH>1.</limitH>
+  <limitL>0.</limitL></focusMotor>
+<streaming>
+  <type>v4l</type>
+  <device>"0"</device>
+  <doCrop>1</doCrop>
+  <cropX>2.0000000298023224e-01</cropX>
+  <cropY>2.0000000298023224e-01</cropY>
+  <cropXX>6.0000002384185791e-01</cropXX>
+  <cropYY>6.0000002384185791e-01</cropYY>
+  <width>720</width>
+  <height>576</height></streaming>
+<photoCapture>
+  <type>gphoto</type>
+  <port>usb</port>
+  <mockupDir>/tmp/camerainterface_mockup_files/</mockupDir></photoCapture>
+<trackingCamera>
+  <exTanslation type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      -9.47585180e-02 -9.15489718e-03 -1.23101257e-01</data></exTanslation>
+  <exRotationVec type_id="opencv-matrix">
+    <rows>3</rows>
+    <cols>1</cols>
+    <dt>f</dt>
+    <data>
+      1.49101388e+00 5.13521209e-02 -3.13838348e-02</data></exRotationVec>
+  <deviceID>"A00362902100043A"</deviceID></trackingCamera>
+</opencv_storage>

@@ -1,0 +1,33 @@
+Mon Mar 11 14:26:35 CET 2013
+
+Another attempt, after adding additional support under the camera bracket.
+
+=== Intrinsic ===
+Camera Settings:
+    @1.5m focus distance
+    f22
+
+Sample Images:
+    Original size: 5184/3456
+    Scaled down: 1920/1280
+    mogrify -scale 1920 *.jpg
+
+Board:
+    13x9 pattern
+    0.032 square size
+=================
+
+=== Extrinsic ===
+
+    Board:
+        0.373 m
+        0.280 m
+
+    Pattern:
+        Chessboard
+        13x9
+        0.0235 square size
+
+./find_marker_pair --calibstorage /home/aurel/rig_600d_35mm_1/ --rigconfig /home/aurel/rig_600d_35mm_1/rigconfig_600d_35mm_1.xml -bw 0.373 -bh 0.28 -pw 13 -ph 9 -ps 0.0235
+
+=================
