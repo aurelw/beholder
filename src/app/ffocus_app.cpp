@@ -96,8 +96,8 @@ FFocusApp::FFocusApp(RigConfig::Ptr rigConf, std::string trackerType,
 
     /* setup a focus controller */
     FocusControllerSinglePoint::Ptr fctrl(
-            //new FocusControllerInterpolate(camParameters, poseTracker));
-            new FocusControllerMultiNearest(camParameters, poseTracker));
+            new FocusControllerInterpolate(camParameters, poseTracker));
+            //new FocusControllerMultiNearest(camParameters, poseTracker));
     fctrl->setPriority(5);
     fctrl->setIdentifier("SinglePoint");
     fctrl->start();
@@ -119,7 +119,7 @@ void FFocusApp::pickFocusPoint() {
      * so transform to camera space */
     if (doSeparateRangeFinder) {
         Eigen::Vector3f fp_v = pointToVec(fp);
-        fp_v = poseTracker->getPose() * fp_v;
+        fp_v = poseTracker->getPose() * rangeFinder->getStaticExtrinsic() * fp_v;
         fp = vecToPoint(fp_v);
     }
 
